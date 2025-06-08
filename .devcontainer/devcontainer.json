@@ -4,6 +4,11 @@
     "dockerfile": "../container/ubuntu24-cuda12/Dockerfile",
     "context": ".."
   },
+  "hostRequirements": {
+    "cpus": 8,
+    "memory": "32gb",
+    "storage": "64gb"
+  },
   "customizations": {
     "vscode": {
       "extensions": [
