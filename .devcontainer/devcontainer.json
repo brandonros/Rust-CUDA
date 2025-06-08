@@ -1,0 +1,23 @@
+{
+  "name": "Rust CUDA Development",
+  "build": {
+    "dockerfile": "../container/ubuntu24-cuda12/Dockerfile"
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "rust-lang.rust-analyzer",
+        "ms-vscode.cpptools",
+        "ms-vscode.cmake-tools",
+        "nvidia.nsight-vscode-edition"
+      ],
+      "settings": {
+        "rust-analyzer.cargo.features": "all",
+        "rust-analyzer.checkOnSave.command": "clippy"
+      }
+    }
+  },
+  "forwardPorts": [],
+  "postCreateCommand": "rustc --version && nvcc --version",
+  "remoteUser": "root"
+}
