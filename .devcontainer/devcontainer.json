@@ -1,7 +1,8 @@
 {
   "name": "Rust CUDA Development",
   "build": {
-    "dockerfile": "../container/ubuntu24-cuda12/Dockerfile"
+    "dockerfile": "../container/ubuntu24-cuda12/Dockerfile",
+    "context": ".."
   },
   "customizations": {
     "vscode": {
