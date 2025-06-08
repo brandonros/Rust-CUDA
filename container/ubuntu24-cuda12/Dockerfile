@@ -4,6 +4,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -qq -y install \
     build-essential \
     clang \
     curl \
+    git \
     libssl-dev \
     libtinfo-dev \
     pkg-config \
