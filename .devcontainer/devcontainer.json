@@ -1,8 +1,7 @@
 {
   "name": "Rust CUDA Development",
   "build": {
-    "dockerfile": "../container/ubuntu24-cuda12/Dockerfile",
-    "context": ".."
+    "dockerfile": "Dockerfile"
   },
   "hostRequirements": {
     "cpus": 8,

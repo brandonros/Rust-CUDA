@@ -2,4 +2,3 @@ book
 /target
 Cargo.lock
 **/.vscode
-.devcontainer
