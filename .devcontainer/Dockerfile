@@ -50,11 +50,11 @@ ENV RUST_LOG=info
 
 # install git + llvm-19
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -qq -y install \
-    git && \
-    gdb && \
-    llvm-19 && \
-    psmisc && \
-    libzstd-dev && \
+    git \
+    gdb \
+    llvm-19 \
+    psmisc \
+    libzstd-dev \
     libpolly-19-dev && \
     rm -rf /var/lib/apt/lists/*
 
