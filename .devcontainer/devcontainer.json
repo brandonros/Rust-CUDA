@@ -8,6 +8,11 @@
     "memory": "32gb",
     "storage": "64gb"
   },
+  "features": {
+      "ghcr.io/devcontainers/features/sshd:1": {
+        "version": "latest"
+      }
+  },
   "customizations": {
     "vscode": {
       "extensions": [
