@@ -30,7 +30,8 @@
         "rust-lang.rust-analyzer",
         "ms-vscode.cpptools",
         "ms-vscode.cmake-tools",
-        "nvidia.nsight-vscode-edition"
+        "nvidia.nsight-vscode-edition",
+        "vadimcn.vscode-lldb"
       ],
       "settings": {
         "rust-analyzer.cargo.features": "all",
