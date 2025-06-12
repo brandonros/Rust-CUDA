@@ -1022,6 +1022,56 @@ extern "C" LLVMMetadataRef LLVMRustDIBuilderCreateFunction(
     LLVMMetadataRef File, unsigned LineNo, LLVMMetadataRef Ty,
     unsigned ScopeLine, LLVMDIFlags Flags, LLVMRustDISPFlags SPFlags,
     LLVMValueRef MaybeFn, LLVMMetadataRef TParam, LLVMMetadataRef Decl) {
+
+  fprintf(stderr, "=== LLVMRustDIBuilderCreateFunction Debug ===\n");
+  fprintf(stderr, "Builder: %p\n", Builder);
+  fprintf(stderr, "Scope: %p\n", Scope);
+  fprintf(stderr, "Name: %s (ptr: %p)\n", Name ? Name : "(null)", Name);
+  fprintf(stderr, "LinkageName: %s (ptr: %p)\n", LinkageName ? LinkageName : "(null)", LinkageName);
+  fprintf(stderr, "File: %p\n", File);
+  fprintf(stderr, "LineNo: %u\n", LineNo);
+  fprintf(stderr, "Ty: %p\n", Ty);
+  fprintf(stderr, "ScopeLine: %u\n", ScopeLine);
+  fprintf(stderr, "Flags: %u\n", Flags);
+  fprintf(stderr, "SPFlags: %u\n", SPFlags);
+  fprintf(stderr, "MaybeFn: %p\n", MaybeFn);
+  fprintf(stderr, "TParam: %p\n", TParam);
+  fprintf(stderr, "Decl: %p\n", Decl);
+
+  if (Ty) {
+      fprintf(stderr, "Ty is not null, attempting to unwrap...\n");
+      auto metadata = llvm::unwrap<llvm::Metadata>(Ty);
+      fprintf(stderr, "Metadata unwrapped: %p\n", metadata);
+      
+      if (metadata) {
+          fprintf(stderr, "Getting metadata ID...\n");
+          auto id = metadata->getMetadataID();
+          fprintf(stderr, "Metadata ID: %u\n", id);
+          
+          fprintf(stderr, "Checking if DISubroutineType...\n");
+          bool is_subroutine = llvm::isa<llvm::DISubroutineType>(metadata);
+          fprintf(stderr, "Is DISubroutineType: %s\n", is_subroutine ? "true" : "false");
+          
+          if (!is_subroutine) {
+              fprintf(stderr, "ERROR: Ty is not a DISubroutineType!\n");
+              // Let's see what type it actually is
+              if (llvm::isa<llvm::DIType>(metadata)) {
+                  fprintf(stderr, "Ty is a DIType but not DISubroutineType\n");
+              }
+              if (llvm::isa<llvm::MDNode>(metadata)) {
+                  fprintf(stderr, "Ty is an MDNode\n");
+              }
+          }
+      } else {
+          fprintf(stderr, "ERROR: metadata is null after unwrap!\n");
+      }
+  } else {
+      fprintf(stderr, "ERROR: Ty is null!\n");
+  }
+  
+  fprintf(stderr, "About to call unwrapDIPtr<llvm::DISubroutineType>...\n");
+  fflush(stderr);
+
   DITemplateParameterArray TParams =
       DITemplateParameterArray(unwrap<MDTuple>(TParam));
   DISubprogram::DISPFlags llvmSPFlags = fromRust(SPFlags);

@@ -574,6 +574,29 @@ pub mod debuginfo {
         }
     }
 
+    bitflags! {
+        /// These values **must** match debuginfo::DISPFlags! They also *happen*
+        /// to match LLVM, but that isn't required as we do giant sets of
+        /// matching below. The value shouldn't be directly passed to LLVM.
+        ///
+        /// Each value declared here must also be covered by the static
+        /// assertions in `RustWrapper.cpp` used by `fromRust(LLVMRustDISPFlags)`.
+        #[repr(C)]
+        #[derive(Clone, Copy, Default)]
+        pub struct LLVMRustDISPFlags: u32 {
+            const SPFlagZero = 0;
+            const SPFlagVirtual = 1;
+            const SPFlagPureVirtual = 2;
+            const SPFlagLocalToUnit = (1 << 2);
+            const SPFlagDefinition = (1 << 3);
+            const SPFlagOptimized = (1 << 4);
+            const SPFlagMainSubprogram = (1 << 5);
+            // Do not add values that are not supported by the minimum LLVM
+            // version we support! see llvm/include/llvm/IR/DebugInfoFlags.def
+            // (In LLVM < 8, createFunction supported these as separate bool arguments.)
+        }
+    }
+
     /// LLVMRustDebugEmissionKind
     #[derive(Copy, Clone)]
     #[repr(C)]
@@ -788,19 +811,20 @@ unsafe extern "C" {
         ParameterTypes: &'a DIArray,
     ) -> &'a DICompositeType;
 
+    // TODO: updated
     pub(crate) fn LLVMRustDIBuilderCreateFunction<'a>(
         Builder: &DIBuilder<'a>,
         Scope: &'a DIDescriptor,
         Name: *const c_char,
+        NameLen: size_t,              // Add this
         LinkageName: *const c_char,
+        LinkageNameLen: size_t,       // Add this  
         File: &'a DIFile,
         LineNo: c_uint,
         Ty: &'a DIType,
-        isLocalToUnit: bool,
-        isDefinition: bool,
         ScopeLine: c_uint,
         Flags: DIFlags,
-        isOptimized: bool,
+        SPFlags: LLVMRustDISPFlags,   // Add this
         MaybeFn: Option<&'a Value>,
         TParam: &'a DIArray,
         Decl: Option<&'a DIDescriptor>,

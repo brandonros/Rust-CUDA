@@ -30,7 +30,11 @@ use crate::common::AsCCharPtr;
 use crate::context::CodegenCx;
 use crate::debug_info::util::{create_DIArray, is_node_local_to_unit};
 use crate::llvm;
-use crate::llvm::{Context, Module, DIArray, DIBuilder, DIFile, DIFlags, DILocation, DIScope, DIType, DIVariable, Value};
+use crate::llvm::LLVMRustDISPFlags;
+use crate::llvm::{
+    Context, DIArray, DIBuilder, DIFile, DIFlags, DILocation, DIScope, DIType, DIVariable, Module,
+    Value,
+};
 
 use self::namespace::*;
 use self::util::DIB;
@@ -273,8 +277,10 @@ impl<'ll, 'tcx> DebugInfoCodegenMethods<'tcx> for CodegenCx<'ll, 'tcx> {
 
         let function_type_metadata = unsafe {
             let fn_signature = get_function_signature(self, fn_abi);
+            eprintln!("DEBUG: fn_signature = {:p}", fn_signature);
             llvm::LLVMRustDIBuilderCreateSubroutineType(DIB(self), fn_signature)
         };
+        eprintln!("DEBUG: function_type_metadata = {:p}", function_type_metadata);
 
         let mut name = String::new();
         type_names::push_item_name(tcx, def_id, false, &mut name);
@@ -295,6 +301,8 @@ impl<'ll, 'tcx> DebugInfoCodegenMethods<'tcx> for CodegenCx<'ll, 'tcx> {
         } else {
             linkage_name
         };
+        let name_len = name.len();
+        let linkage_name_len = linkage_name.len();
         let name = CString::new(name).unwrap();
         let linkage_name = CString::new(linkage_name).unwrap();
 
@@ -306,24 +314,39 @@ impl<'ll, 'tcx> DebugInfoCodegenMethods<'tcx> for CodegenCx<'ll, 'tcx> {
             flags |= DIFlags::FlagNoReturn;
         }
 
+        let is_local_to_unit = is_node_local_to_unit(self, def_id);
+        let is_definition = true;  // <- This was hardcoded as `true` in your call
+        let is_optimized = self.sess().opts.optimize != config::OptLevel::No;  // <- This was the boolean expression
+
+        let mut sp_flags = LLVMRustDISPFlags::SPFlagZero;
+        if is_local_to_unit {
+            sp_flags |= LLVMRustDISPFlags::SPFlagLocalToUnit;
+        }
+        if is_definition {
+            sp_flags |= LLVMRustDISPFlags::SPFlagDefinition;
+        }
+        if is_optimized {
+            sp_flags |= LLVMRustDISPFlags::SPFlagOptimized;
+        }
+
         unsafe {
             return llvm::LLVMRustDIBuilderCreateFunction(
                 DIB(self),
                 containing_scope.0,
                 name.as_ptr(),
+                name_len,
                 linkage_name.as_ptr(),
+                linkage_name_len,
                 file_metadata,
                 loc.line,
                 function_type_metadata,
-                is_node_local_to_unit(self, def_id),
-                true,
                 scope_line,
                 flags,
-                self.sess().opts.optimize != config::OptLevel::No,
+                sp_flags,
                 maybe_definition_llfn,
                 template_parameters,
                 None,
-            );
+            );            
         }
 
         fn get_function_signature<'ll, 'tcx>(
