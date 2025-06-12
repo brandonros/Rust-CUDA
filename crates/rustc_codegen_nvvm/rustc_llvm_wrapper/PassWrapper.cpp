@@ -54,6 +54,11 @@
 #include "llvm/Support/PGOOptions.h"
 #endif
 
+// version check
+#if LLVM_VERSION_MAJOR != 19
+#error "This code requires LLVM major version 19"
+#endif
+
 using namespace llvm;
 
 static codegen::RegisterCodeGenFlags CGF;

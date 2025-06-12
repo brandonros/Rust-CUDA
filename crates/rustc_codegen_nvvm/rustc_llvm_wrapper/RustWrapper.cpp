@@ -44,6 +44,11 @@
 #include <unistd.h>
 #endif
 
+// version check
+#if LLVM_VERSION_MAJOR != 19
+#error "This code requires LLVM major version 19"
+#endif
+
 //===----------------------------------------------------------------------===
 //
 // This file defines alternate interfaces to core functions that are more
