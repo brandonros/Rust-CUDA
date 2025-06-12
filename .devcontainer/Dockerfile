@@ -52,6 +52,7 @@ ENV RUST_LOG=info
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -qq -y install \
     git \
     gdb \
+    lldb \
     llvm-19 \
     psmisc \
     libzstd-dev \
