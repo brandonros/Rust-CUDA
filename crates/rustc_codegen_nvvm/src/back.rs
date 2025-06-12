@@ -348,10 +348,20 @@ pub fn compile_codegen_unit(tcx: TyCtxt<'_>, cgu_name: Symbol) -> (ModuleCodegen
     (module, 0)
 }
 
+pub(crate) unsafe fn optimize(
+    _cgcx: &CodegenContext<NvvmCodegenBackend>,
+    _diag_handler: DiagCtxtHandle<'_>,
+    _module: &ModuleCodegen<LlvmMod>,
+    _config: &ModuleConfig,
+) -> Result<(), FatalError> {
+    // TODO: implement this
+    Ok(())
+}
+
 // TODO: We use rustc's optimization approach from when it used llvm 7, because many things
 // are incompatible with llvm 7 nowadays. Although we should probably consult a rustc dev on whether
 // any big things were discovered in that timespan that we should modify.
-pub(crate) unsafe fn optimize(
+/*pub(crate) unsafe fn optimize(
     cgcx: &CodegenContext<NvvmCodegenBackend>,
     diag_handler: DiagCtxtHandle<'_>,
     module: &ModuleCodegen<LlvmMod>,
@@ -509,7 +519,7 @@ pub(crate) unsafe fn optimize(
 
     eprintln!("DEBUG: optimize function completed successfully");
     Ok(())
-}
+}*/
 
 // TODO: remove this dead code?
 /*unsafe fn with_llvm_pmb(
