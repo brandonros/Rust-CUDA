@@ -938,6 +938,7 @@ unsafe extern "C" {
         Tag: c_uint,
         Scope: &'a DIDescriptor,
         Name: *const c_char,
+        NameLen: usize,
         File: &'a DIFile,
         LineNo: c_uint,
         Ty: &'a DIType,
@@ -1069,11 +1070,13 @@ unsafe extern "C" {
     );
 
     pub(crate) fn LLVMRustDIBuilderCreateDebugLocation<'a>(
+        Context: &'a Context,
         Line: c_uint,
         Column: c_uint,
         Scope: &'a DIScope,
         InlinedAt: Option<&'a Metadata>,
     ) -> &'a DILocation;
+
     pub(crate) fn LLVMRustDILocationCloneWithBaseDiscriminator<'a>(
         Location: &'a DILocation,
         BD: c_uint,

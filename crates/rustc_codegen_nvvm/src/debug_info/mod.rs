@@ -481,7 +481,15 @@ impl<'ll, 'tcx> DebugInfoCodegenMethods<'tcx> for CodegenCx<'ll, 'tcx> {
     ) -> Self::DILocation {
         let DebugLoc { line, col, .. } = self.lookup_debug_loc(span.lo());
 
-        unsafe { llvm::LLVMRustDIBuilderCreateDebugLocation(line, col, scope, inlined_at) }
+        unsafe { 
+            llvm::LLVMRustDIBuilderCreateDebugLocation(
+                self.llcx,
+                line,
+                col,
+                scope,
+                inlined_at,
+            )
+        }
     }
 
     fn create_vtable_debuginfo(
@@ -524,6 +532,7 @@ impl<'ll, 'tcx> DebugInfoCodegenMethods<'tcx> for CodegenCx<'ll, 'tcx> {
         };
         let align = self.align_of(variable_type);
 
+        let name_len = variable_name.as_str().len();
         let name = CString::new(variable_name.as_str()).unwrap();
         unsafe {
             llvm::LLVMRustDIBuilderCreateVariable(
@@ -531,6 +540,7 @@ impl<'ll, 'tcx> DebugInfoCodegenMethods<'tcx> for CodegenCx<'ll, 'tcx> {
                 dwarf_tag,
                 scope_metadata,
                 name.as_ptr().cast(),
+                name_len,
                 file_metadata,
                 loc.line,
                 type_metadata,
