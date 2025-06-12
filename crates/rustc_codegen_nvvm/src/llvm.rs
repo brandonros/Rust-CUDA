@@ -754,7 +754,11 @@ unsafe extern "C" {
     pub(crate) fn LLVMDisposeMemoryBuffer<'a>(MemBuf: &'a mut MemoryBuffer);
 
     pub(crate) fn LLVMGetCurrentDebugLocation<'a>(Builder: &Builder<'a>) -> Option<&'a Value>;
-    pub(crate) fn LLVMSetCurrentDebugLocation<'a>(Builder: &Builder<'a>, L: Option<&'a Value>);
+    //pub(crate) fn LLVMSetCurrentDebugLocation<'a>(Builder: &Builder<'a>, L: Option<&'a Value>);
+    pub(crate) fn LLVMSetCurrentDebugLocation2<'a>(
+        Builder: &Builder<'a>,
+        Loc: Option<&'a Metadata>,
+    );
 
     pub(crate) fn LLVMGetModuleContext(M: &Module) -> &Context;
     pub(crate) fn LLVMGetMDKindIDInContext(
@@ -853,6 +857,7 @@ unsafe extern "C" {
         PointeeTy: &'a DIType,
         SizeInBits: u64,
         AlignInBits: u32,
+        AddressSpace: c_uint,
         Name: *const c_char,
         NameLen: size_t,
     ) -> &'a DIDerivedType;
@@ -2021,4 +2026,6 @@ unsafe extern "C" {
     pub(crate) fn LLVMDumpModule(
         M: &Module,
     );
+
+    pub(crate) fn LLVMRustSetOldDebugFormat(M: &Module);
 }

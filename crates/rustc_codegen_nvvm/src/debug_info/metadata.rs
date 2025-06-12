@@ -180,6 +180,7 @@ fn build_pointer_or_reference_di_node<'ll, 'tcx>(
                     pointee_type_di_node,
                     data_layout.pointer_size.bits(),
                     data_layout.pointer_align.abi.bits() as u32,
+                    0, // TODO: guessing
                     CString::new(ptr_type_debuginfo_name).unwrap().as_ptr(),
                     ptr_type_debuginfo_name_len,
                 )
@@ -240,7 +241,7 @@ fn build_pointer_or_reference_di_node<'ll, 'tcx>(
                             pointee_type_di_node,
                             addr_field.size.bits(),
                             addr_field.align.abi.bits() as u32,
-                            // 0, // Ignore DWARF address space.
+                            0, // TODO: guessing
                             c"".as_ptr(),
                             0,
                         )
@@ -351,6 +352,7 @@ fn build_subroutine_type_di_node<'ll, 'tcx>(
             fn_di_node,
             size,
             align,
+            0, // TODO: guessing
             CString::new(name).unwrap().as_ptr(),
             name_len,
         )

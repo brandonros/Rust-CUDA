@@ -78,6 +78,8 @@ impl<'a> CodegenUnitDebugContext<'a, '_> {
         let builder = unsafe { llvm::LLVMRustDIBuilderCreate(llmod) };
         // DIBuilder inherits context from the module, so we'd better use the same one
         let llcontext = unsafe { llvm::LLVMGetModuleContext(llmod) };
+        // TODO: remove this legacy old thing
+        unsafe { llvm::LLVMRustSetOldDebugFormat(llmod) };
         CodegenUnitDebugContext {
             llcontext,
             llmod,
@@ -159,8 +161,7 @@ impl<'ll> DebugInfoBuilderMethods for Builder<'_, 'll, '_> {
 
     fn set_dbg_loc(&mut self, dbg_loc: &'ll DILocation) {
         unsafe {
-            let dbg_loc_as_llval = llvm::LLVMRustMetadataAsValue(self.cx().llcx, dbg_loc);
-            llvm::LLVMSetCurrentDebugLocation(self.llbuilder, Some(dbg_loc_as_llval));
+            llvm::LLVMSetCurrentDebugLocation2(self.llbuilder, Some(dbg_loc));
         }
     }
 
@@ -192,7 +193,7 @@ impl<'ll> DebugInfoBuilderMethods for Builder<'_, 'll, '_> {
 
     fn clear_dbg_loc(&mut self) {
         unsafe {
-            llvm::LLVMSetCurrentDebugLocation(self.llbuilder, None);
+            llvm::LLVMSetCurrentDebugLocation2(self.llbuilder, None);
         }
     }
 

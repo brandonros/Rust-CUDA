@@ -166,6 +166,11 @@ extern "C" void LLVMRustPrintStatistics(RustStringRef OutBuf) {
   llvm::PrintStatistics(OS);
 }
 
+// TODO: non-standard
+extern "C" void LLVMRustSetOldDebugFormat(LLVMModuleRef M) {
+    unwrap(M)->setIsNewDbgInfoFormat(false);
+}
+
 extern "C" LLVMValueRef LLVMRustGetNamedValue(LLVMModuleRef M, const char *Name,
                                               size_t NameLen) {
   return wrap(unwrap(M)->getNamedValue(StringRef(Name, NameLen)));
@@ -2594,9 +2599,33 @@ extern "C" LLVMValueRef LLVMRustBuildCall(LLVMBuilderRef B, LLVMTypeRef Ty,
 }
 
 // TODO: non-standard
-extern "C" LLVMValueRef LLVMRustMetadataAsValue(LLVMContextRef C, LLVMMetadataRef MD)
-{
-  return wrap(MetadataAsValue::get(*unwrap(C), unwrap(MD)));
+extern "C" LLVMValueRef LLVMRustMetadataAsValue(LLVMContextRef C, LLVMMetadataRef MD) {
+    fprintf(stderr, "=== LLVMRustMetadataAsValue Debug ===\n");
+    fprintf(stderr, "Context: %p\n", C);
+    fprintf(stderr, "Metadata: %p\n", MD);
+    
+    if (C) {
+        fprintf(stderr, "Context unwrapped: %p\n", unwrap(C));
+    } else {
+        fprintf(stderr, "ERROR: Context is null!\n");
+    }
+    
+    if (MD) {
+        fprintf(stderr, "Metadata unwrapped: %p\n", unwrap(MD));
+        // Check if metadata is valid
+        auto metadata = unwrap(MD);
+        if (metadata) {
+            fprintf(stderr, "Metadata ID: %u\n", metadata->getMetadataID());
+        } else {
+            fprintf(stderr, "ERROR: Metadata unwrap returned null!\n");
+        }
+    } else {
+        fprintf(stderr, "ERROR: Metadata is null!\n");
+    }
+    
+    fflush(stderr);
+    
+    return wrap(MetadataAsValue::get(*unwrap(C), unwrap(MD)));
 }
 
 // TODO: non-standard
