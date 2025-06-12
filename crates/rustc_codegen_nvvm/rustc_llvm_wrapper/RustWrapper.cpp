@@ -1038,7 +1038,7 @@ extern "C" LLVMMetadataRef LLVMRustDIBuilderCreateFunction(
   fprintf(stderr, "Ty: %p\n", Ty);
   fprintf(stderr, "ScopeLine: %u\n", ScopeLine);
   fprintf(stderr, "Flags: %u\n", Flags);
-  fprintf(stderr, "SPFlags: %u\n", SPFlags);
+  fprintf(stderr, "SPFlags: %u\n", (unsigned int)SPFlags);
   fprintf(stderr, "MaybeFn: %p\n", MaybeFn);
   fprintf(stderr, "TParam: %p\n", TParam);
   fprintf(stderr, "Decl: %p\n", Decl);

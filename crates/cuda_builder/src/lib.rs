@@ -158,7 +158,7 @@ impl CudaBuilder {
     pub fn new(path_to_crate_root: impl AsRef<Path>) -> Self {
         Self {
             path_to_crate: path_to_crate_root.as_ref().to_owned(),
-            release: false, // TODO: put back
+            release: true, // TODO: try false?
             ptx_file_copy_path: None,
             generate_line_info: true,
             nvvm_opts: true,
