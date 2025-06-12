@@ -172,6 +172,8 @@ fn build_pointer_or_reference_di_node<'ll, 'tcx>(
                 "ptr_type={ptr_type}, pointee_type={pointee_type}",
             );
 
+            let ptr_type_debuginfo_name_len = ptr_type_debuginfo_name.len();
+
             let di_node = unsafe {
                 llvm::LLVMRustDIBuilderCreatePointerType(
                     DIB(cx),
@@ -179,6 +181,7 @@ fn build_pointer_or_reference_di_node<'ll, 'tcx>(
                     data_layout.pointer_size.bits(),
                     data_layout.pointer_align.abi.bits() as u32,
                     CString::new(ptr_type_debuginfo_name).unwrap().as_ptr(),
+                    ptr_type_debuginfo_name_len,
                 )
             };
 
@@ -239,6 +242,7 @@ fn build_pointer_or_reference_di_node<'ll, 'tcx>(
                             addr_field.align.abi.bits() as u32,
                             // 0, // Ignore DWARF address space.
                             c"".as_ptr(),
+                            0,
                         )
                     };
 
@@ -340,6 +344,7 @@ fn build_subroutine_type_di_node<'ll, 'tcx>(
         ),
         _ => unreachable!(),
     };
+    let name_len = name.len();
     let di_node = unsafe {
         llvm::LLVMRustDIBuilderCreatePointerType(
             DIB(cx),
@@ -347,6 +352,7 @@ fn build_subroutine_type_di_node<'ll, 'tcx>(
             size,
             align,
             CString::new(name).unwrap().as_ptr(),
+            name_len,
         )
     };
 

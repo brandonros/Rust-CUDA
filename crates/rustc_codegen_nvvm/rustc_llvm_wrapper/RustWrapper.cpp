@@ -1287,13 +1287,29 @@ LLVMRustDIBuilderInsertDeclareAtEnd(LLVMDIBuilderRef Builder, LLVMValueRef V,
       DebugLoc(cast<MDNode>(unwrap(DL))), unwrap(InsertAtEnd));
 }
 
-extern "C" LLVMMetadataRef
+/*extern "C" LLVMMetadataRef
 LLVMRustDIBuilderCreateEnumerator(LLVMDIBuilderRef Builder, const char *Name,
                                   size_t NameLen, const uint64_t Value[2],
                                   unsigned SizeInBits, bool IsUnsigned) {
   return wrap(unwrap(Builder)->createEnumerator(
       StringRef(Name, NameLen),
       APSInt(APInt(SizeInBits, ArrayRef<uint64_t>(Value, 2)), IsUnsigned)));
+}*/
+
+// TODO: temporary workaround for uint64_t[2] array
+extern "C" LLVMMetadataRef
+LLVMRustDIBuilderCreateEnumerator(LLVMDIBuilderRef Builder, const char *Name,
+                                  size_t NameLen, int64_t Value,  // ⭐ Single i64
+                                  bool IsUnsigned) {
+  // Determine bit width from the value
+  unsigned SizeInBits = 64;  // Or calculate based on Value
+  
+  // Convert single i64 to uint64_t array
+  uint64_t ValueArray[2] = {(uint64_t)Value, Value < 0 ? UINT64_MAX : 0};
+  
+  return wrap(unwrap(Builder)->createEnumerator(
+      StringRef(Name, NameLen),
+      APSInt(APInt(SizeInBits, ArrayRef<uint64_t>(ValueArray, 2)), IsUnsigned)));
 }
 
 extern "C" LLVMMetadataRef LLVMRustDIBuilderCreateEnumerationType(

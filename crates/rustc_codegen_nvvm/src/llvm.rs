@@ -854,6 +854,7 @@ unsafe extern "C" {
         SizeInBits: u64,
         AlignInBits: u32,
         Name: *const c_char,
+        NameLen: size_t,
     ) -> &'a DIDerivedType;
 
     pub(crate) fn LLVMRustDIBuilderCreateStructType<'a>(
