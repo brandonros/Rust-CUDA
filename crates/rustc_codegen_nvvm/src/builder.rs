@@ -23,7 +23,7 @@ use rustc_session::config::OptLevel;
 use rustc_span::Span;
 use rustc_target::callconv::FnAbi;
 use rustc_target::spec::{HasTargetSpec, Target};
-use tracing::{debug, info, trace};
+use log::{debug, info, trace};
 
 use crate::abi::FnAbiLlvmExt;
 use crate::context::CodegenCx;

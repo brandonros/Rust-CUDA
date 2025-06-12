@@ -14,7 +14,7 @@ use rustc_middle::{bug, span_bug};
 use rustc_span::symbol::kw;
 use rustc_span::{Span, Symbol, sym};
 use rustc_target::callconv::{FnAbi, PassMode};
-use tracing::trace;
+use log::trace;
 
 use crate::abi::LlvmType;
 use crate::builder::Builder;

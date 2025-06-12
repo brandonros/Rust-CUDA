@@ -26,7 +26,7 @@ use std::{
     path::{Path, PathBuf},
 };
 use tar::{Archive, Builder, Header};
-use tracing::{debug, trace};
+use log::{debug, trace};
 
 use crate::LlvmMod;
 use crate::context::CodegenArgs;

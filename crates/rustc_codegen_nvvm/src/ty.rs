@@ -20,7 +20,7 @@ use std::ffi::CString;
 use std::fmt::{Debug, Write};
 use std::hash::Hash;
 use std::ptr;
-use tracing::trace;
+use log::trace;
 
 impl PartialEq for Type {
     fn eq(&self, other: &Self) -> bool {

@@ -21,7 +21,7 @@ use rustc_middle::{
     },
     span_bug,
 };
-use tracing::trace;
+use log::trace;
 
 use crate::{context::CodegenCx, ty::LayoutLlvmExt};
 

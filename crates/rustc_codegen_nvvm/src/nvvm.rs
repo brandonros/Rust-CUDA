@@ -13,7 +13,7 @@ use rustc_session::{Session, config::DebugInfo};
 use std::fmt::Display;
 use std::marker::PhantomData;
 use std::ptr;
-use tracing::debug;
+use log::debug;
 
 // see libintrinsics.ll on what this is.
 const LIBINTRINSICS: &[u8] = include_bytes!("../libintrinsics.bc");

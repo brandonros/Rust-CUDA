@@ -39,7 +39,7 @@ use rustc_span::{Span, Symbol};
 use rustc_target::callconv::FnAbi;
 
 use rustc_target::spec::{HasTargetSpec, Target};
-use tracing::{debug, trace};
+use log::{debug, trace};
 
 /// "There is a total of 64 KB constant memory on a device."
 /// <https://docs.nvidia.com/cuda/archive/12.8.1/pdf/CUDA_C_Best_Practices_Guide.pdf>

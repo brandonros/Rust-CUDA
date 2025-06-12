@@ -15,7 +15,7 @@ use rustc_middle::ty::{Ty, TyCtxt, TyKind};
 use rustc_target::callconv::{
     ArgAbi, ArgAttribute, ArgAttributes, ArgExtension, CastTarget, Conv, FnAbi, PassMode,
 };
-use tracing::trace;
+use log::trace;
 
 use crate::builder::Builder;
 use crate::context::CodegenCx;

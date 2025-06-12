@@ -1,4 +1,4 @@
-use tracing::trace;
+use log::trace;
 
 use crate::builder::unnamed;
 use crate::context::CodegenCx;

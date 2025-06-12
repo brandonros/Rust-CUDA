@@ -25,8 +25,9 @@ bitflags = "2.8.0"
 # To avoid duplicate dependencies, this should match the version of gimli used
 # by `rustc_codegen_ssa` via its `thorin-dwp` dependency.
 gimli = "0.30"
-tracing = { version = "0.1.41", features = ["release_max_level_debug"] }
-tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
+log = "0.4.27"
+#tracing = { version = "0.1.41", features = ["release_max_level_debug"] }
+#tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
 rustc_codegen_nvvm_macros = { version = "0.1", path = "../rustc_codegen_nvvm_macros" }
 smallvec = { version = "1.14.0", features = ["union", "may_dangle"] }
 itertools = "0.14.0"

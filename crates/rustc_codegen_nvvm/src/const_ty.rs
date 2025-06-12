@@ -13,7 +13,7 @@ use rustc_hashes::Hash128;
 use rustc_middle::bug;
 use rustc_middle::mir::interpret::{ConstAllocation, GlobalAlloc, Scalar};
 use rustc_middle::ty::layout::LayoutOf;
-use tracing::trace;
+use log::trace;
 
 impl<'ll, 'tcx> ConstCodegenMethods<'tcx> for CodegenCx<'ll, 'tcx> {
     fn const_data_from_alloc(&self, alloc: ConstAllocation) -> &'ll Value {

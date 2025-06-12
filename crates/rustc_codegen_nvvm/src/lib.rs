@@ -82,7 +82,7 @@ use rustc_session::{
     Session,
     config::{self, OutputFilenames},
 };
-use tracing::debug;
+use log::debug;
 
 use std::ffi::CString;
 
@@ -114,15 +114,14 @@ impl CodegenBackend for NvvmCodegenBackend {
     }
 
     fn init(&self, sess: &Session) {
-        let filter = tracing_subscriber::EnvFilter::from_env("NVVM_LOG");
+        /*let filter = tracing_subscriber::EnvFilter::from_env("NVVM_LOG");
         let subscriber = tracing_subscriber::fmt()
             .with_env_filter(filter)
             .without_time()
             .with_ansi(false)
             .compact()
             .finish();
-
-        tracing::subscriber::set_global_default(subscriber).expect("no default subscriber");
+        log::subscriber::set_global_default(subscriber).expect("no default subscriber");*/
         init::init(sess);
     }
 

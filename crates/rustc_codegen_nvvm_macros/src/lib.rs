@@ -42,7 +42,7 @@ pub fn trace_ffi_calls(_attr: TokenStream, item: TokenStream) -> TokenStream {
 
             let new_func = parse_quote! {
                 pub(crate) unsafe fn #ident #generics(#inputs) #output {
-                    tracing::trace!(stringify!(#ident));
+                    log::trace!(stringify!(#ident));
                     super::private::#ident(#args)
                 }
             };

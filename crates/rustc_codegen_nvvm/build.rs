@@ -18,8 +18,6 @@ static REQUIRED_MAJOR_LLVM_VERSION: u8 = 19;
 
 fn main() {
     // Add AddressSanitizer
-    println!("cargo:rustc-flags=-Z sanitizer=address");
-
     rustc_llvm_build();
 
     // this is set by cuda_builder, but in case somebody is using the codegen
