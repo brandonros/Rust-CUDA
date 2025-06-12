@@ -1980,7 +1980,6 @@ unsafe extern "C" {
         Data: *const u8,
         len: usize,
         Identifier: *const c_char,
-        IdentiferLen: size_t,
     ) -> Option<&Module>;
     pub(crate) fn LLVMRustGetBitcodeSliceFromObjectData(
         Data: *const u8,
@@ -2029,4 +2028,6 @@ unsafe extern "C" {
 
     pub(crate) fn LLVMRustSetOldDebugFormat(M: &Module);
     pub(crate) fn LLVMStripModuleDebugInfo(M: &Module);
+
+    pub(crate) fn LLVMRustVerifyFunction(Fn: &Value, Action: LLVMVerifierFailureAction) -> Bool;
 }

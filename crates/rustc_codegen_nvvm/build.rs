@@ -148,7 +148,23 @@ fn rustc_llvm_build() {
     let target = env::var("TARGET").expect("TARGET was not set");
     let llvm_config = find_llvm_config(&target);
 
-    let required_components = &["ipo", "bitreader", "bitwriter", "lto", "nvptx"];
+    let required_components = &[
+        "ipo", 
+        "bitreader", 
+        "bitwriter", 
+        "lto", 
+        "nvptx",
+        // New components likely needed for LLVM 19:
+        "core",           // Core LLVM functionality (always recommended)
+        "support",        // Basic support utilities
+        "target",         // Target machine infrastructure
+        "analysis",       // Analysis passes
+        "transformutils", // Transformation utilities
+        "scalaropts",     // Scalar optimizations
+        "vectorize",      // Vectorization passes
+        "instcombine",    // Instruction combining
+        "passes",         // New pass manager (LLVM 13+)
+    ];
 
     let components = output(Command::new(&llvm_config).arg("--components"));
     let mut components = components.split_whitespace().collect::<Vec<_>>();

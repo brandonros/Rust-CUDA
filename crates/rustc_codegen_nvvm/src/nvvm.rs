@@ -169,7 +169,6 @@ fn merge_llvm_modules(modules: Vec<Vec<u8>>, llcx: &Context) -> &Module {
                 merged_module.as_ptr(),
                 merged_module.len(),
                 unnamed(),
-                0,
             )
             .expect("Failed to parse module bitcode");
             llvm::LLVMLinkModules2(module, tmp);

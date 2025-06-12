@@ -61,6 +61,13 @@ pub(crate) unsafe fn codegen(
             let llfn = unsafe {
                 llvm::LLVMRustGetOrInsertFunction(llmod, name.as_ptr().cast(), name.len(), ty)
             };
+            // TODO: remove check
+            unsafe {
+                llvm::LLVMRustVerifyFunction(
+                    llfn,
+                    llvm::LLVMVerifierFailureAction::LLVMAbortProcessAction
+                )
+            };
 
             used.push(llfn);
             // nvvm doesnt support uwtable so dont try to generate it
@@ -68,6 +75,13 @@ pub(crate) unsafe fn codegen(
             let callee = default_fn_name(method.name);
             let callee = unsafe {
                 llvm::LLVMRustGetOrInsertFunction(llmod, callee.as_ptr().cast(), callee.len(), ty)
+            };
+            // TODO: remove check
+            unsafe {
+                llvm::LLVMRustVerifyFunction(
+                    llfn,
+                    llvm::LLVMVerifierFailureAction::LLVMAbortProcessAction
+                )
             };
             unsafe { llvm::LLVMRustSetVisibility(callee, llvm::Visibility::Hidden) };
 
@@ -108,8 +122,14 @@ pub(crate) unsafe fn codegen(
 
     let ty = unsafe { llvm::LLVMFunctionType(void, args.as_ptr(), args.len() as c_uint, False) };
     let name = "__rust_alloc_error_handler".to_string();
-    let llfn =
-        unsafe { llvm::LLVMRustGetOrInsertFunction(llmod, name.as_ptr().cast(), name.len(), ty) };
+    let llfn = unsafe { llvm::LLVMRustGetOrInsertFunction(llmod, name.as_ptr().cast(), name.len(), ty) };
+    // TODO: remove check
+    unsafe {
+        llvm::LLVMRustVerifyFunction(
+            llfn,
+            llvm::LLVMVerifierFailureAction::LLVMAbortProcessAction
+        )
+    };
 
     used.push(llfn);
 
@@ -119,6 +139,13 @@ pub(crate) unsafe fn codegen(
     let callee = alloc_error_handler_name(alloc_error_handler_kind);
     let callee = unsafe {
         llvm::LLVMRustGetOrInsertFunction(llmod, callee.as_ptr().cast(), callee.len(), ty)
+    };
+    // TODO: remove check
+    unsafe {
+        llvm::LLVMRustVerifyFunction(
+            callee,
+            llvm::LLVMVerifierFailureAction::LLVMAbortProcessAction
+        )
     };
 
     used.push(callee);

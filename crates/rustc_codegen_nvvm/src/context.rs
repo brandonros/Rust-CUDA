@@ -127,6 +127,13 @@ impl<'ll, 'tcx> CodegenCx<'ll, 'tcx> {
             let name = "__rust_eh_personality";
             llvm::LLVMRustGetOrInsertFunction(llmod, name.as_ptr().cast(), name.len(), llfnty)
         };
+        // TODO: remove check
+        unsafe {
+            llvm::LLVMRustVerifyFunction(
+                eh_personality,
+                llvm::LLVMVerifierFailureAction::LLVMAbortProcessAction
+            )
+        };
 
         let dbg_cx = if tcx.sess.opts.debuginfo != DebugInfo::None {
             let dctx = CodegenUnitDebugContext::new(llmod);
@@ -334,6 +341,13 @@ impl<'ll, 'tcx> CodegenCx<'ll, 'tcx> {
     ) -> &'ll Value {
         let llfn = unsafe {
             llvm::LLVMRustGetOrInsertFunction(self.llmod, name.as_ptr().cast(), name.len(), ty)
+        };
+        // TODO: remove check
+        unsafe {
+            llvm::LLVMRustVerifyFunction(
+                llfn,
+                llvm::LLVMVerifierFailureAction::LLVMAbortProcessAction
+            )
         };
 
         trace!("Declaring function `{}` with ty `{:?}`", name, ty);

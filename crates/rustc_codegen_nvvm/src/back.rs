@@ -16,7 +16,6 @@ use rustc_codegen_ssa::{
 use rustc_errors::{DiagCtxtHandle, FatalError};
 use rustc_middle::mir::mono::{MonoItem, MonoItemData};
 use rustc_middle::{
-    bug,
     dep_graph, 
     ty::TyCtxt
 };

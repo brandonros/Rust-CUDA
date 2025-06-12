@@ -58,7 +58,10 @@ impl ThinBuffer {
             // TODO: do not hardcode these
             let is_thin = True;
             let emit_summary = True;
-            llvm::LLVMDumpModule(m);
+
+            // TODO: temporary dumping module to try to catch what is invalid
+            //llvm::LLVMDumpModule(m);
+
             let buffer = llvm::LLVMRustThinLTOBufferCreate(m, is_thin, emit_summary);
             ThinBuffer(buffer)
         }
@@ -179,12 +182,12 @@ pub(crate) fn parse_module<'a>(
     dcx: DiagCtxtHandle<'_>,
 ) -> Result<&'a llvm::Module, FatalError> {
     unsafe {
+        println!("DEBUG: parse_module: data: {:02x?}", data);
         llvm::LLVMRustParseBitcodeForLTO(
             cx,
             data.as_ptr(),
             data.len(),
             name.as_c_char_ptr(),
-            name.len(),
         )
         .ok_or_else(|| {
             let msg = "failed to parse bitcode for LTO module";
