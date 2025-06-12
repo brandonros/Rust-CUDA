@@ -20,7 +20,7 @@ pub(crate) unsafe fn codegen(
     let llmod = unsafe { mods.llmod.as_ref().unwrap() };
     let usize = unsafe { target::usize_ty(llcx) };
     let i8 = unsafe { llvm::LLVMInt8TypeInContext(llcx) };
-    let i8p = unsafe { llvm::LLVMPointerType(i8, 0) };
+    let i8p = unsafe { llvm::LLVMPointerTypeInContext(llcx, 0) };
     let void = unsafe { llvm::LLVMVoidTypeInContext(llcx) };
 
     let mut used = Vec::new();
@@ -178,7 +178,7 @@ pub(crate) unsafe fn codegen(
     unsafe { llvm::LLVMBuildRetVoid(llbuilder) };
     unsafe { llvm::LLVMDisposeBuilder(llbuilder) };
 
-    let ptr_ty = unsafe { llvm::LLVMPointerType(llvm::LLVMInt8TypeInContext(llcx), 0) };
+    let ptr_ty = unsafe { llvm::LLVMPointerTypeInContext(llcx, 0) };
 
     for used in &mut used {
         *used = unsafe { llvm::LLVMConstBitCast(used, ptr_ty) };

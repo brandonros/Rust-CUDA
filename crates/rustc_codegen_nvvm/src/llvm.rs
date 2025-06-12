@@ -1239,6 +1239,7 @@ unsafe extern "C" {
 
     // Operations on real types
     pub(crate) fn LLVMHalfTypeInContext(C: &Context) -> &Type;
+    pub(crate) fn LLVMPointerTypeInContext(C: &Context, AddressSpace: c_uint) -> &Type;
     pub(crate) fn LLVMFloatTypeInContext(C: &Context) -> &Type;
     pub(crate) fn LLVMDoubleTypeInContext(C: &Context) -> &Type;
     pub(crate) fn LLVMFP128TypeInContext(C: &Context) -> &Type;
@@ -1267,7 +1268,7 @@ unsafe extern "C" {
 
     // Operations on array, pointer, and vector types (sequence types)
     pub(crate) fn LLVMRustArrayType(ElementType: &Type, ElementCount: u64) -> &Type;
-    pub(crate) fn LLVMPointerType(ElementType: &Type, AddressSpace: c_uint) -> &Type;
+    //pub(crate) fn LLVMPointerType(ElementType: &Type, AddressSpace: c_uint) -> &Type;
     pub(crate) fn LLVMVectorType(ElementType: &Type, ElementCount: c_uint) -> &Type;
 
     pub(crate) fn LLVMGetElementType(Ty: &Type) -> &Type;

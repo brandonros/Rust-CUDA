@@ -111,17 +111,20 @@ impl<'ll> CodegenCx<'ll, '_> {
     }
 
     pub(crate) fn type_ptr_to(&self, ty: &'ll Type) -> &'ll Type {
-        assert_ne!(
+        /*assert_ne!(
             self.type_kind(ty),
             TypeKind::Function,
             "don't call ptr_to on function types, use ptr_to_llvm_type on FnAbi instead or explicitly specify an address space if it makes sense"
         );
-
-        unsafe { llvm::LLVMPointerType(ty, AddressSpace::DATA.0) }
+        unsafe { llvm::LLVMPointerType(ty, AddressSpace::DATA.0) }*/
+        // LLVMPointerType is deprecated and removed in favor of opaque pointers in modern LLVM.
+        self.type_ptr()
     }
 
     pub(crate) fn type_ptr_to_ext(&self, ty: &'ll Type, address_space: AddressSpace) -> &'ll Type {
-        unsafe { llvm::LLVMPointerType(ty, address_space.0) }
+        //unsafe { llvm::LLVMPointerType(ty, address_space.0) }
+        // LLVMPointerType is deprecated and removed in favor of opaque pointers in modern LLVM.
+        self.type_ptr_ext(address_space)
     }
 
     pub(crate) fn func_params_types(&self, ty: &'ll Type) -> Vec<&'ll Type> {
@@ -209,21 +212,19 @@ impl<'ll, 'tcx> BaseTypeCodegenMethods<'tcx> for CodegenCx<'ll, 'tcx> {
 
     fn type_kind(&self, ty: &'ll Type) -> TypeKind {
         unsafe { 
-            let ptr = ty as *const Type;
-            if ptr.is_null() {
-                panic!("Null LLVM Type pointer");
-            }
             let result = llvm::LLVMRustGetTypeKind(ty);
             result.to_generic()
         }
     }
 
     fn type_ptr(&self) -> Self::Type {
-        self.type_ptr_ext(AddressSpace::DATA)
+        //self.type_ptr_ext(AddressSpace::DATA)
+        unsafe { llvm::LLVMPointerTypeInContext(self.llcx, AddressSpace::DATA.0) }
     }
 
     fn type_ptr_ext(&self, address_space: AddressSpace) -> Self::Type {
-        self.type_ptr_to_ext(self.type_i8(), address_space)
+        //self.type_ptr_to_ext(self.type_i8(), address_space)
+        unsafe { llvm::LLVMPointerTypeInContext(self.llcx, address_space.0) }
     }
 
     fn element_type(&self, ty: &'ll Type) -> &'ll Type {

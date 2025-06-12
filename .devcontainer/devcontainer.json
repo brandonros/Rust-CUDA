@@ -4,6 +4,9 @@
     "dockerfile": "Dockerfile",
     "context": "../"
   },
+  "mounts": [
+		"source=${localEnv:HOME}/.ssh,target=/home/vscode/.ssh,type=bind,consistency=cached"
+	],
   "hostRequirements": {
     "cpus": 8,
     "memory": "32gb",
@@ -14,6 +17,13 @@
         "version": "latest"
       }
   },
+  "capAdd": [
+    "SYS_PTRACE"
+  ],
+  "runArgs": [
+    "--security-opt",
+    "seccomp=unconfined"
+  ],
   "customizations": {
     "vscode": {
       "extensions": [
