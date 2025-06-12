@@ -223,6 +223,11 @@ pub(crate) unsafe fn codegen(
             .temp_path(OutputType::LlvmAssembly, module_name);
         let out = out.to_str().unwrap();
 
+        // TODO: do not strip debug info
+        unsafe {
+            llvm::LLVMStripModuleDebugInfo(llmod);
+        }
+
         let result = unsafe {
             llvm::LLVMRustPrintModule(llmod, out.as_c_char_ptr(), out.len(), demangle_callback)
         };

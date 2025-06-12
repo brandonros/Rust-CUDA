@@ -1,25 +1,10 @@
 [workspace]
 resolver = "2"
 members = [
-  "crates/*",
-  "crates/optix/examples/ex*",
-  "crates/optix/examples/ex*/device",
-  "crates/optix/examples/rust/ex*",
-
-  "xtask",
-
+  "crates/rustc_codegen_nvvm",
+  "crates/rustc_codegen_nvvm_macros",  
   "examples/cuda/vecadd",
   "examples/cuda/vecadd/kernels",
-  "examples/cuda/gemm",
-  "examples/cuda/gemm/kernels",
-  "examples/cuda/path_tracer",
-  "examples/cuda/path_tracer/kernels",
-
-  "examples/optix/*",
-]
-
-exclude = [
-    "crates/optix/examples/common",
 ]
 
 [profile.dev.package.rustc_codegen_nvvm]

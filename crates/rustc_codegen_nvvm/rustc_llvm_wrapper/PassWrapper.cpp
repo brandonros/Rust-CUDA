@@ -1201,6 +1201,17 @@ extern "C" LLVMRustResult LLVMRustPrintModule(LLVMModuleRef M, const char *Path,
     return LLVMRustResult::Failure;
   }
 
+  // Verify the module before printing
+  Module *Mod = unwrap(M);
+  std::string VerifyError;
+  raw_string_ostream VerifyOS(VerifyError);
+  if (verifyModule(*Mod, &VerifyOS)) {
+    // Module verification failed, print error and skip printing
+    ErrorInfo = "Module verification failed: " + VerifyOS.str();
+    LLVMRustSetLastError(ErrorInfo.c_str());
+    return LLVMRustResult::Failure;
+  }
+
   auto AAW = RustAssemblyAnnotationWriter(Demangle);
   auto FOS = formatted_raw_ostream(OS);
   unwrap(M)->print(FOS, &AAW);

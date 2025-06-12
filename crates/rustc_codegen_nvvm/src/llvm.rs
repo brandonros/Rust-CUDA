@@ -2028,4 +2028,5 @@ unsafe extern "C" {
     );
 
     pub(crate) fn LLVMRustSetOldDebugFormat(M: &Module);
+    pub(crate) fn LLVMStripModuleDebugInfo(M: &Module);
 }
