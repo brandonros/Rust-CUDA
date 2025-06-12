@@ -1,4 +1,4 @@
-use cust::prelude::*;
+//use cust::prelude::*;
 use nanorand::{Rng, WyRand};
 use std::error::Error;
 
@@ -8,7 +8,7 @@ const NUMBERS_LEN: usize = 100_000;
 static PTX: &str = include_str!(concat!(env!("OUT_DIR"), "/kernels.ptx"));
 
 fn main() -> Result<(), Box<dyn Error>> {
-    // generate our random vectors.
+    /*// generate our random vectors.
     let mut wyrand = WyRand::new();
     let mut lhs = vec![2.0f32; NUMBERS_LEN];
     wyrand.fill(&mut lhs);
@@ -72,7 +72,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     // copy back the data from the GPU.
     out_buf.copy_to(&mut out)?;
 
-    println!("{} + {} = {}", lhs[0], rhs[0], out[0]);
+    println!("{} + {} = {}", lhs[0], rhs[0], out[0]);*/
 
     Ok(())
 }

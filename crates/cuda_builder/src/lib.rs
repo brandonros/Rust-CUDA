@@ -1,7 +1,7 @@
 //! Utility crate for easily building CUDA crates using rustc_codegen_nvvm. Derived from rust-gpu's spirv_builder.
 
 pub use nvvm::*;
-//use serde::Deserialize;
+use serde::Deserialize;
 use std::{
     borrow::Borrow,
     env, fmt,
@@ -520,14 +520,14 @@ fn invoke_rustc(builder: &CudaBuilder) -> Result<PathBuf, CudaBuilderError> {
     }
 }
 
-//#[derive(Deserialize)]
+#[derive(Deserialize)]
 struct RustcOutput {
     reason: String,
     filenames: Option<Vec<String>>,
 }
 
 fn get_last_artifact(out: &str) -> Option<PathBuf> {
-    /*let last = out
+    let last = out
         .lines()
         .filter_map(|line| match serde_json::from_str::<RustcOutput>(line) {
             Ok(line) => Some(line),
@@ -548,6 +548,5 @@ fn get_last_artifact(out: &str) -> Option<PathBuf> {
         .filter(|v| v.ends_with(".ptx"));
     let filename = filenames.next()?;
     assert_eq!(filenames.next(), None, "Crate had multiple .ptx artifacts");
-    Some(filename.into())*/
-    todo!()
+    Some(filename.into())
 }

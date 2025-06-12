@@ -276,7 +276,7 @@ impl WriteBackendMethods for NvvmCodegenBackend {
     ) -> (String, Self::ThinBuffer) {
         debug!("Prepare thin");
         unsafe {
-            eprintln!("DEBUG: About to verify module before prepare_thin");
+            /*eprintln!("DEBUG: About to verify module before prepare_thin");
             let mut error_msg = std::ptr::null_mut();
             let llmod = module.module_llvm.llmod.as_ref().unwrap();
             let verify_result = llvm::LLVMVerifyModule(
@@ -288,7 +288,7 @@ impl WriteBackendMethods for NvvmCodegenBackend {
             if verify_result != 0 {
                 llvm::LLVMDumpModule(llmod);
                 bug!("Module verification failed!");
-            }
+            }*/
             (
                 module.name,
                 lto::ThinBuffer::new(module.module_llvm.llmod.as_ref().unwrap()),

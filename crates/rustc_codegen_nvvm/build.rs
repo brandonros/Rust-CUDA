@@ -17,7 +17,9 @@ static PREBUILT_LLVM_URL: &str =
 static REQUIRED_MAJOR_LLVM_VERSION: u8 = 19;
 
 fn main() {
-    // Add AddressSanitizer
+    // Link AddressSanitizer runtime - order matters!
+    println!("cargo:rustc-link-arg=-fsanitize=address");
+    
     rustc_llvm_build();
 
     // this is set by cuda_builder, but in case somebody is using the codegen
