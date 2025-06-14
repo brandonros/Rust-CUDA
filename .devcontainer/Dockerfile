@@ -42,5 +42,5 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -qq -y install \
     gdb \
     lldb \
     psmisc \
-    libzstd-dev \
+    libzstd-dev && \
     rm -rf /var/lib/apt/lists/*
