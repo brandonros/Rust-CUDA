@@ -110,7 +110,7 @@ impl<'ll> CodegenCx<'ll, '_> {
         unsafe { llvm::LLVMVectorType(ty, len as c_uint) }
     }
 
-    pub(crate) fn type_ptr_to(&self, ty: &'ll Type) -> &'ll Type {
+    pub(crate) fn type_ptr_to(&self, _ty: &'ll Type) -> &'ll Type {
         /*assert_ne!(
             self.type_kind(ty),
             TypeKind::Function,
@@ -121,7 +121,7 @@ impl<'ll> CodegenCx<'ll, '_> {
         self.type_ptr()
     }
 
-    pub(crate) fn type_ptr_to_ext(&self, ty: &'ll Type, address_space: AddressSpace) -> &'ll Type {
+    pub(crate) fn type_ptr_to_ext(&self, _ty: &'ll Type, address_space: AddressSpace) -> &'ll Type {
         //unsafe { llvm::LLVMPointerType(ty, address_space.0) }
         // LLVMPointerType is deprecated and removed in favor of opaque pointers in modern LLVM.
         self.type_ptr_ext(address_space)

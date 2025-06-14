@@ -17,6 +17,9 @@ members = [
 [profile.dev.package.rustc_codegen_nvvm]
 opt-level = 3 # TODO: try 0?
 
+[profile.release]
+debug = true
+
 #[profile.dev]
 #opt-level = 0
 #lto = false

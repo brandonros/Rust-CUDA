@@ -19,7 +19,7 @@ pub(crate) unsafe fn codegen(
     let llcx = &*mods.llcx;
     let llmod = unsafe { mods.llmod.as_ref().unwrap() };
     let usize = unsafe { target::usize_ty(llcx) };
-    let i8 = unsafe { llvm::LLVMInt8TypeInContext(llcx) };
+    //let i8 = unsafe { llvm::LLVMInt8TypeInContext(llcx) };
     let i8p = unsafe { llvm::LLVMPointerTypeInContext(llcx, 0) };
     let void = unsafe { llvm::LLVMVoidTypeInContext(llcx) };
 

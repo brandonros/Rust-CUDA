@@ -863,15 +863,15 @@ unsafe extern "C" {
         Builder: &DIBuilder<'a>,
         Scope: &'a DIDescriptor,
         Name: *const c_char,
-        NameLen: size_t,              // Add this
+        NameLen: size_t,
         LinkageName: *const c_char,
-        LinkageNameLen: size_t,       // Add this  
+        LinkageNameLen: size_t,
         File: &'a DIFile,
         LineNo: c_uint,
         Ty: &'a DIType,
         ScopeLine: c_uint,
         Flags: DIFlags,
-        SPFlags: LLVMRustDISPFlags,   // Add this
+        SPFlags: LLVMRustDISPFlags,
         MaybeFn: Option<&'a Value>,
         TParam: &'a DIArray,
         Decl: Option<&'a DIDescriptor>,
@@ -1029,7 +1029,7 @@ unsafe extern "C" {
         Builder: &DIBuilder<'a>,
         Val: &'a Value,
         VarInfo: &'a DIVariable,
-        AddrOps: *const i64,
+        AddrOps: *const u64,
         AddrOpsCount: c_uint,
         DL: &'a DILocation,
         InsertAtEnd: &'a BasicBlock,

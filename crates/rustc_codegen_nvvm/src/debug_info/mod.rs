@@ -122,30 +122,34 @@ impl<'ll> DebugInfoBuilderMethods for Builder<'_, 'll, '_> {
         indirect_offsets: &[Size],
         fragment: Option<Range<Size>>,
     ) {
+        eprintln!("DEBUG: dbg_var_addr called with dbg_loc = {:p}", dbg_loc);
+
         use dwarf_const::{DW_OP_LLVM_fragment, DW_OP_deref, DW_OP_plus_uconst};
 
-        let mut addr_ops = SmallVec::<[i64; 8]>::new();
+        let mut addr_ops = SmallVec::<[u64; 8]>::new();
 
         if direct_offset.bytes() > 0 {
-            addr_ops.push(DW_OP_plus_uconst);
-            addr_ops.push(direct_offset.bytes() as i64);
+            addr_ops.push(DW_OP_plus_uconst as u64);
+            addr_ops.push(direct_offset.bytes());
         }
         for &offset in indirect_offsets {
-            addr_ops.push(DW_OP_deref);
+            addr_ops.push(DW_OP_deref as u64);
             if offset.bytes() > 0 {
-                addr_ops.push(DW_OP_plus_uconst);
-                addr_ops.push(offset.bytes() as i64);
+                addr_ops.push(DW_OP_plus_uconst as u64);
+                addr_ops.push(offset.bytes());
             }
         }
 
         if let Some(fragment) = fragment {
             // `DW_OP_LLVM_fragment` takes as arguments the fragment's
             // offset and size, both of them in bits.
-            addr_ops.push(DW_OP_LLVM_fragment);
-            addr_ops.push(fragment.start.bits() as i64);
-            addr_ops.push((fragment.end - fragment.start).bits() as i64);
+            addr_ops.push(DW_OP_LLVM_fragment as u64);
+            addr_ops.push(fragment.start.bits());
+            addr_ops.push((fragment.end - fragment.start).bits());
         }
 
+        // TODO: DILocation is broken i believe, meaning you need to compile in release mode
+        // and not debug mode?
         unsafe {
             llvm::LLVMRustDIBuilderInsertDeclareAtEnd(
                 DIB(self.cx()),
