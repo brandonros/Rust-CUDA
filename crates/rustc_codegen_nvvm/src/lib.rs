@@ -74,7 +74,6 @@ use rustc_metadata::EncodedMetadata;
 use rustc_metadata::creader::MetadataLoaderDyn;
 use rustc_middle::util::Providers;
 use rustc_middle::{
-    bug,
     dep_graph::{WorkProduct, WorkProductId},
     ty::TyCtxt,
 };

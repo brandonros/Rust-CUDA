@@ -14,8 +14,8 @@ members = [
   "examples/cuda/vecadd/kernels",
 ]
 
-[profile.dev.package.rustc_codegen_nvvm]
-opt-level = 3 # TODO: try 0?
+#[profile.dev.package.rustc_codegen_nvvm]
+#opt-level = 3 # TODO: try 0?
 
 [profile.release]
 debug = true

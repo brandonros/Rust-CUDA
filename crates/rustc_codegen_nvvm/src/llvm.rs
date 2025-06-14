@@ -1119,11 +1119,10 @@ unsafe extern "C" {
     );
 
     pub(crate) fn LLVMRustDIBuilderCreateDebugLocation<'a>(
-        Context: &'a Context,
         Line: c_uint,
         Column: c_uint,
         Scope: &'a DIScope,
-        InlinedAt: Option<&'a Metadata>,
+        InlinedAt: Option<&'a DILocation>,
     ) -> &'a DILocation;
 
     pub(crate) fn LLVMRustDILocationCloneWithBaseDiscriminator<'a>(

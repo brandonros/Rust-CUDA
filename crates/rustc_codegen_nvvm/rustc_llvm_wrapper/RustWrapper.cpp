@@ -1243,6 +1243,7 @@ LLVMRustDIBuilderInsertDeclareAtEnd(LLVMDIBuilderRef Builder, LLVMValueRef V,
                                     LLVMMetadataRef VarInfo, uint64_t *AddrOps,
                                     unsigned AddrOpsCount, LLVMMetadataRef DL,
                                     LLVMBasicBlockRef InsertAtEnd) {
+
   unwrap(Builder)->insertDeclare(
       unwrap(V), unwrap<DILocalVariable>(VarInfo),
       unwrap(Builder)->createExpression(
@@ -2483,24 +2484,15 @@ extern "C" LLVMRustVisibility LLVMRustGetVisibility(LLVMValueRef V) {
   return visibilityToRust(LLVMGetVisibility(V));
 }
 
-// TODO: non-standard
-extern "C" LLVMValueRef
-LLVMRustDIBuilderCreateDebugLocation(LLVMContextRef ContextRef, unsigned Line,
-                                     unsigned Column, LLVMMetadataRef Scope,
+// copied from https://github.com/rust-lang/rust/tree/d61f55d8b9d4703207a5980f27b6c28973ba27ee
+extern "C" LLVMMetadataRef
+LLVMRustDIBuilderCreateDebugLocation(unsigned Line, unsigned Column,
+                                     LLVMMetadataRef ScopeRef,
                                      LLVMMetadataRef InlinedAt) {
-  LLVMContext &Context = *unwrap(ContextRef);
-  
-  // Convert metadata references to DIScope and DILocation
-  DIScope *ScopePtr = unwrapDI<DIScope>(Scope);
-  DILocation *InlinedAtPtr = InlinedAt ? 
-    unwrapDI<DILocation>(InlinedAt) : 
-    nullptr;
-  
-  // Create DILocation directly instead of using DebugLoc::get
-  DILocation *debug_loc = DILocation::get(Context, Line, Column, 
-                                          ScopePtr, InlinedAtPtr);
-  
-  return wrap(MetadataAsValue::get(Context, debug_loc));
+  MDNode *Scope = unwrapDIPtr<MDNode>(ScopeRef);
+  DILocation *Loc = DILocation::get(Scope->getContext(), Line, Column, Scope,
+                                    unwrapDIPtr<MDNode>(InlinedAt));
+  return wrap(Loc);
 }
 
 // TODO: non-standard
