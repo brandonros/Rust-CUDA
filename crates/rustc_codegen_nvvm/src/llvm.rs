@@ -674,6 +674,17 @@ pub enum CodeModel {
     None,
 }
 
+// LLVMRustDebugNameTableKind
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[repr(C)]
+pub enum DebugNameTableKind {
+    Default = 0,
+    GNU = 1,
+    None = 2,
+    Apple = 3,
+}
+
+
 unsafe extern "C" {
     pub fn LLVMRustBuildCall<'a>(
         B: &Builder<'a>,
@@ -795,6 +806,7 @@ unsafe extern "C" {
         kind: DebugEmissionKind,
         DWOId: u64,
         SplitDebugInlining: bool,
+        TableKind: DebugNameTableKind,
     ) -> &'a DIDescriptor;
 
     pub(crate) fn LLVMRustDIBuilderCreateFile<'a>(

@@ -828,6 +828,7 @@ enum class LLVMRustDebugNameTableKind {
   Default,
   GNU,
   None,
+  Apple,
 };
 
 static DICompileUnit::DebugNameTableKind
@@ -839,6 +840,8 @@ fromRust(LLVMRustDebugNameTableKind Kind) {
     return DICompileUnit::DebugNameTableKind::GNU;
   case LLVMRustDebugNameTableKind::None:
     return DICompileUnit::DebugNameTableKind::None;
+  case LLVMRustDebugNameTableKind::Apple:
+    return DICompileUnit::DebugNameTableKind::Apple;
   default:
     report_fatal_error("bad DebugNameTableKind.");
   }

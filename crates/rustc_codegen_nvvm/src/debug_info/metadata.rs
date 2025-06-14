@@ -869,6 +869,7 @@ pub(crate) fn build_compile_unit_di_node<'ll, 'tcx>(
             kind,
             0,
             tcx.sess.opts.unstable_opts.split_dwarf_inlining,
+            llvm::DebugNameTableKind::Default,
         );
 
         unit_metadata
