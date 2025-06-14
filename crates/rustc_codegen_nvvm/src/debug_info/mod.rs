@@ -488,7 +488,6 @@ impl<'ll, 'tcx> DebugInfoCodegenMethods<'tcx> for CodegenCx<'ll, 'tcx> {
 
         unsafe { 
             llvm::LLVMRustDIBuilderCreateDebugLocation(
-                self.llcx,
                 line,
                 col,
                 scope,
