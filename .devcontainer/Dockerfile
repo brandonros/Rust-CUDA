@@ -22,18 +22,6 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -qq -y install \
     libxrandr-dev && \
     rm -rf /var/lib/apt/lists/*
 
-# Get LLVM 7 & libffi7
-WORKDIR /data/llvm7
-RUN curl -sSf -L -O http://security.ubuntu.com/ubuntu/pool/universe/libf/libffi7/libffi7_3.3-5ubuntu1_amd64.deb && \
-    curl -sSf -L -O http://mirrors.kernel.org/ubuntu/pool/universe/l/llvm-toolchain-7/llvm-7_7.0.1-12_amd64.deb && \
-    curl -sSf -L -O http://mirrors.kernel.org/ubuntu/pool/universe/l/llvm-toolchain-7/llvm-7-dev_7.0.1-12_amd64.deb && \
-    curl -sSf -L -O http://mirrors.kernel.org/ubuntu/pool/universe/l/llvm-toolchain-7/libllvm7_7.0.1-12_amd64.deb && \
-    curl -sSf -L -O http://mirrors.kernel.org/ubuntu/pool/universe/l/llvm-toolchain-7/llvm-7-runtime_7.0.1-12_amd64.deb && \
-    apt-get install -y ./*.deb && \
-    ln -s /usr/bin/llvm-config-7 /usr/bin/llvm-config && \
-    rm -rf ./*.deb && \
-    rm -rf /var/lib/apt/lists/*
-
 # Get Rust
 RUN curl -sSf -L https://sh.rustup.rs | bash -s -- -y
 ENV PATH="/root/.cargo/bin:${PATH}"
@@ -48,17 +36,11 @@ ENV LD_LIBRARY_PATH="/usr/local/cuda/nvvm/lib64:${LD_LIBRARY_PATH}"
 ENV LLVM_LINK_STATIC=1
 ENV RUST_LOG=info
 
-# install git + llvm-19
+# install git + miscellaneous
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -qq -y install \
     git \
     gdb \
     lldb \
-    llvm-19 \
     psmisc \
     libzstd-dev \
-    libpolly-19-dev && \
     rm -rf /var/lib/apt/lists/*
-
-# get rid of llvm-config-7 default and put llvm-config-19
-RUN rm /usr/bin/llvm-config && \
-    ln -s /usr/bin/llvm-config-19 /usr/bin/llvm-config
