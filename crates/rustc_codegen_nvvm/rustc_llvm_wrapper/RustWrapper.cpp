@@ -2253,20 +2253,15 @@ static Attribute::AttrKind attrKindFromRust(LLVMRustAttribute Kind)
 // TODO: non standard
 extern "C" void LLVMRustAddFunctionAttribute(LLVMValueRef Fn, unsigned Index,
                                              LLVMRustAttribute RustAttr) {
-  Function *A = unwrap<Function>(Fn);
-  LLVMContext &Ctx = A->getContext();
+  Function *F = unwrap<Function>(Fn);
+  LLVMContext &Ctx = F->getContext();
   
+  // Convert your RustAttr to an actual LLVM attribute
   Attribute Attr = Attribute::get(Ctx, attrKindFromRust(RustAttr));
-  AttrBuilder B(Ctx);
-  B.addAttribute(Attr);
+  LLVMAttributeRef AttrRef = wrap(Attr);
   
-  // In LLVM 19, use addFnAttrs or addParamAttrs instead of addAttributes
-  if (Index == AttributeList::FunctionIndex) {
-    A->addFnAttrs(B);
-  } else {
-    // For parameter attributes, use addParamAttrs
-    A->addParamAttrs(Index - 1, B); // Index is 1-based for parameters
-  }
+  // Now just call the existing function that handles a single attribute
+  AddAttributes(F, Index, &AttrRef, 1);
 }
 
 // TODO: non-standard
