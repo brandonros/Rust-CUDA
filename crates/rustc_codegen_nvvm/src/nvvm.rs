@@ -61,11 +61,11 @@ pub fn codegen_bitcode_modules(
     debug!("Codegenning bitcode to PTX");
 
     // make sure the nvvm version is high enough so users don't get confusing compilation errors.
-    let (major, minor) = nvvm::ir_version();
+    let (ir_major, ir_minor) = nvvm::ir_version();
 
-    if major <= 4 {
+    if ir_major != 2 || ir_minor != 0 {
         sess.dcx()
-            .fatal("rustc_codegen_nvvm requires at least libnvvm 4.0 (CUDA 12.9)");
+            .fatal(format!("rustc_codegen_nvvm requires nvvm IR version 2.0, got {}.{}", ir_major, ir_minor));
     }
 
     // first, create the nvvm program we will add modules to.
@@ -85,11 +85,11 @@ pub fn codegen_bitcode_modules(
         // needed for debug info or else nvvm complains about ir version mismatch for some
         // reason. It works if you don't use debug info though...
         let ty_i32 = llvm::LLVMInt32TypeInContext(llcx);
-        let major = llvm::LLVMConstInt(ty_i32, major as u64, False);
-        let minor = llvm::LLVMConstInt(ty_i32, minor as u64, False);
+        let ir_major = llvm::LLVMConstInt(ty_i32, ir_major as u64, False);
+        let ir_minor = llvm::LLVMConstInt(ty_i32, ir_minor as u64, False);
         let dbg_major = llvm::LLVMConstInt(ty_i32, dbg_major as u64, False);
         let dbg_minor = llvm::LLVMConstInt(ty_i32, dbg_minor as u64, False);
-        let vals = [major, minor, dbg_major, dbg_minor];
+        let vals = [ir_major, ir_minor, dbg_major, dbg_minor];
         let node = llvm::LLVMMDNodeInContext(llcx, vals.as_ptr(), vals.len() as u32);
 
         llvm::LLVMAddNamedMetadataOperand(module, c"nvvmir.version".as_ptr().cast(), node);
