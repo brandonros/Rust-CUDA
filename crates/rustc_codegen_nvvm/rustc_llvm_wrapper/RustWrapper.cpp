@@ -2199,7 +2199,7 @@ static Attribute::AttrKind attrKindFromRust(LLVMRustAttribute Kind)
   case AlwaysInline:
     return Attribute::AlwaysInline;
   case ByVal:
-    return Attribute::ByVal;
+    report_fatal_error("ByVal not supported - needs type parameter in LLVM 19+");
   case Cold:
     return Attribute::Cold;
   case InlineHint:
@@ -2231,7 +2231,7 @@ static Attribute::AttrKind attrKindFromRust(LLVMRustAttribute Kind)
   case SExt:
     return Attribute::SExt;
   case StructRet:
-    return Attribute::StructRet;
+    report_fatal_error("StructRet not supported - needs type parameter in LLVM 19+");
   case UWTable:
     return Attribute::UWTable;
   case ZExt:
@@ -2256,11 +2256,31 @@ extern "C" void LLVMRustAddFunctionAttribute(LLVMValueRef Fn, unsigned Index,
   Function *F = unwrap<Function>(Fn);
   LLVMContext &Ctx = F->getContext();
   
-  // Convert your RustAttr to an actual LLVM attribute
-  Attribute Attr = Attribute::get(Ctx, attrKindFromRust(RustAttr));
+  Attribute::AttrKind Kind = attrKindFromRust(RustAttr);
+  Attribute Attr = Attribute::get(Ctx, Kind);
   LLVMAttributeRef AttrRef = wrap(Attr);
   
   // Now just call the existing function that handles a single attribute
+  AddAttributes(F, Index, &AttrRef, 1);
+}
+
+// TODO: non-standard
+extern "C" void LLVMRustAddFunctionAttributeWithType(LLVMValueRef Fn, unsigned Index,
+                                             LLVMRustAttribute RustAttr,
+                                             LLVMTypeRef Ty) {
+  Function *F = unwrap<Function>(Fn);
+  LLVMContext &Ctx = F->getContext();
+  
+  Attribute::AttrKind Kind = attrKindFromRust(RustAttr);
+  Attribute Attr;
+  if (RustAttr == ByVal) {
+    Attr = Attribute::getWithByValType(Ctx, unwrap(Ty));
+  } else if (RustAttr == StructRet) {
+    Attr = Attribute::getWithStructRetType(Ctx, unwrap(Ty));
+  } else {
+    report_fatal_error("Unsupported attribute type");
+  }
+  LLVMAttributeRef AttrRef = wrap(Attr);
   AddAttributes(F, Index, &AttrRef, 1);
 }
 

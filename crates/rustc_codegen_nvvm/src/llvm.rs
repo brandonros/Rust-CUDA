@@ -93,7 +93,34 @@ impl AttributePlace {
 
 impl Attribute {
     pub fn apply_llfn(&self, idx: AttributePlace, llfn: &Value) {
-        unsafe { LLVMRustAddFunctionAttribute(llfn, idx.as_uint(), *self) }
+        unsafe {
+            match *self {
+                Attribute::StructRet => {
+                    // These attributes need type information in LLVM 19+
+                    // We need to infer the type from the function signature
+                    let fn_type = LLVMRustGetFunctionType(llfn);
+                    
+                    // Get the parameter type based on the index
+                    let param_type = match idx {
+                        AttributePlace::Argument(arg_idx) => {
+                            todo!()
+                        }
+                        AttributePlace::ReturnValue => {
+                            LLVMGetReturnType(fn_type)
+                        }
+                        _ => {
+                            panic!("StructRet attributes only valid on parameters and return values");
+                        }
+                    };
+                    
+                    LLVMRustAddFunctionAttributeWithType(llfn, idx.as_uint(), *self, param_type);
+                }
+                _ => {
+                    // Regular attributes that don't need type info
+                    LLVMRustAddFunctionAttribute(llfn, idx.as_uint(), *self);
+                }
+            }
+        }
     }
 
     pub fn apply_callsite(&self, idx: AttributePlace, callsite: &Value) {
@@ -1408,6 +1435,7 @@ unsafe extern "C" {
     pub(crate) fn LLVMSetFunctionCallConv(Fn: &Value, CC: c_uint);
     pub(crate) fn LLVMRustAddAlignmentAttr(Fn: &Value, index: c_uint, bytes: u32);
     pub(crate) fn LLVMRustAddFunctionAttribute(Fn: &Value, index: c_uint, attr: Attribute);
+    pub(crate) fn LLVMRustAddFunctionAttributeWithType(Fn: &Value, index: c_uint, attr: Attribute, Ty: &Type);
     pub(crate) fn LLVMRustAddFunctionAttrStringValue(
         Fn: &Value,
         index: c_uint,
