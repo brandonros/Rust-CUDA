@@ -2271,14 +2271,14 @@ extern "C" void LLVMRustAddFunctionAttributeWithType(LLVMValueRef Fn, unsigned I
   Function *F = unwrap<Function>(Fn);
   LLVMContext &Ctx = F->getContext();
   
-  Attribute::AttrKind Kind = attrKindFromRust(RustAttr);
   Attribute Attr;
   if (RustAttr == ByVal) {
     Attr = Attribute::getWithByValType(Ctx, unwrap(Ty));
   } else if (RustAttr == StructRet) {
     Attr = Attribute::getWithStructRetType(Ctx, unwrap(Ty));
   } else {
-    report_fatal_error("Unsupported attribute type");
+    Attribute::AttrKind Kind = attrKindFromRust(RustAttr);
+    Attr = Attribute::get(Ctx, Kind);
   }
   LLVMAttributeRef AttrRef = wrap(Attr);
   AddAttributes(F, Index, &AttrRef, 1);

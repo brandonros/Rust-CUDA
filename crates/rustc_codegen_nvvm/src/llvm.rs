@@ -103,7 +103,11 @@ impl Attribute {
                     // Get the parameter type based on the index
                     let param_type = match idx {
                         AttributePlace::Argument(arg_idx) => {
-                            todo!()
+                            let n_args = LLVMCountParamTypes(fn_type) as usize;
+                            let mut args = Vec::with_capacity(n_args);
+                            LLVMGetParamTypes(fn_type, args.as_mut_ptr());
+                            args.set_len(n_args);
+                            args[arg_idx as usize]
                         }
                         AttributePlace::ReturnValue => {
                             LLVMGetReturnType(fn_type)
