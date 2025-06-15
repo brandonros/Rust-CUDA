@@ -53,6 +53,7 @@ impl DebugInfo {
     }
 }
 
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum EmitOption {
     LlvmIr,
     Bitcode,
