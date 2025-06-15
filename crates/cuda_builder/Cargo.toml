@@ -14,6 +14,7 @@ nvvm-v7 = ["dep:rustc_codegen_nvvm_v7"]
 nvvm-v19 = ["dep:rustc_codegen_nvvm_v19"]
 
 [dependencies]
+tracing = { version = "0.1.41", features = ["release_max_level_debug"] }
 rustc_codegen_nvvm_v7 = { version = "0.3", path = "../rustc_codegen_nvvm_v7", optional = true }
 rustc_codegen_nvvm_v19 = { version = "0.3", path = "../rustc_codegen_nvvm_v19", optional = true }
 nvvm = { path = "../nvvm", version = "0.1" }
