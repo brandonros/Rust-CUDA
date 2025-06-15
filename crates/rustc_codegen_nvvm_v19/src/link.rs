@@ -291,8 +291,6 @@ fn codegen_into_ptx_file(
     // we need to actually parse the codegen args again, because codegencx is not available at link time.
     let codegen_args = CodegenArgs::from_session(sess);
 
-    eprintln!("DEBUG: codegen_args: {:?}", codegen_args);
-
     let ptx_bytes = match crate::nvvm::codegen_bitcode_modules(&codegen_args, sess, modules, cx.llcx) {
         Ok(bytes) => bytes,
         Err(err) => {

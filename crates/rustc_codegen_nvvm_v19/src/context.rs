@@ -136,9 +136,6 @@ impl<'ll, 'tcx> CodegenCx<'ll, 'tcx> {
             None
         };
 
-        let codegen_args = CodegenArgs::from_session(tcx.sess());
-        eprintln!("DEBUG: codegen_args: {:?}", codegen_args);
-
         let mut cx = CodegenCx {
             tcx,
             llmod,
@@ -175,7 +172,7 @@ impl<'ll, 'tcx> CodegenCx<'ll, 'tcx> {
                 addrspace: Symbol::intern("addrspace"),
             },
             dbg_cx,
-            codegen_args,
+            codegen_args: CodegenArgs::from_session(tcx.sess()),
             last_call_llfn: Cell::new(None),
         };
         cx.build_intrinsics_map();
