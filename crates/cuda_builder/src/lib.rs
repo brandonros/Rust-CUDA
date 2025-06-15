@@ -59,6 +59,7 @@ pub enum EmitOption {
 }
 
 /// A builder for easily compiling Rust GPU crates in build.rs
+#[derive(Debug)]
 pub struct CudaBuilder {
     path_to_crate: PathBuf,
     /// Whether to compile the gpu crate for release.
@@ -200,9 +201,9 @@ impl CudaBuilder {
     }
 
     /// Whether to generate any debug info and what level of info to generate.
-    pub fn debug(mut self, debug: DebugInfo) -> Self {
-        debug!("Setting debug info level: {:?}", debug);
-        self.debug = debug;
+    pub fn debug(mut self, debug_info: DebugInfo) -> Self {
+        debug!("Setting debug info level: {:?}", debug_info);
+        self.debug = debug_info;
         self
     }
 
