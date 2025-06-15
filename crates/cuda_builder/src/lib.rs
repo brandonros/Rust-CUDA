@@ -162,7 +162,13 @@ impl CudaBuilder {
             ptx_file_copy_path: None,
             generate_line_info: true,
             nvvm_opts: true,
-            arch: NvvmArch::Compute61,
+            arch: if cfg!(feature = "nvvm-v19") {
+                NvvmArch::Compute100
+            } else if cfg!(feature = "nvvm-v7") {
+                NvvmArch::default()
+            } else {
+                panic!("No NVVM version feature enabled. Enable either 'nvvm-v7' or 'nvvm-v19'");
+            },
             ftz: false,
             fast_sqrt: false,
             fast_div: false,
@@ -358,17 +364,29 @@ fn dylib_path() -> Vec<PathBuf> {
 }
 
 fn find_rustc_codegen_nvvm() -> PathBuf {
+    // Determine which version to look for based on enabled features
+    let version_suffix = if cfg!(feature = "nvvm-v19") {
+        "_v19"
+    } else if cfg!(feature = "nvvm-v7") {
+        "_v7"
+    } else {
+        panic!("No NVVM version feature enabled. Enable either 'nvvm-v7' or 'nvvm-v19'");
+    };
+
     let filename = format!(
-        "{}rustc_codegen_nvvm{}",
+        "{}rustc_codegen_nvvm{}{}",
         env::consts::DLL_PREFIX,
+        version_suffix,
         env::consts::DLL_SUFFIX
     );
+    
     for mut path in dylib_path() {
         path.push(&filename);
         if path.is_file() {
             return path;
         }
     }
+    
     panic!("Could not find {} in library path", filename);
 }
 

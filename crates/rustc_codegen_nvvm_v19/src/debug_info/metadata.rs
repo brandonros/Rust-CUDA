@@ -804,7 +804,7 @@ pub(crate) fn build_compile_unit_di_node<'ll, 'tcx>(
 
     debug!("build_compile_unit_di_node: {:?}", name_in_debuginfo);
 
-    let rustc_producer = "rustc_codegen_nvvm".to_string();
+    let rustc_producer = "rustc_codegen_nvvm_v19".to_string();
 
     // leave the clang LLVM in there just in case, although it shouldnt be needed because
     // gpu stuff is different

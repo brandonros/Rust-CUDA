@@ -65,12 +65,12 @@ fn target_to_llvm_prebuilt(target: &str) -> String {
 
 fn find_llvm_config(target: &str) -> PathBuf {
     // first, if LLVM_CONFIG is set then see if its llvm version if 7.x, if so, use that.
-    let config_env = tracked_env_var_os("LLVM_CONFIG");
+    let config_env = tracked_env_var_os("LLVM_CONFIG_19");
     // if LLVM_CONFIG is not set, try using llvm-config as a normal app in PATH.
-    let path_to_try = config_env.unwrap_or_else(|| "llvm-config".into());
+    let path_to_try = config_env.unwrap_or_else(|| "llvm-config-19".into());
 
     // if USE_PREBUILT_LLVM is set to 1 then download prebuilt llvm without trying llvm-config
-    if tracked_env_var_os("USE_PREBUILT_LLVM") != Some("1".into()) {
+    if tracked_env_var_os("USE_PREBUILT_LLVM_19") != Some("1".into()) {
         let cmd = Command::new(&path_to_try).arg("--version").output();
 
         if let Ok(out) = cmd {
@@ -125,7 +125,7 @@ fn find_llvm_config(target: &str) -> PathBuf {
 
     out_path
         .join("bin")
-        .join(format!("llvm-config{}", std::env::consts::EXE_SUFFIX))
+        .join(format!("llvm-config-19{}", std::env::consts::EXE_SUFFIX))
 }
 
 fn detect_llvm_link() -> (&'static str, &'static str) {
@@ -152,7 +152,7 @@ fn run_llvm_as() {
     
     println!("cargo:rerun-if-changed=libintrinsics.ll");
     
-    let mut cmd = Command::new("llvm-as");
+    let mut cmd = Command::new("llvm-as-19");
     cmd.arg("libintrinsics.ll");
     
     let output = match cmd.stderr(Stdio::inherit()).output() {
