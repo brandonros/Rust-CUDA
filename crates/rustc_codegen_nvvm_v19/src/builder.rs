@@ -4,7 +4,7 @@ use std::ptr;
 
 use libc::{c_char, c_uint};
 use rustc_abi as abi;
-use rustc_abi::{AddressSpace, Align, HasDataLayout, Size, TargetDataLayout, WrappingRange};
+use rustc_abi::{Align, HasDataLayout, Size, TargetDataLayout, WrappingRange};
 use rustc_codegen_ssa::MemFlags;
 use rustc_codegen_ssa::common::{AtomicOrdering, IntPredicate, RealPredicate, TypeKind};
 use rustc_codegen_ssa::mir::operand::{OperandRef, OperandValue};
@@ -829,22 +829,8 @@ impl<'ll, 'tcx, 'a> BuilderMethods<'a, 'tcx> for Builder<'a, 'll, 'tcx> {
         unsafe { llvm::LLVMBuildIntToPtr(self.llbuilder, val, dest_ty, UNNAMED) }
     }
 
-    fn bitcast(&mut self, mut val: &'ll Value, dest_ty: &'ll Type) -> &'ll Value {
-        trace!("Bitcast `{:?}` to ty `{:?}`", val, dest_ty);
-        unsafe {
-            let ty = self.val_ty(val);
-            let kind = llvm::LLVMRustGetTypeKind(ty);
-            if kind == llvm::TypeKind::Pointer {
-                let element = self.element_type(ty);
-                let addrspace = llvm::LLVMGetPointerAddressSpace(ty);
-                let new_ty = self.type_ptr_to_ext(element, AddressSpace::DATA);
-                if addrspace != 0 {
-                    trace!("injecting addrspace cast for `{:?}` to `{:?}`", ty, new_ty);
-                    val = llvm::LLVMBuildAddrSpaceCast(self.llbuilder, val, new_ty, UNNAMED);
-                }
-            }
-            llvm::LLVMBuildBitCast(self.llbuilder, val, dest_ty, UNNAMED)
-        }
+    fn bitcast(&mut self, val: &'ll Value, dest_ty: &'ll Type) -> &'ll Value {
+        unsafe { llvm::LLVMBuildBitCast(self.llbuilder, val, dest_ty, UNNAMED) }
     }
 
     fn intcast(&mut self, val: &'ll Value, dest_ty: &'ll Type, is_signed: bool) -> &'ll Value {
