@@ -259,6 +259,7 @@ impl FromStr for NvvmOption {
                     "89" => NvvmArch::Compute89,
                     "90" => NvvmArch::Compute90,
                     "100" => NvvmArch::Compute100,
+                    "120" => NvvmArch::Compute120,
                     _ => return Err("unknown arch"),
                 };
                 Self::Arch(arch)
@@ -288,6 +289,7 @@ pub enum NvvmArch {
     Compute89,
     Compute90,
     Compute100,
+    Compute120,
 }
 
 impl Display for NvvmArch {
@@ -460,6 +462,7 @@ mod tests {
             "-arch=compute_89",
             "-arch=compute_90",
             "-arch=compute_100",
+            "-arch=compute_120",
             "-ftz=1",
             "-prec-sqrt=0",
             "-prec-div=0",
@@ -486,6 +489,7 @@ mod tests {
             Arch(Compute89),
             Arch(Compute90),
             Arch(Compute100),
+            Arch(Compute120),
             Ftz,
             FastSqrt,
             FastDiv,

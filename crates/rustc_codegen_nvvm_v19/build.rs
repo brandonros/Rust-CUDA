@@ -19,9 +19,9 @@ fn main() {
     rustc_llvm_build();
 
     // this is set by cuda_builder, but in case somebody is using the codegen
-    // manually, default to 1000 (which is what nvvm defaults to).
+    // manually, default to 1200.
     if option_env!("CUDA_ARCH").is_none() {
-        println!("cargo:rustc-env=CUDA_ARCH=1000")
+        println!("cargo:rustc-env=CUDA_ARCH=1200")
     }
 }
 

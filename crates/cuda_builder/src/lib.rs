@@ -163,7 +163,7 @@ impl CudaBuilder {
             generate_line_info: true,
             nvvm_opts: true,
             arch: if cfg!(feature = "nvvm-v19") {
-                NvvmArch::Compute100
+                NvvmArch::Compute120
             } else if cfg!(feature = "nvvm-v7") {
                 NvvmArch::default()
             } else {

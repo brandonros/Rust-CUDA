@@ -22,7 +22,7 @@ pub fn target() -> Target {
     options.linker_flavor = LinkerFlavor::Ptx;
     // nvvm does all the linking for us, but technically its not a linker
     options.linker = None;
-    options.cpu = "sm_100".into();
+    options.cpu = "sm_120".into();
     options.max_atomic_width = Some(64);
     // Unwinding on CUDA is neither feasible nor useful.
     options.panic_strategy = PanicStrategy::Abort;

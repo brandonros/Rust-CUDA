@@ -5,6 +5,8 @@ edition = "2024"
 
 [dependencies]
 cuda_std = { path = "../../../../crates/cuda_std" }
+rand_core = { version = "0.9.3" }
+rand_xoshiro = { version = "0.7.0", default-features = false }
 
 [lib]
 crate-type = ["cdylib", "rlib"]
