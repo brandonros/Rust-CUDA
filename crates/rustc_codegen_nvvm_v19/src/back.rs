@@ -101,7 +101,7 @@ pub fn target_machine_factory(
     let triple = sess.target.llvm_target.clone().to_string();
     let cpu_string = sess.opts.cg.target_cpu
         .as_deref()
-        .unwrap_or("sm_120")
+        .unwrap_or("") // TODO: sm_120?
         .to_string();
     let features_string = "".to_string();
     let trap_unreachable = sess
