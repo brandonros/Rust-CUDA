@@ -20,7 +20,8 @@ use tracing::trace;
 use crate::builder::Builder;
 use crate::context::CodegenCx;
 use crate::int_replace::{get_transformed_type, transmute_llval};
-use crate::llvm::{self, *};
+use crate::llvm;
+use crate::llvm::{AttributePlace, Type, Value};
 use crate::ty::LayoutLlvmExt;
 
 pub(crate) fn readjust_fn_abi<'tcx>(
@@ -185,8 +186,10 @@ impl LlvmType for Reg {
         match self.kind {
             RegKind::Integer => cx.type_ix(self.size.bits()),
             RegKind::Float => match self.size.bits() {
+                16 => cx.type_f16(),
                 32 => cx.type_f32(),
                 64 => cx.type_f64(),
+                128 => cx.type_f128(),
                 _ => bug!("unsupported float: {:?}", self),
             },
             RegKind::Vector => cx.type_vector(cx.type_i8(), self.size.bytes()),
@@ -376,8 +379,8 @@ impl<'ll, 'tcx> FnAbiLlvmExt<'ll, 'tcx> for FnAbi<'tcx, Ty<'tcx>> {
 
     fn ptr_to_llvm_type(&self, cx: &CodegenCx<'ll, 'tcx>) -> &'ll Type {
         unsafe {
-            llvm::LLVMPointerType(
-                self.llvm_type(cx),
+            llvm::LLVMPointerTypeInContext(
+                cx.llcx,
                 cx.data_layout().instruction_address_space.0 as c_uint,
             )
         }
@@ -546,7 +549,7 @@ impl<'tcx> AbiBuilderMethods<'tcx> for Builder<'_, '_, 'tcx> {
         let val = llvm::get_param(self.llfn(), index as c_uint);
         // trace!("Get param `{:?}`", val);
         let val = unsafe {
-            let llfnty = LLVMRustGetFunctionType(self.llfn());
+            let llfnty: &Type = llvm::LLVMRustGetFunctionType(self.llfn());
             trace!("llfnty: {:?}", llfnty);
             // destructure so rustc doesnt complain in the call to transmute_llval
             let Self { cx, llbuilder } = self;

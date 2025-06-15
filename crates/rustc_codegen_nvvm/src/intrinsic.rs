@@ -582,8 +582,8 @@ impl<'ll, 'tcx> IntrinsicCallBuilderMethods<'tcx> for Builder<'_, 'll, 'tcx> {
     }
 
     fn abort(&mut self) {
-        trace!("Generate abort call");
-        self.call_intrinsic("llvm.trap", &[]);
+        let (trap_ty, f) = self.get_intrinsic("llvm.trap");
+        self.call(trap_ty, None, None, f, &[], None, None);
     }
 
     fn assume(&mut self, val: &'ll Value) {

@@ -112,7 +112,8 @@ unsafe fn configure_llvm(sess: &Session) {
         // }
     }
 
-    unsafe { llvm::LLVMInitializePasses() };
+    // TODO: removed as part of llvm v19?
+    //unsafe { llvm::LLVMInitializePasses() };
 
     for plugin in &sess.opts.unstable_opts.llvm_plugins {
         let path = Path::new(plugin);

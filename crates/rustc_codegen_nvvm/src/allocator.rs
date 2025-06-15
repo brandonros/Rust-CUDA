@@ -1,5 +1,6 @@
 use crate::LlvmMod;
-use crate::llvm::{self, False, True};
+use crate::llvm;
+use crate::llvm::{False, True};
 use crate::target;
 use libc::c_uint;
 use rustc_ast::expand::allocator::{
@@ -18,8 +19,8 @@ pub(crate) unsafe fn codegen(
     let llcx = &*mods.llcx;
     let llmod = unsafe { mods.llmod.as_ref().unwrap() };
     let usize = unsafe { target::usize_ty(llcx) };
-    let i8 = unsafe { llvm::LLVMInt8TypeInContext(llcx) };
-    let i8p = unsafe { llvm::LLVMPointerType(i8, 0) };
+    //let i8 = unsafe { llvm::LLVMInt8TypeInContext(llcx) };
+    let i8p = unsafe { llvm::LLVMPointerTypeInContext(llcx, 0) };
     let void = unsafe { llvm::LLVMVoidTypeInContext(llcx) };
 
     let mut used = Vec::new();
@@ -60,7 +61,6 @@ pub(crate) unsafe fn codegen(
             let llfn = unsafe {
                 llvm::LLVMRustGetOrInsertFunction(llmod, name.as_ptr().cast(), name.len(), ty)
             };
-
             used.push(llfn);
             // nvvm doesnt support uwtable so dont try to generate it
 
@@ -84,10 +84,12 @@ pub(crate) unsafe fn codegen(
             let ret = unsafe {
                 llvm::LLVMRustBuildCall(
                     llbuilder,
+                    ty,
                     callee,
                     args.as_ptr(),
                     args.len() as c_uint,
-                    None,
+                    [].as_ptr(),
+                    0,
                 )
             };
             unsafe { llvm::LLVMSetTailCall(ret, True) };
@@ -105,9 +107,7 @@ pub(crate) unsafe fn codegen(
 
     let ty = unsafe { llvm::LLVMFunctionType(void, args.as_ptr(), args.len() as c_uint, False) };
     let name = "__rust_alloc_error_handler".to_string();
-    let llfn =
-        unsafe { llvm::LLVMRustGetOrInsertFunction(llmod, name.as_ptr().cast(), name.len(), ty) };
-
+    let llfn = unsafe { llvm::LLVMRustGetOrInsertFunction(llmod, name.as_ptr().cast(), name.len(), ty) };
     used.push(llfn);
 
     // -> ! DIFlagNoReturn
@@ -117,7 +117,6 @@ pub(crate) unsafe fn codegen(
     let callee = unsafe {
         llvm::LLVMRustGetOrInsertFunction(llmod, callee.as_ptr().cast(), callee.len(), ty)
     };
-
     used.push(callee);
 
     // -> ! DIFlagNoReturn
@@ -134,13 +133,21 @@ pub(crate) unsafe fn codegen(
         .map(|(i, _)| unsafe { llvm::LLVMGetParam(llfn, i as c_uint) })
         .collect::<Vec<_>>();
     let ret = unsafe {
-        llvm::LLVMRustBuildCall(llbuilder, callee, args.as_ptr(), args.len() as c_uint, None)
+        llvm::LLVMRustBuildCall(
+            llbuilder, 
+            ty,
+            callee, 
+            args.as_ptr(), 
+            args.len() as c_uint,
+            [].as_ptr(),
+            0
+        )
     };
     unsafe { llvm::LLVMSetTailCall(ret, True) };
     unsafe { llvm::LLVMBuildRetVoid(llbuilder) };
     unsafe { llvm::LLVMDisposeBuilder(llbuilder) };
 
-    let ptr_ty = unsafe { llvm::LLVMPointerType(llvm::LLVMInt8TypeInContext(llcx), 0) };
+    let ptr_ty = unsafe { llvm::LLVMPointerTypeInContext(llcx, 0) };
 
     for used in &mut used {
         *used = unsafe { llvm::LLVMConstBitCast(used, ptr_ty) };

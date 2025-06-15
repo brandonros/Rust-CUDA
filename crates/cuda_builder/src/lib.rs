@@ -162,7 +162,7 @@ impl CudaBuilder {
             ptx_file_copy_path: None,
             generate_line_info: true,
             nvvm_opts: true,
-            arch: NvvmArch::Compute61,
+            arch: NvvmArch::Compute100,
             ftz: false,
             fast_sqrt: false,
             fast_div: false,

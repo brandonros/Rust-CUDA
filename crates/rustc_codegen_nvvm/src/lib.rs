@@ -120,7 +120,6 @@ impl CodegenBackend for NvvmCodegenBackend {
             .with_ansi(false)
             .compact()
             .finish();
-
         tracing::subscriber::set_global_default(subscriber).expect("no default subscriber");
         init::init(sess);
     }

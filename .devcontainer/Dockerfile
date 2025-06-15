@@ -1,9 +1,9 @@
-FROM nvidia/cuda:12.9.0-cudnn-devel-ubuntu22.04
+FROM nvidia/cuda:12.9.0-cudnn-devel-ubuntu24.04
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -qq -y install \
     build-essential \
-    curl \
     clang \
+    curl \
     libssl-dev \
     libtinfo-dev \
     pkg-config \
@@ -22,17 +22,6 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -qq -y install \
     libxrandr-dev && \
     rm -rf /var/lib/apt/lists/*
 
-# Get LLVM 7
-WORKDIR /data/llvm7
-RUN curl -sSf -L -O http://mirrors.kernel.org/ubuntu/pool/universe/l/llvm-toolchain-7/llvm-7_7.0.1-12_amd64.deb && \
-    curl -sSf -L -O http://mirrors.kernel.org/ubuntu/pool/universe/l/llvm-toolchain-7/llvm-7-dev_7.0.1-12_amd64.deb && \
-    curl -sSf -L -O http://mirrors.kernel.org/ubuntu/pool/universe/l/llvm-toolchain-7/libllvm7_7.0.1-12_amd64.deb && \
-    curl -sSf -L -O http://mirrors.kernel.org/ubuntu/pool/universe/l/llvm-toolchain-7/llvm-7-runtime_7.0.1-12_amd64.deb && \
-    apt-get update && apt-get install -y ./*.deb && \
-    ln -s /usr/bin/llvm-config-7 /usr/bin/llvm-config && \
-    rm -rf ./*.deb && \
-    rm -rf /var/lib/apt/lists/*
-
 # Get Rust
 RUN curl -sSf -L https://sh.rustup.rs | bash -s -- -y
 ENV PATH="/root/.cargo/bin:${PATH}"
@@ -46,3 +35,15 @@ RUN --mount=type=bind,source=rust-toolchain.toml,target=/data/Rust-CUDA/rust-too
 ENV LD_LIBRARY_PATH="/usr/local/cuda/nvvm/lib64:${LD_LIBRARY_PATH}"
 ENV LLVM_LINK_STATIC=1
 ENV RUST_LOG=info
+
+# install git + miscellaneous
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -qq -y install \
+    git \
+    gdb \
+    lldb \
+    psmisc \
+    libzstd-dev && \
+    rm -rf /var/lib/apt/lists/*
+
+# ln -s /opt/llvm-19-debug/bin/llvm-config /usr/bin/llvm-config 
+# export PATH="/opt/llvm-19-debug/bin:$PATH"

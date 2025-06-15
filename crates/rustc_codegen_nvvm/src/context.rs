@@ -7,7 +7,8 @@ use std::str::FromStr;
 use crate::abi::FnAbiLlvmExt;
 use crate::attributes::{self, NvvmAttributes, Symbols};
 use crate::debug_info::{self, CodegenUnitDebugContext};
-use crate::llvm::{self, BasicBlock, Type, Value};
+use crate::llvm;
+use crate::llvm::{BasicBlock, Type, Value};
 use crate::{LlvmMod, target};
 use nvvm::NvvmOption;
 use rustc_abi::AddressSpace;
@@ -135,6 +136,9 @@ impl<'ll, 'tcx> CodegenCx<'ll, 'tcx> {
             None
         };
 
+        let codegen_args = CodegenArgs::from_session(tcx.sess());
+        eprintln!("DEBUG: codegen_args: {:?}", codegen_args);
+
         let mut cx = CodegenCx {
             tcx,
             llmod,
@@ -171,7 +175,7 @@ impl<'ll, 'tcx> CodegenCx<'ll, 'tcx> {
                 addrspace: Symbol::intern("addrspace"),
             },
             dbg_cx,
-            codegen_args: CodegenArgs::from_session(tcx.sess()),
+            codegen_args,
             last_call_llfn: Cell::new(None),
         };
         cx.build_intrinsics_map();
@@ -334,7 +338,6 @@ impl<'ll, 'tcx> CodegenCx<'ll, 'tcx> {
         let llfn = unsafe {
             llvm::LLVMRustGetOrInsertFunction(self.llmod, name.as_ptr().cast(), name.len(), ty)
         };
-
         trace!("Declaring function `{}` with ty `{:?}`", name, ty);
 
         // TODO(RDambrosio016): we should probably still generate accurate calling conv for functions
@@ -395,13 +398,12 @@ impl<'ll, 'tcx> CodegenCx<'ll, 'tcx> {
     }
 
     pub(crate) fn get_intrinsic(&self, key: &str) -> (&'ll Type, &'ll Value) {
-        trace!("Retrieving intrinsic with name `{}`", key);
         if let Some(v) = self.intrinsics.borrow().get(key).cloned() {
             return v;
         }
-
-        self.declare_intrinsic(key)
-            .unwrap_or_else(|| bug!("unknown intrinsic '{}'", key))
+        let result = self.declare_intrinsic(key)
+            .unwrap_or_else(|| bug!("unknown intrinsic '{}'", key));
+        result
     }
 
     pub(crate) fn insert_intrinsic(
@@ -411,9 +413,9 @@ impl<'ll, 'tcx> CodegenCx<'ll, 'tcx> {
         ret: &'ll Type,
     ) -> (&'ll Type, &'ll Value) {
         let fn_ty = if let Some(args) = args {
-            self.type_func(args, ret)
+            self.type_func(args, ret)  // This includes empty args: fn() -> ret
         } else {
-            self.type_variadic_func(&[], ret)
+            self.type_variadic_func(&[], ret)  // This should rarely be used
         };
         let f = self.declare_fn(name, fn_ty, None);
         llvm::SetUnnamedAddress(f, llvm::UnnamedAddr::No);
@@ -543,7 +545,7 @@ impl<'ll, 'tcx> CodegenCx<'ll, 'tcx> {
     }
 }
 
-#[derive(Default, Clone)]
+#[derive(Default, Clone, Debug)]
 pub struct CodegenArgs {
     pub nvvm_options: Vec<NvvmOption>,
     pub override_libm: bool,

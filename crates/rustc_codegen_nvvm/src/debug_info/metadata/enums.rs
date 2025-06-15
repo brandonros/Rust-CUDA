@@ -27,7 +27,7 @@ use crate::debug_info::metadata::{
 };
 use crate::debug_info::util::{DIB, create_DIArray, get_namespace_for_item};
 use crate::llvm::debuginfo::{DIFile, DIFlags, DIType};
-use crate::llvm::{self};
+use crate::llvm;
 
 /// Build the debuginfo node for an enum type. The listing below shows how such a
 /// type looks like at the LLVM IR/DWARF level. It is a `DW_TAG_structure_type`

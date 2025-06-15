@@ -289,9 +289,11 @@ fn codegen_into_ptx_file(
     // modules to nvvm to make a final ptx file
 
     // we need to actually parse the codegen args again, because codegencx is not available at link time.
-    let args = CodegenArgs::from_session(sess);
+    let codegen_args = CodegenArgs::from_session(sess);
 
-    let ptx_bytes = match crate::nvvm::codegen_bitcode_modules(&args, sess, modules, cx.llcx) {
+    eprintln!("DEBUG: codegen_args: {:?}", codegen_args);
+
+    let ptx_bytes = match crate::nvvm::codegen_bitcode_modules(&codegen_args, sess, modules, cx.llcx) {
         Ok(bytes) => bytes,
         Err(err) => {
             // TODO(RDambrosio016): maybe include the nvvm log with this fatal error

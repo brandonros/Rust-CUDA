@@ -12,10 +12,10 @@ use rustc_codegen_ssa::{
 use rustc_errors::{DiagCtxtHandle, FatalError};
 use rustc_middle::dep_graph::WorkProduct;
 use tracing::{debug, trace};
-
-use crate::NvvmCodegenBackend;
+use crate::llvm::{self, True};
 use crate::common::AsCCharPtr;
-use crate::{LlvmMod, llvm};
+use crate::NvvmCodegenBackend;
+use crate::LlvmMod;
 
 pub struct ModuleBuffer(&'static mut llvm::ModuleBuffer);
 
@@ -55,8 +55,14 @@ unsafe impl Sync for ThinBuffer {}
 impl ThinBuffer {
     pub(crate) fn new(m: &llvm::Module) -> ThinBuffer {
         unsafe {
-            let buffer = llvm::LLVMRustThinLTOBufferCreate(m);
+            // TODO: do not hardcode these
+            let is_thin = True;
+            let emit_summary = True;
 
+            // TODO: temporary dumping module to try to catch what is invalid
+            //llvm::LLVMDumpModule(m);
+
+            let buffer = llvm::LLVMRustThinLTOBufferCreate(m, is_thin, emit_summary);
             ThinBuffer(buffer)
         }
     }
@@ -181,7 +187,6 @@ pub(crate) fn parse_module<'a>(
             data.as_ptr(),
             data.len(),
             name.as_c_char_ptr(),
-            name.len(),
         )
         .ok_or_else(|| {
             let msg = "failed to parse bitcode for LTO module";

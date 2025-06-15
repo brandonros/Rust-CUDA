@@ -25,7 +25,6 @@ use std::hash::{Hash, Hasher};
 use std::marker::PhantomData;
 use std::ptr::{self};
 
-use crate::builder::unnamed;
 pub use debuginfo::*;
 
 impl PartialEq for Value {
@@ -94,7 +93,38 @@ impl AttributePlace {
 
 impl Attribute {
     pub fn apply_llfn(&self, idx: AttributePlace, llfn: &Value) {
-        unsafe { LLVMRustAddFunctionAttribute(llfn, idx.as_uint(), *self) }
+        unsafe {
+            match *self {
+                Attribute::StructRet => {
+                    // These attributes need type information in LLVM 19+
+                    // We need to infer the type from the function signature
+                    let fn_type = LLVMRustGetFunctionType(llfn);
+                    
+                    // Get the parameter type based on the index
+                    let param_type = match idx {
+                        AttributePlace::Argument(arg_idx) => {
+                            let n_args = LLVMCountParamTypes(fn_type) as usize;
+                            let mut args = Vec::with_capacity(n_args);
+                            LLVMGetParamTypes(fn_type, args.as_mut_ptr());
+                            args.set_len(n_args);
+                            args[arg_idx as usize]
+                        }
+                        AttributePlace::ReturnValue => {
+                            LLVMGetReturnType(fn_type)
+                        }
+                        _ => {
+                            panic!("StructRet attributes only valid on parameters and return values");
+                        }
+                    };
+                    
+                    LLVMRustAddFunctionAttributeWithType(llfn, idx.as_uint(), *self, param_type);
+                }
+                _ => {
+                    // Regular attributes that don't need type info
+                    LLVMRustAddFunctionAttribute(llfn, idx.as_uint(), *self);
+                }
+            }
+        }
     }
 
     pub fn apply_callsite(&self, idx: AttributePlace, callsite: &Value) {
@@ -292,6 +322,9 @@ pub(crate) enum TypeKind {
     Half = 1,
     Float = 2,
     Double = 3,
+    X86_FP80 = 4,
+    FP128 = 5,
+    PPC_FP128 = 6,
     Label = 7,
     Integer = 8,
     Function = 9,
@@ -303,26 +336,33 @@ pub(crate) enum TypeKind {
     Token = 16,
     ScalableVector = 17,
     BFloat = 18,
+    X86_AMX = 19,
+    TargetExt = 20,
 }
 
 impl TypeKind {
     pub fn to_generic(self) -> rustc_codegen_ssa::common::TypeKind {
-        match self {
+       match self {
             TypeKind::Void => rustc_codegen_ssa::common::TypeKind::Void,
             TypeKind::Half => rustc_codegen_ssa::common::TypeKind::Half,
             TypeKind::Float => rustc_codegen_ssa::common::TypeKind::Float,
             TypeKind::Double => rustc_codegen_ssa::common::TypeKind::Double,
+            TypeKind::X86_FP80 => rustc_codegen_ssa::common::TypeKind::X86_FP80,
+            TypeKind::FP128 => rustc_codegen_ssa::common::TypeKind::FP128,
+            TypeKind::PPC_FP128 => rustc_codegen_ssa::common::TypeKind::PPC_FP128,
             TypeKind::Label => rustc_codegen_ssa::common::TypeKind::Label,
+            TypeKind::Metadata => rustc_codegen_ssa::common::TypeKind::Metadata,
             TypeKind::Integer => rustc_codegen_ssa::common::TypeKind::Integer,
             TypeKind::Function => rustc_codegen_ssa::common::TypeKind::Function,
             TypeKind::Struct => rustc_codegen_ssa::common::TypeKind::Struct,
             TypeKind::Array => rustc_codegen_ssa::common::TypeKind::Array,
             TypeKind::Pointer => rustc_codegen_ssa::common::TypeKind::Pointer,
             TypeKind::Vector => rustc_codegen_ssa::common::TypeKind::Vector,
-            TypeKind::Metadata => rustc_codegen_ssa::common::TypeKind::Metadata,
             TypeKind::Token => rustc_codegen_ssa::common::TypeKind::Token,
             TypeKind::ScalableVector => rustc_codegen_ssa::common::TypeKind::ScalableVector,
             TypeKind::BFloat => rustc_codegen_ssa::common::TypeKind::BFloat,
+            TypeKind::X86_AMX => rustc_codegen_ssa::common::TypeKind::X86_AMX,
+            TypeKind::TargetExt => unimplemented!()
         }
     }
 }
@@ -493,6 +533,11 @@ unsafe extern "C" {
     pub(crate) type MemoryBuffer;
 }
 
+// TODO: remove this llvm v19 type
+unsafe extern "C" {
+    pub type PassBuilderOptions;
+}
+
 /// LLVMRustChecksumKind
 #[derive(Copy, Clone)]
 #[repr(C)]
@@ -560,6 +605,29 @@ pub mod debuginfo {
         }
     }
 
+    bitflags! {
+        /// These values **must** match debuginfo::DISPFlags! They also *happen*
+        /// to match LLVM, but that isn't required as we do giant sets of
+        /// matching below. The value shouldn't be directly passed to LLVM.
+        ///
+        /// Each value declared here must also be covered by the static
+        /// assertions in `RustWrapper.cpp` used by `fromRust(LLVMRustDISPFlags)`.
+        #[repr(C)]
+        #[derive(Clone, Copy, Default)]
+        pub struct LLVMRustDISPFlags: u32 {
+            const SPFlagZero = 0;
+            const SPFlagVirtual = 1;
+            const SPFlagPureVirtual = 2;
+            const SPFlagLocalToUnit = (1 << 2);
+            const SPFlagDefinition = (1 << 3);
+            const SPFlagOptimized = (1 << 4);
+            const SPFlagMainSubprogram = (1 << 5);
+            // Do not add values that are not supported by the minimum LLVM
+            // version we support! see llvm/include/llvm/IR/DebugInfoFlags.def
+            // (In LLVM < 8, createFunction supported these as separate bool arguments.)
+        }
+    }
+
     /// LLVMRustDebugEmissionKind
     #[derive(Copy, Clone)]
     #[repr(C)]
@@ -592,38 +660,10 @@ pub mod debuginfo {
     }
 }
 
-// These functions are kind of a hack for the future. They wrap LLVM 7 rust shim functions
-// and turn them into the API that the llvm 12 shim has. This way, if nvidia ever updates their
-// dinosaur llvm version, switching for us should be extremely easy. `Name` is assumed to be
-// a utf8 string
-pub(crate) unsafe fn LLVMRustGetOrInsertFunction<'a>(
-    M: &'a Module,
-    Name: *const c_char,
-    NameLen: usize,
-    FunctionTy: &'a Type,
-) -> &'a Value {
-    unsafe {
-        let str = std::str::from_utf8_unchecked(std::slice::from_raw_parts(Name.cast(), NameLen));
-        let cstring = CString::new(str).expect("str with nul");
-        __LLVMRustGetOrInsertFunction(M, cstring.as_ptr(), FunctionTy)
-    }
-}
-
-pub(crate) unsafe fn LLVMRustBuildCall<'a>(
-    B: &Builder<'a>,
-    Fn: &'a Value,
-    Args: *const &'a Value,
-    NumArgs: c_uint,
-    Bundle: Option<&OperandBundleDef<'a>>,
-) -> &'a Value {
-    unsafe { __LLVMRustBuildCall(B, Fn, Args, NumArgs, Bundle, unnamed()) }
-}
-
 /// LLVMRustCodeGenOptLevel
-#[derive(Copy, Clone, PartialEq)]
+#[derive(Copy, Clone, PartialEq, Debug)]
 #[repr(C)]
 pub enum CodeGenOptLevel {
-    Other,
     None,
     Less,
     Default,
@@ -644,6 +684,15 @@ pub enum RelocMode {
     ROPI_RWPI,
 }
 
+/// LLVMRustFloatABI
+#[derive(Copy, Clone)]
+#[repr(C)]
+pub enum FloatABIType {
+    Default,
+    Soft,
+    Hard
+}
+
 /// LLVMRustCodeModel
 #[derive(Copy, Clone)]
 #[repr(C)]
@@ -656,22 +705,32 @@ pub enum CodeModel {
     None,
 }
 
+// LLVMRustDebugNameTableKind
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[repr(C)]
+pub enum DebugNameTableKind {
+    Default = 0,
+    GNU = 1,
+    None = 2,
+    Apple = 3,
+}
+
+
 unsafe extern "C" {
-    #[link_name = "LLVMRustBuildCall"]
-    pub(crate) fn __LLVMRustBuildCall<'a>(
+    pub fn LLVMRustBuildCall<'a>(
         B: &Builder<'a>,
+        Ty: &'a Type,
         Fn: &'a Value,
         Args: *const &'a Value,
         NumArgs: c_uint,
-        Bundle: Option<&OperandBundleDef<'a>>,
-        Name: *const c_char,
+        OpBundles: *const &OperandBundleDef<'a>,
+        NumOpBundles: c_uint,
     ) -> &'a Value;
 
-    // see comment on function before this extern block
-    #[link_name = "LLVMRustGetOrInsertFunction"]
-    fn __LLVMRustGetOrInsertFunction<'a>(
+    pub(crate) fn LLVMRustGetOrInsertFunction<'a>(
         M: &'a Module,
         Name: *const c_char,
+        NameLen: size_t, // TODO: llvm19 added this
         FunctionTy: &'a Type,
     ) -> &'a Value;
 
@@ -681,7 +740,8 @@ unsafe extern "C" {
     pub(crate) fn LLVMInitializeNVPTXTarget();
     pub(crate) fn LLVMInitializeNVPTXTargetMC();
     pub(crate) fn LLVMInitializeNVPTXAsmPrinter();
-    pub(crate) fn LLVMInitializePasses();
+    // TODO: removed?
+    //pub(crate) fn LLVMInitializePasses();
     pub(crate) fn LLVMRustSetLLVMOptions(Argc: c_int, Argv: *const *const c_char);
 }
 
@@ -702,7 +762,8 @@ unsafe extern "C" {
         T: &'a Type,
         AddressSpace: c_uint,
     ) -> &'a Value;
-    pub(crate) fn LLVMAddGlobalDCEPass(PM: &mut PassManager);
+    // TODO: removed
+    //pub(crate) fn LLVMAddGlobalDCEPass(PM: &mut PassManager);
     pub(crate) fn LLVMGetNamedMetadataOperands(M: &Module, name: *const c_char, Dest: *mut &Value);
     pub(crate) fn LLVMGetNamedMetadataNumOperands(M: &Module, name: *const c_char) -> c_uint;
     pub(crate) fn LLVMGetMDNodeOperands(V: &Value, Dest: *mut &Value);
@@ -735,7 +796,11 @@ unsafe extern "C" {
     pub(crate) fn LLVMDisposeMemoryBuffer<'a>(MemBuf: &'a mut MemoryBuffer);
 
     pub(crate) fn LLVMGetCurrentDebugLocation<'a>(Builder: &Builder<'a>) -> Option<&'a Value>;
-    pub(crate) fn LLVMSetCurrentDebugLocation<'a>(Builder: &Builder<'a>, L: Option<&'a Value>);
+    //pub(crate) fn LLVMSetCurrentDebugLocation<'a>(Builder: &Builder<'a>, L: Option<&'a Value>);
+    pub(crate) fn LLVMSetCurrentDebugLocation2<'a>(
+        Builder: &Builder<'a>,
+        Loc: Option<&'a Metadata>,
+    );
 
     pub(crate) fn LLVMGetModuleContext(M: &Module) -> &Context;
     pub(crate) fn LLVMGetMDKindIDInContext(
@@ -772,6 +837,7 @@ unsafe extern "C" {
         kind: DebugEmissionKind,
         DWOId: u64,
         SplitDebugInlining: bool,
+        TableKind: DebugNameTableKind,
     ) -> &'a DIDescriptor;
 
     pub(crate) fn LLVMRustDIBuilderCreateFile<'a>(
@@ -792,19 +858,20 @@ unsafe extern "C" {
         ParameterTypes: &'a DIArray,
     ) -> &'a DICompositeType;
 
+    // TODO: updated
     pub(crate) fn LLVMRustDIBuilderCreateFunction<'a>(
         Builder: &DIBuilder<'a>,
         Scope: &'a DIDescriptor,
         Name: *const c_char,
+        NameLen: size_t,
         LinkageName: *const c_char,
+        LinkageNameLen: size_t,
         File: &'a DIFile,
         LineNo: c_uint,
         Ty: &'a DIType,
-        isLocalToUnit: bool,
-        isDefinition: bool,
         ScopeLine: c_uint,
         Flags: DIFlags,
-        isOptimized: bool,
+        SPFlags: LLVMRustDISPFlags,
         MaybeFn: Option<&'a Value>,
         TParam: &'a DIArray,
         Decl: Option<&'a DIDescriptor>,
@@ -833,7 +900,9 @@ unsafe extern "C" {
         PointeeTy: &'a DIType,
         SizeInBits: u64,
         AlignInBits: u32,
+        AddressSpace: c_uint,
         Name: *const c_char,
+        NameLen: size_t,
     ) -> &'a DIDerivedType;
 
     pub(crate) fn LLVMRustDIBuilderCreateStructType<'a>(
@@ -918,6 +987,7 @@ unsafe extern "C" {
         Tag: c_uint,
         Scope: &'a DIDescriptor,
         Name: *const c_char,
+        NameLen: usize,
         File: &'a DIFile,
         LineNo: c_uint,
         Ty: &'a DIType,
@@ -959,7 +1029,7 @@ unsafe extern "C" {
         Builder: &DIBuilder<'a>,
         Val: &'a Value,
         VarInfo: &'a DIVariable,
-        AddrOps: *const i64,
+        AddrOps: *const u64,
         AddrOpsCount: c_uint,
         DL: &'a DILocation,
         InsertAtEnd: &'a BasicBlock,
@@ -1052,8 +1122,9 @@ unsafe extern "C" {
         Line: c_uint,
         Column: c_uint,
         Scope: &'a DIScope,
-        InlinedAt: Option<&'a Metadata>,
+        InlinedAt: Option<&'a DILocation>,
     ) -> &'a DILocation;
+
     pub(crate) fn LLVMRustDILocationCloneWithBaseDiscriminator<'a>(
         Location: &'a DILocation,
         BD: c_uint,
@@ -1079,29 +1150,38 @@ unsafe extern "C" {
         PGOUsePath: *const c_char,
     );
 
-    pub(crate) fn LLVMRustCreateTargetMachine<'a>(
-        Triple: *const c_char,
-        TripleLen: size_t,
+    pub(crate) fn LLVMRustCreateTargetMachine(
+        TripleStr: *const c_char,
         CPU: *const c_char,
-        CPULen: size_t,
-        Features: *const c_char,
-        FeaturesLen: size_t,
-        Model: CodeModel,
-        Reloc: RelocMode,
-        Level: CodeGenOptLevel,
-        UseSoftFP: bool,
-        PositionIndependentExecutable: bool,
+        Feature: *const c_char,
+        ABIStr: *const c_char,
+        RustCM: CodeModel,
+        RustReloc: RelocMode,
+        RustOptLevel: CodeGenOptLevel,
+        RustFloatABIType: FloatABIType,
         FunctionSections: bool,
         DataSections: bool,
+        UniqueSectionNames: bool,
         TrapUnreachable: bool,
         Singlethread: bool,
-    ) -> Option<&'static mut TargetMachine>;
+        VerboseAsm: bool,
+        EmitStackSizeSection: bool,
+        RelaxELFRelocations: bool,
+        UseInitArray: bool,
+        SplitDwarfFile: *const c_char,
+        OutputObjFile: *const c_char,
+        DebugInfoCompression: *const c_char,
+        UseEmulatedTls: bool,
+        ArgsCstrBuff: *const c_char,
+        ArgsCstrBuffLen: usize,
+    ) -> Option<&'static mut TargetMachine>; // TODO: not sure about this
 
-    pub(crate) fn LLVMRustAddAnalysisPasses<'a>(
+    // TODO: remove me
+    /*pub(crate) fn LLVMRustAddAnalysisPasses<'a>(
         T: &'a TargetMachine,
         PM: &'a PassManager,
         M: &'a Module,
-    );
+    );*/
     pub(crate) fn LLVMRustPassKind(Pass: &Pass) -> PassKind;
     pub(crate) fn LLVMRustFindAndCreatePass(
         Pass: *const c_char,
@@ -1201,6 +1281,7 @@ unsafe extern "C" {
 
     // Operations on real types
     pub(crate) fn LLVMHalfTypeInContext(C: &Context) -> &Type;
+    pub(crate) fn LLVMPointerTypeInContext(C: &Context, AddressSpace: c_uint) -> &Type;
     pub(crate) fn LLVMFloatTypeInContext(C: &Context) -> &Type;
     pub(crate) fn LLVMDoubleTypeInContext(C: &Context) -> &Type;
     pub(crate) fn LLVMFP128TypeInContext(C: &Context) -> &Type;
@@ -1229,7 +1310,7 @@ unsafe extern "C" {
 
     // Operations on array, pointer, and vector types (sequence types)
     pub(crate) fn LLVMRustArrayType(ElementType: &Type, ElementCount: u64) -> &Type;
-    pub(crate) fn LLVMPointerType(ElementType: &Type, AddressSpace: c_uint) -> &Type;
+    //pub(crate) fn LLVMPointerType(ElementType: &Type, AddressSpace: c_uint) -> &Type;
     pub(crate) fn LLVMVectorType(ElementType: &Type, ElementCount: c_uint) -> &Type;
 
     pub(crate) fn LLVMGetElementType(Ty: &Type) -> &Type;
@@ -1309,7 +1390,8 @@ unsafe extern "C" {
         ConstantIndices: *const &'a Value,
         NumIndices: c_uint,
     ) -> &'a Value;
-    pub(crate) fn LLVMConstZExt<'a>(ConstantVal: &'a Value, ToType: &'a Type) -> &'a Value;
+    // TODO: remove me
+    //pub(crate) fn LLVMConstZExt<'a>(ConstantVal: &'a Value, ToType: &'a Type) -> &'a Value;
     pub(crate) fn LLVMConstPtrToInt<'a>(ConstantVal: &'a Value, ToType: &'a Type) -> &'a Value;
     pub(crate) fn LLVMConstIntToPtr<'a>(ConstantVal: &'a Value, ToType: &'a Type) -> &'a Value;
     pub(crate) fn LLVMConstBitCast<'a>(ConstantVal: &'a Value, ToType: &'a Type) -> &'a Value;
@@ -1356,6 +1438,7 @@ unsafe extern "C" {
     pub(crate) fn LLVMSetFunctionCallConv(Fn: &Value, CC: c_uint);
     pub(crate) fn LLVMRustAddAlignmentAttr(Fn: &Value, index: c_uint, bytes: u32);
     pub(crate) fn LLVMRustAddFunctionAttribute(Fn: &Value, index: c_uint, attr: Attribute);
+    pub(crate) fn LLVMRustAddFunctionAttributeWithType(Fn: &Value, index: c_uint, attr: Attribute, Ty: &Type);
     pub(crate) fn LLVMRustAddFunctionAttrStringValue(
         Fn: &Value,
         index: c_uint,
@@ -1614,8 +1697,16 @@ unsafe extern "C" {
         Val: &'a Value,
         Name: *const c_char,
     ) -> &'a Value;
-    pub(crate) fn LLVMBuildLoad<'a>(
+    // TODO: remove me
+    /*pub(crate) fn LLVMBuildLoad<'a>(
         B: &Builder<'a>,
+        PointerVal: &'a Value,
+        Name: *const c_char,
+    ) -> &'a Value;*/
+    // TODO: do not put llvm v19 code here
+    pub(crate) fn LLVMBuildLoad2<'a>(
+        B: &Builder<'a>,
+        Ty: &'a Type,        // New: explicit type parameter
         PointerVal: &'a Value,
         Name: *const c_char,
     ) -> &'a Value;
@@ -1911,7 +2002,11 @@ unsafe extern "C" {
     pub(crate) fn LLVMRustModuleBufferFree(p: &'static mut ModuleBuffer);
     pub(crate) fn LLVMRustModuleCost(M: &Module) -> u64;
 
-    pub(crate) fn LLVMRustThinLTOBufferCreate(M: &Module) -> &'static mut ThinLTOBuffer;
+    pub(crate) fn LLVMRustThinLTOBufferCreate(
+        M: &Module,
+        is_thin: Bool, 
+        emit_summary: Bool
+    ) -> &'static mut ThinLTOBuffer;
     pub(crate) fn LLVMRustThinLTOBufferFree(M: &'static mut ThinLTOBuffer);
     pub(crate) fn LLVMRustThinLTOBufferPtr(M: &ThinLTOBuffer) -> *const c_char;
     pub(crate) fn LLVMRustThinLTOBufferLen(M: &ThinLTOBuffer) -> size_t;
@@ -1929,7 +2024,6 @@ unsafe extern "C" {
         Data: *const u8,
         len: usize,
         Identifier: *const c_char,
-        IdentiferLen: size_t,
     ) -> Option<&Module>;
     pub(crate) fn LLVMRustGetBitcodeSliceFromObjectData(
         Data: *const u8,
@@ -1947,4 +2041,37 @@ unsafe extern "C" {
     pub(crate) fn LLVMRustAddDereferenceableOrNullAttr(Fn: &Value, index: c_uint, bytes: u64);
 
     pub(crate) fn LLVMRustPositionBuilderAtStart<'a>(B: &Builder<'a>, BB: &'a BasicBlock);
+
+    // TODO: LLVM v19 pass functions shouldn't be here
+    pub(crate) fn LLVMCreatePassBuilderOptions() -> &'static mut PassBuilderOptions;
+    pub(crate) fn LLVMDisposePassBuilderOptions(Options: &'static mut PassBuilderOptions);
+    pub(crate) fn LLVMPassBuilderOptionsSetVerifyEach(
+        Options: &PassBuilderOptions,
+        VerifyEach: Bool,
+    );
+    pub(crate) fn LLVMPassBuilderOptionsSetDebugLogging(
+        Options: &PassBuilderOptions,
+        DebugLogging: Bool,
+    );
+    pub(crate) fn LLVMRunPasses(
+        M: &Module,
+        Passes: *const c_char,
+        TM: *const TargetMachine,
+        Options: &PassBuilderOptions,
+    ) -> Bool;
+
+    pub(crate) fn LLVMVerifyModule(
+        M: &Module,
+        Action: LLVMVerifierFailureAction,
+        OutMessage: *mut *mut c_char,
+    ) -> Bool;
+
+    pub(crate) fn LLVMDumpModule(
+        M: &Module,
+    );
+
+    pub(crate) fn LLVMRustSetOldDebugFormat(M: &Module);
+    pub(crate) fn LLVMStripModuleDebugInfo(M: &Module);
+
+    pub(crate) fn LLVMRustVerifyFunction(Fn: &Value, Action: LLVMVerifierFailureAction) -> Bool;
 }

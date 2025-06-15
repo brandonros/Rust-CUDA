@@ -23,12 +23,13 @@ use rustc_session::config::OptLevel;
 use rustc_span::Span;
 use rustc_target::callconv::FnAbi;
 use rustc_target::spec::{HasTargetSpec, Target};
-use tracing::{debug, trace};
+use tracing::{debug, info, trace};
 
 use crate::abi::FnAbiLlvmExt;
 use crate::context::CodegenCx;
 use crate::int_replace::{get_transformed_type, transmute_llval};
-use crate::llvm::{self, BasicBlock, Type, Value};
+use crate::llvm;
+use crate::llvm::{BasicBlock, Type, Value};
 use crate::ty::LayoutLlvmExt;
 
 // All Builders must have an llfn associated with them
@@ -432,7 +433,7 @@ impl<'ll, 'tcx, 'a> BuilderMethods<'a, 'tcx> for Builder<'a, 'll, 'tcx> {
         trace!("Load {ty:?} {:?}", ptr);
         let ptr = self.pointercast(ptr, self.cx.type_ptr_to(ty));
         unsafe {
-            let load = llvm::LLVMBuildLoad(self.llbuilder, ptr, UNNAMED);
+            let load = llvm::LLVMBuildLoad2(self.llbuilder, ty, ptr, UNNAMED);
             llvm::LLVMSetAlignment(load, align.bytes() as c_uint);
             load
         }
@@ -442,7 +443,7 @@ impl<'ll, 'tcx, 'a> BuilderMethods<'a, 'tcx> for Builder<'a, 'll, 'tcx> {
         trace!("Volatile load `{:?}`", ptr);
         let ptr = self.pointercast(ptr, self.cx.type_ptr_to(ty));
         unsafe {
-            let load = llvm::LLVMBuildLoad(self.llbuilder, ptr, UNNAMED);
+            let load = llvm::LLVMBuildLoad2(self.llbuilder, ty, ptr, UNNAMED);
             llvm::LLVMSetVolatile(load, llvm::True);
             load
         }
@@ -450,8 +451,8 @@ impl<'ll, 'tcx, 'a> BuilderMethods<'a, 'tcx> for Builder<'a, 'll, 'tcx> {
 
     fn atomic_load(
         &mut self,
-        _ty: &'ll Type,
-        ptr: &'ll Value,
+        ty: &'ll Type,
+        _ptr: &'ll Value,
         _order: AtomicOrdering,
         _size: Size,
     ) -> &'ll Value {
@@ -471,9 +472,10 @@ impl<'ll, 'tcx, 'a> BuilderMethods<'a, 'tcx> for Builder<'a, 'll, 'tcx> {
 
         // self.call(vprintf, &[formatlist, valist], None);
 
-        let (ty, f) = self.get_intrinsic("llvm.trap");
-        self.call(ty, None, None, f, &[], None, None);
-        unsafe { llvm::LLVMBuildLoad(self.llbuilder, ptr, unnamed()) }
+        let (trap_ty, f) = self.get_intrinsic("llvm.trap");
+        self.call(trap_ty, None, None, f, &[], None, None);
+        //unsafe { llvm::LLVMBuildLoad2(self.llbuilder, ty, ptr, unnamed()) }
+        unsafe { llvm::LLVMGetUndef(ty) }
     }
 
     fn load_operand(&mut self, place: PlaceRef<'tcx, &'ll Value>) -> OperandRef<'tcx, &'ll Value> {
@@ -703,7 +705,7 @@ impl<'ll, 'tcx, 'a> BuilderMethods<'a, 'tcx> for Builder<'a, 'll, 'tcx> {
     fn atomic_store(
         &mut self,
         _val: &'ll Value,
-        ptr: &'ll Value,
+        _ptr: &'ll Value,
         _order: rustc_codegen_ssa::common::AtomicOrdering,
         _size: Size,
     ) {
@@ -716,10 +718,9 @@ impl<'ll, 'tcx, 'a> BuilderMethods<'a, 'tcx> for Builder<'a, 'll, 'tcx> {
         // let valist = self.const_null(self.type_void());
 
         // self.call(vprintf, &[formatlist, valist], None);
-        self.abort();
-        unsafe {
-            llvm::LLVMBuildLoad(self.llbuilder, ptr, UNNAMED);
-        }
+        let (ty, f) = self.get_intrinsic("llvm.trap");
+        self.call(ty, None, None, f, &[], None, None);
+        //unsafe { llvm::LLVMBuildLoad2(self.llbuilder, ty, ptr, unnamed()); }
     }
 
     fn gep(&mut self, ty: &'ll Type, ptr: &'ll Value, indices: &[&'ll Value]) -> &'ll Value {
@@ -1080,53 +1081,50 @@ impl<'ll, 'tcx, 'a> BuilderMethods<'a, 'tcx> for Builder<'a, 'll, 'tcx> {
     }
 
     fn lifetime_start(&mut self, ptr: &'ll Value, size: Size) {
-        self.call_lifetime_intrinsic("llvm.lifetime.start.p0i8", ptr, size);
+        self.call_lifetime_intrinsic("llvm.lifetime.start.p0", ptr, size);
     }
 
     fn lifetime_end(&mut self, ptr: &'ll Value, size: Size) {
-        self.call_lifetime_intrinsic("llvm.lifetime.end.p0i8", ptr, size);
+        self.call_lifetime_intrinsic("llvm.lifetime.end.p0", ptr, size);
     }
 
     fn call(
-        &mut self,
-        llty: &'ll Type,
-        _fn_attrs: Option<&CodegenFnAttrs>,
-        fn_abi: Option<&FnAbi<'tcx, Ty<'tcx>>>,
-        llfn: &'ll Value,
-        args: &[&'ll Value],
-        _funclet: Option<&Self::Funclet>,
-        _instance: Option<Instance<'tcx>>,
-    ) -> &'ll Value {
-        trace!("Calling fn {:?} with args {:?}", llfn, args);
-        self.cx.last_call_llfn.set(None);
-        let args = self.check_call("call", llty, llfn, args);
-
-        let mut call = unsafe {
-            llvm::LLVMRustBuildCall(
-                self.llbuilder,
-                llfn,
-                args.as_ptr(),
-                args.len() as c_uint,
-                None,
-            )
-        };
-        if let Some(fn_abi) = fn_abi {
-            fn_abi.apply_attrs_callsite(self, call);
-        }
-
-        // bitcast return type if the type was remapped
-        let map = self.cx.remapped_integer_args.borrow();
-        let mut fn_ty = self.val_ty(llfn);
-        while self.cx.type_kind(fn_ty) == TypeKind::Pointer {
-            fn_ty = self.cx.element_type(fn_ty);
-        }
-        if let Some((Some(ret_ty), _)) = map.get(fn_ty) {
-            self.cx.last_call_llfn.set(Some(call));
-            call = transmute_llval(self.llbuilder, self.cx, call, ret_ty);
-        }
-
-        call
-    }
+       &mut self,
+       llty: &'ll Type,
+       _fn_attrs: Option<&CodegenFnAttrs>,
+       fn_abi: Option<&FnAbi<'tcx, Ty<'tcx>>>,
+       llfn: &'ll Value,
+       args: &[&'ll Value],
+       _funclet: Option<&Self::Funclet>,
+       _instance: Option<Instance<'tcx>>,
+   ) -> &'ll Value {
+       info!("builder::call Calling fn {:?} with args {:?}", llfn, args);
+       self.cx.last_call_llfn.set(None);
+       let args = self.check_call("call", llty, llfn, args);
+       let mut call = unsafe {
+           llvm::LLVMRustBuildCall(
+               self.llbuilder,
+               llty,
+               llfn,
+               args.as_ptr(),
+               args.len() as c_uint,
+               [].as_ptr(),
+               0
+           )
+       };
+       if let Some(fn_abi) = fn_abi {
+           fn_abi.apply_attrs_callsite(self, call);
+       }
+       // bitcast return type if the type was remapped
+       let map = self.cx.remapped_integer_args.borrow();
+       // Use the provided llty parameter instead of unwrapping pointers
+       let fn_ty = llty;
+       if let Some((Some(ret_ty), _)) = map.get(fn_ty) {
+           self.cx.last_call_llfn.set(Some(call));
+           call = transmute_llval(self.llbuilder, self.cx, call, ret_ty);
+       }
+       call
+   }
 
     fn zext(&mut self, val: &'ll Value, dest_ty: &'ll Type) -> &'ll Value {
         trace!("Zext {:?} to {:?}", val, dest_ty);

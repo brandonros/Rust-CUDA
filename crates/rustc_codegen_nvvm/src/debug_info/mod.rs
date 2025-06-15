@@ -29,7 +29,12 @@ use crate::builder::Builder;
 use crate::common::AsCCharPtr;
 use crate::context::CodegenCx;
 use crate::debug_info::util::{create_DIArray, is_node_local_to_unit};
-use crate::llvm::{self, Value, debuginfo::*};
+use crate::llvm;
+use crate::llvm::LLVMRustDISPFlags;
+use crate::llvm::{
+    Context, DIArray, DIBuilder, DIFile, DIFlags, DILocation, DIScope, DIType, DIVariable, Module,
+    Value,
+};
 
 use self::namespace::*;
 use self::util::DIB;
@@ -50,8 +55,8 @@ const DW_TAG_arg_variable: c_uint = 0x101;
 
 pub struct CodegenUnitDebugContext<'ll, 'tcx> {
     #[allow(dead_code)]
-    llcontext: &'ll llvm::Context,
-    llmod: &'ll llvm::Module,
+    llcontext: &'ll Context,
+    llmod: &'ll Module,
     builder: &'ll mut DIBuilder<'ll>,
     created_files: RefCell<UnordMap<Option<(StableSourceFileId, SourceFileHash)>, &'ll DIFile>>,
 
@@ -73,6 +78,8 @@ impl<'a> CodegenUnitDebugContext<'a, '_> {
         let builder = unsafe { llvm::LLVMRustDIBuilderCreate(llmod) };
         // DIBuilder inherits context from the module, so we'd better use the same one
         let llcontext = unsafe { llvm::LLVMGetModuleContext(llmod) };
+        // TODO: remove this legacy old thing
+        unsafe { llvm::LLVMRustSetOldDebugFormat(llmod) };
         CodegenUnitDebugContext {
             llcontext,
             llmod,
@@ -117,26 +124,26 @@ impl<'ll> DebugInfoBuilderMethods for Builder<'_, 'll, '_> {
     ) {
         use dwarf_const::{DW_OP_LLVM_fragment, DW_OP_deref, DW_OP_plus_uconst};
 
-        let mut addr_ops = SmallVec::<[i64; 8]>::new();
+        let mut addr_ops = SmallVec::<[u64; 8]>::new();
 
         if direct_offset.bytes() > 0 {
-            addr_ops.push(DW_OP_plus_uconst);
-            addr_ops.push(direct_offset.bytes() as i64);
+            addr_ops.push(DW_OP_plus_uconst as u64);
+            addr_ops.push(direct_offset.bytes());
         }
         for &offset in indirect_offsets {
-            addr_ops.push(DW_OP_deref);
+            addr_ops.push(DW_OP_deref as u64);
             if offset.bytes() > 0 {
-                addr_ops.push(DW_OP_plus_uconst);
-                addr_ops.push(offset.bytes() as i64);
+                addr_ops.push(DW_OP_plus_uconst as u64);
+                addr_ops.push(offset.bytes());
             }
         }
 
         if let Some(fragment) = fragment {
             // `DW_OP_LLVM_fragment` takes as arguments the fragment's
             // offset and size, both of them in bits.
-            addr_ops.push(DW_OP_LLVM_fragment);
-            addr_ops.push(fragment.start.bits() as i64);
-            addr_ops.push((fragment.end - fragment.start).bits() as i64);
+            addr_ops.push(DW_OP_LLVM_fragment as u64);
+            addr_ops.push(fragment.start.bits());
+            addr_ops.push((fragment.end - fragment.start).bits());
         }
 
         unsafe {
@@ -154,8 +161,7 @@ impl<'ll> DebugInfoBuilderMethods for Builder<'_, 'll, '_> {
 
     fn set_dbg_loc(&mut self, dbg_loc: &'ll DILocation) {
         unsafe {
-            let dbg_loc_as_llval = llvm::LLVMRustMetadataAsValue(self.cx().llcx, dbg_loc);
-            llvm::LLVMSetCurrentDebugLocation(self.llbuilder, Some(dbg_loc_as_llval));
+            llvm::LLVMSetCurrentDebugLocation2(self.llbuilder, Some(dbg_loc));
         }
     }
 
@@ -187,7 +193,7 @@ impl<'ll> DebugInfoBuilderMethods for Builder<'_, 'll, '_> {
 
     fn clear_dbg_loc(&mut self) {
         unsafe {
-            llvm::LLVMSetCurrentDebugLocation(self.llbuilder, None);
+            llvm::LLVMSetCurrentDebugLocation2(self.llbuilder, None);
         }
     }
 
@@ -294,6 +300,8 @@ impl<'ll, 'tcx> DebugInfoCodegenMethods<'tcx> for CodegenCx<'ll, 'tcx> {
         } else {
             linkage_name
         };
+        let name_len = name.len();
+        let linkage_name_len = linkage_name.len();
         let name = CString::new(name).unwrap();
         let linkage_name = CString::new(linkage_name).unwrap();
 
@@ -305,24 +313,39 @@ impl<'ll, 'tcx> DebugInfoCodegenMethods<'tcx> for CodegenCx<'ll, 'tcx> {
             flags |= DIFlags::FlagNoReturn;
         }
 
+        let is_local_to_unit = is_node_local_to_unit(self, def_id);
+        let is_definition = true;  // <- This was hardcoded as `true` in your call
+        let is_optimized = self.sess().opts.optimize != config::OptLevel::No;  // <- This was the boolean expression
+
+        let mut sp_flags = LLVMRustDISPFlags::SPFlagZero;
+        if is_local_to_unit {
+            sp_flags |= LLVMRustDISPFlags::SPFlagLocalToUnit;
+        }
+        if is_definition {
+            sp_flags |= LLVMRustDISPFlags::SPFlagDefinition;
+        }
+        if is_optimized {
+            sp_flags |= LLVMRustDISPFlags::SPFlagOptimized;
+        }
+
         unsafe {
             return llvm::LLVMRustDIBuilderCreateFunction(
                 DIB(self),
                 containing_scope.0,
                 name.as_ptr(),
+                name_len,
                 linkage_name.as_ptr(),
+                linkage_name_len,
                 file_metadata,
                 loc.line,
                 function_type_metadata,
-                is_node_local_to_unit(self, def_id),
-                true,
                 scope_line,
                 flags,
-                self.sess().opts.optimize != config::OptLevel::No,
+                sp_flags,
                 maybe_definition_llfn,
                 template_parameters,
                 None,
-            );
+            );            
         }
 
         fn get_function_signature<'ll, 'tcx>(
@@ -457,7 +480,14 @@ impl<'ll, 'tcx> DebugInfoCodegenMethods<'tcx> for CodegenCx<'ll, 'tcx> {
     ) -> Self::DILocation {
         let DebugLoc { line, col, .. } = self.lookup_debug_loc(span.lo());
 
-        unsafe { llvm::LLVMRustDIBuilderCreateDebugLocation(line, col, scope, inlined_at) }
+        unsafe { 
+            llvm::LLVMRustDIBuilderCreateDebugLocation(
+                line,
+                col,
+                scope,
+                inlined_at,
+            )
+        }
     }
 
     fn create_vtable_debuginfo(
@@ -500,6 +530,7 @@ impl<'ll, 'tcx> DebugInfoCodegenMethods<'tcx> for CodegenCx<'ll, 'tcx> {
         };
         let align = self.align_of(variable_type);
 
+        let name_len = variable_name.as_str().len();
         let name = CString::new(variable_name.as_str()).unwrap();
         unsafe {
             llvm::LLVMRustDIBuilderCreateVariable(
@@ -507,6 +538,7 @@ impl<'ll, 'tcx> DebugInfoCodegenMethods<'tcx> for CodegenCx<'ll, 'tcx> {
                 dwarf_tag,
                 scope_metadata,
                 name.as_ptr().cast(),
+                name_len,
                 file_metadata,
                 loc.line,
                 type_metadata,

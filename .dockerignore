@@ -1,0 +1,75 @@
+# Rust build artifacts
+target/
+Cargo.lock
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Documentation
+*.md
+docs/
+
+# Test files (optional - uncomment if you don't want tests in container)
+# tests/
+# benches/
+
+# Examples (optional - uncomment if you don't want examples in container)
+# examples/
+
+# CI/CD files
+.github/
+.gitlab-ci.yml
+.travis.yml
+Jenkinsfile
+
+# Docker files (avoid recursive inclusion)
+.devcontainer/
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+tmp/
+temp/
+.tmp/
+
+# Node modules (if you have any JS tooling)
+node_modules/
+npm-debug.log*
+
+# Python cache (if you have any Python tooling)
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# CUDA cache and temporary files
+*.fatbin
+*.cubin
+*.ptx

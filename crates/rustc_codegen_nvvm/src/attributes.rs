@@ -1,4 +1,5 @@
-use crate::llvm::{self, AttributePlace::*, Value};
+use crate::llvm;
+use crate::llvm::{Value, AttributePlace::Function};
 use rustc_ast::{LitKind, MetaItemInner, MetaItemLit};
 use rustc_attr_parsing::{InlineAttr, OptimizeAttr};
 use rustc_hir::Attribute;

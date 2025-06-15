@@ -1,4 +1,5 @@
-use crate::llvm::{self, Bool, False, True, Type, Value};
+use crate::llvm;
+use crate::llvm::{Bool, False, True, Type, Value};
 use crate::{consts::const_alloc_to_llvm, context::CodegenCx, ty::LayoutLlvmExt};
 use libc::c_uint;
 use rustc_abi as abi;

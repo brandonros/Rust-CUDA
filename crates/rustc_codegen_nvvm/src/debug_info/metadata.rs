@@ -29,8 +29,8 @@ use crate::context::CodegenCx;
 use crate::debug_info::metadata::type_map::build_type_with_children;
 use crate::debug_info::util::*;
 use crate::debug_info::*;
-use crate::llvm::{DebugEmissionKind, Value};
-use crate::{abi, llvm};
+use crate::llvm::{DIDescriptor, DIFile, DIFlags, DILexicalBlock, DIScope, DIType, DebugEmissionKind, Value};
+use crate::abi;
 
 // most of this code is taken from rustc_codegen_llvm, but adapted
 // to use llvm 7 stuff. As well as removing some useless stuff to account for
@@ -172,13 +172,17 @@ fn build_pointer_or_reference_di_node<'ll, 'tcx>(
                 "ptr_type={ptr_type}, pointee_type={pointee_type}",
             );
 
+            let ptr_type_debuginfo_name_len = ptr_type_debuginfo_name.len();
+
             let di_node = unsafe {
                 llvm::LLVMRustDIBuilderCreatePointerType(
                     DIB(cx),
                     pointee_type_di_node,
                     data_layout.pointer_size.bits(),
                     data_layout.pointer_align.abi.bits() as u32,
+                    0, // TODO: guessing
                     CString::new(ptr_type_debuginfo_name).unwrap().as_ptr(),
+                    ptr_type_debuginfo_name_len,
                 )
             };
 
@@ -237,8 +241,9 @@ fn build_pointer_or_reference_di_node<'ll, 'tcx>(
                             pointee_type_di_node,
                             addr_field.size.bits(),
                             addr_field.align.abi.bits() as u32,
-                            // 0, // Ignore DWARF address space.
+                            0, // TODO: guessing
                             c"".as_ptr(),
+                            0,
                         )
                     };
 
@@ -340,13 +345,16 @@ fn build_subroutine_type_di_node<'ll, 'tcx>(
         ),
         _ => unreachable!(),
     };
+    let name_len = name.len();
     let di_node = unsafe {
         llvm::LLVMRustDIBuilderCreatePointerType(
             DIB(cx),
             fn_di_node,
             size,
             align,
+            0, // TODO: guessing
             CString::new(name).unwrap().as_ptr(),
+            name_len,
         )
     };
 
@@ -437,7 +445,7 @@ pub(crate) fn type_di_node<'ll, 'tcx>(cx: &CodegenCx<'ll, 'tcx>, t: Ty<'tcx>) ->
         return existing_di_node;
     }
 
-    debug!("type_di_node: {:?} kind: {:?}", t, t.kind());
+    //debug!("type_di_node: {:?} kind: {:?}", t, t.kind());
 
     let DINodeCreationResult {
         di_node,
@@ -554,7 +562,7 @@ pub(crate) fn file_metadata<'ll>(cx: &CodegenCx<'ll, '_>, source_file: &SourceFi
         cx: &CodegenCx<'ll, '_>,
         source_file: &SourceFile,
     ) -> &'ll DIFile {
-        debug!(?source_file.name);
+        //debug!(?source_file.name);
 
         let filename_display_preference = cx
             .sess()
@@ -564,7 +572,7 @@ pub(crate) fn file_metadata<'ll>(cx: &CodegenCx<'ll, '_>, source_file: &SourceFi
         let (directory, file_name) = match &source_file.name {
             FileName::Real(filename) => {
                 let working_directory = &cx.sess().opts.working_dir;
-                debug!(?working_directory);
+                //debug!(?working_directory);
 
                 if filename_display_preference == FileNameDisplayPreference::Remapped {
                     let filename = cx
@@ -575,7 +583,7 @@ pub(crate) fn file_metadata<'ll>(cx: &CodegenCx<'ll, '_>, source_file: &SourceFi
 
                     // Construct the absolute path of the file
                     let abs_path = filename.remapped_path_if_available();
-                    debug!(?abs_path);
+                    //debug!(?abs_path);
 
                     if let Ok(rel_path) =
                         abs_path.strip_prefix(working_directory.remapped_path_if_available())
@@ -606,7 +614,7 @@ pub(crate) fn file_metadata<'ll>(cx: &CodegenCx<'ll, '_>, source_file: &SourceFi
                     let working_directory = working_directory.local_path_if_available();
                     let filename = filename.local_path_if_available();
 
-                    debug!(?working_directory, ?filename);
+                    //debug!(?working_directory, ?filename);
 
                     let abs_path: Cow<'_, _> = if filename.is_absolute() {
                         filename.into()
@@ -628,7 +636,7 @@ pub(crate) fn file_metadata<'ll>(cx: &CodegenCx<'ll, '_>, source_file: &SourceFi
                 }
             }
             other => {
-                debug!(?other);
+                //debug!(?other);
                 (
                     "".into(),
                     other.display(filename_display_preference).to_string(),
@@ -861,6 +869,7 @@ pub(crate) fn build_compile_unit_di_node<'ll, 'tcx>(
             kind,
             0,
             tcx.sess.opts.unstable_opts.split_dwarf_inlining,
+            llvm::DebugNameTableKind::Default,
         );
 
         unit_metadata

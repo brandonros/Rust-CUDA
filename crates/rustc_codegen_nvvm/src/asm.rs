@@ -1,10 +1,9 @@
 use std::os::raw::{c_char, c_uint};
 
 use crate::common::AsCCharPtr;
-use crate::{
-    llvm::{self, Value},
-    ty::LayoutLlvmExt,
-};
+use crate::llvm;
+use crate::llvm::Value;
+use crate::ty::LayoutLlvmExt;
 use rustc_ast::{InlineAsmOptions, InlineAsmTemplatePiece};
 use rustc_codegen_ssa::{
     mir::operand::OperandValue,

@@ -1,7 +1,8 @@
 use std::ops::Range;
 
 use crate::debug_info;
-use crate::llvm::{self, True, Type, Value};
+use crate::llvm;
+use crate::llvm::{True, Type, Value};
 use libc::{c_char, c_uint};
 use rustc_abi::{AddressSpace, Align, HasDataLayout, Primitive, Scalar, Size, WrappingRange};
 use rustc_codegen_ssa::traits::*;
@@ -358,9 +359,12 @@ impl<'ll> StaticCodegenMethods for CodegenCx<'ll, '_> {
             let g = self.get_static(def_id);
 
             let mut val_llty = self.val_ty(v);
-            let v = if val_llty == self.type_i1() {
+            let v: &Value = if val_llty == self.type_i1() {
                 val_llty = self.type_i8();
-                llvm::LLVMConstZExt(v, val_llty)
+                // TODO: not sure about this
+                let const_int = v as *const llvm::Value as *const llvm::ConstantInt;
+                let const_val =  llvm::LLVMConstIntGetZExtValue(&*const_int);
+                llvm::LLVMConstInt(val_llty, const_val, 0)
             } else {
                 v
             };

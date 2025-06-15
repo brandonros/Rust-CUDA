@@ -1,6 +1,7 @@
 use std::io::{self, Write};
 use std::slice;
 use std::sync::Arc;
+use std::ffi::CString;
 
 use libc::{c_char, size_t};
 use rustc_codegen_ssa::back::write::{TargetMachineFactoryConfig, TargetMachineFactoryFn};
@@ -13,19 +14,24 @@ use rustc_codegen_ssa::{
     traits::{BaseTypeCodegenMethods, ThinBufferMethods},
 };
 use rustc_errors::{DiagCtxtHandle, FatalError};
-use rustc_fs_util::path_to_c_string;
-use rustc_middle::bug;
 use rustc_middle::mir::mono::{MonoItem, MonoItemData};
-use rustc_middle::{dep_graph, ty::TyCtxt};
+use rustc_middle::{
+    dep_graph, 
+    ty::TyCtxt
+};
 use rustc_session::Session;
 use rustc_session::config::{self, DebugInfo, OutputType};
 use rustc_span::Symbol;
 use rustc_target::spec::{CodeModel, RelocModel};
 
 use crate::common::AsCCharPtr;
-use crate::llvm::{self};
+use crate::llvm;
 use crate::override_fns::define_or_override_fn;
-use crate::{LlvmMod, NvvmCodegenBackend, builder::Builder, context::CodegenCx, lto::ThinBuffer};
+use crate::builder::Builder;
+use crate::context::CodegenCx;
+use crate::lto::ThinBuffer;
+use crate::LlvmMod;
+use crate::NvvmCodegenBackend;
 
 pub fn llvm_err(handle: DiagCtxtHandle, msg: &str) -> FatalError {
     match llvm::last_error() {
@@ -92,9 +98,12 @@ pub fn target_machine_factory(
 
     let code_model = to_llvm_code_model(sess.code_model());
 
-    let triple = sess.target.llvm_target.clone();
-    // let cpu = SmallCStr::new("sm_30");
-    let features = "";
+    let triple = sess.target.llvm_target.clone().to_string();
+    let cpu_string = sess.opts.cg.target_cpu
+        .as_deref()
+        .unwrap_or("sm_100") // Use a more compatible target
+        .to_string();
+    let features_string = "".to_string();
     let trap_unreachable = sess
         .opts
         .unstable_opts
@@ -102,23 +111,40 @@ pub fn target_machine_factory(
         .unwrap_or(sess.target.trap_unreachable);
 
     Arc::new(move |_config: TargetMachineFactoryConfig| {
+        let triple_cstr = CString::new(triple.as_str())
+            .map_err(|e| format!("Invalid triple string: {}", e))?;
+        let cpu_cstr = CString::new(cpu_string.as_str())
+            .map_err(|e| format!("Invalid CPU string: {}", e))?;
+        let features_cstr = CString::new(features_string.as_str())
+            .map_err(|e| format!("Invalid features string: {}", e))?;
+        let abi_cstr = CString::new("").unwrap();
+        let debug_compression_cstr = CString::new("none").unwrap();
+
         let tm = unsafe {
             llvm::LLVMRustCreateTargetMachine(
-                triple.as_c_char_ptr(),
-                triple.len(),
-                std::ptr::null(),
-                0,
-                features.as_c_char_ptr(),
-                features.len(),
-                code_model,
-                reloc_model,
-                opt_level,
-                false,
-                use_softfp,
-                ffunction_sections,
+                triple_cstr.as_ptr(), // triple
+                cpu_cstr.as_ptr(), // cpu
+                features_cstr.as_ptr(), // feature
+                abi_cstr.as_ptr(), // abistr
+                code_model, // RustCM
+                reloc_model, // reloc
+                opt_level, // opt
+                if use_softfp { llvm::FloatABIType::Soft } else { llvm::FloatABIType::Default }, // FloatABIType
+                ffunction_sections, // function sections
                 fdata_sections,
+                false, // unique section names
                 trap_unreachable,
-                false,
+                false, // single thread
+                false, // VerboseAsm: bool,
+                false, // EmitStackSizeSection: bool,
+                false, // RelaxELFRelocations: bool,
+                false, // UseInitArray: bool,
+                std::ptr::null(), // SplitDwarfFile: *const c_char,
+                std::ptr::null(), // OutputObjFile: *const c_char,
+                debug_compression_cstr.as_ptr(), // DebugInfoCompression: *const c_char,
+                false, // UseEmulatedTls: bool,
+                std::ptr::null(), // ArgsCstrBuff: *const c_char,
+                0, // ArgsCstrBuffLen: usize,
             )
         };
         tm.ok_or_else(|| format!("Could not create LLVM TargetMachine for triple: {}", triple))
@@ -318,6 +344,16 @@ pub fn compile_codegen_unit(tcx: TyCtxt<'_>, cgu_name: Symbol) -> (ModuleCodegen
     (module, 0)
 }
 
+/*pub(crate) unsafe fn optimize(
+    _cgcx: &CodegenContext<NvvmCodegenBackend>,
+    _diag_handler: DiagCtxtHandle<'_>,
+    _module: &ModuleCodegen<LlvmMod>,
+    _config: &ModuleConfig,
+) -> Result<(), FatalError> {
+    // TODO: implement this
+    Ok(())
+}*/
+
 // TODO: We use rustc's optimization approach from when it used llvm 7, because many things
 // are incompatible with llvm 7 nowadays. Although we should probably consult a rustc dev on whether
 // any big things were discovered in that timespan that we should modify.
@@ -327,21 +363,21 @@ pub(crate) unsafe fn optimize(
     module: &ModuleCodegen<LlvmMod>,
     config: &ModuleConfig,
 ) -> Result<(), FatalError> {
+    
     let _timer = cgcx
         .prof
         .generic_activity_with_arg("LLVM_module_optimize", &module.name[..]);
 
     let llmod = unsafe { &*module.module_llvm.llmod };
 
-    let module_name = module.name.clone();
-    let module_name = Some(&module_name[..]);
-
     if config.emit_no_opt_bc {
+        let mod_name = module.name.clone();
+        let module_name = Some(&mod_name[..]);
         let out = cgcx
             .output_filenames
             .temp_path_ext("no-opt.bc", module_name);
-        let out = path_to_c_string(&out);
-        unsafe { llvm::LLVMWriteBitcodeToFile(llmod, out.as_ptr()) };
+        let out = rustc_fs_util::path_to_c_string(&out);
+        unsafe { llvm::LLVMWriteBitcodeToFile(llmod, out.as_ptr()); }
     }
 
     let tm_factory_config = TargetMachineFactoryConfig {
@@ -351,64 +387,99 @@ pub(crate) unsafe fn optimize(
 
     let tm = (cgcx.tm_factory)(tm_factory_config).expect("failed to create target machine");
 
+    // LLVM 19: Complete rewrite using new pass manager
     if config.opt_level.is_some() {
         unsafe {
-            let fpm = llvm::LLVMCreateFunctionPassManagerForModule(llmod);
-            let mpm = llvm::LLVMCreatePassManager();
+            let mut error_msg = std::ptr::null_mut();
+            let verify_result = llvm::LLVMVerifyModule(
+                llmod,
+                llvm::LLVMVerifierFailureAction::LLVMPrintMessageAction,
+                &mut error_msg
+            );
+            if verify_result != 0 {
+                llvm::LLVMDumpModule(llmod);
+                rustc_middle::bug!("Module verification failed!");
+            }
 
-            let addpass = |pass_name: &str| {
-                let pass =
-                    llvm::LLVMRustFindAndCreatePass(pass_name.as_c_char_ptr(), pass_name.len());
-                if pass.is_none() {
-                    return false;
-                }
-                let pass = pass.unwrap();
-                let pass_manager = match llvm::LLVMRustPassKind(pass) {
-                    llvm::PassKind::Function => &fpm,
-                    llvm::PassKind::Module => &mpm,
-                    llvm::PassKind::Other => {
-                        diag_handler.err("Encountered LLVM pass kind we can't handle");
-                        return true;
-                    }
-                };
-                llvm::LLVMRustAddPass(pass_manager, pass);
-                true
-            };
-
+            // Create pass builder options
+            let pass_options = llvm::LLVMCreatePassBuilderOptions();
+            
+            // Configure pass builder options based on config
+            let opt_level = config
+                .opt_level
+                .map_or(llvm::CodeGenOptLevel::None, |x| to_llvm_opt_settings(x).0);
+            
+            // Set various options on the pass builder
+            // TODO: support these flags
+            /*if config.verify_each {
+                llvm::LLVMPassBuilderOptionsSetVerifyEach(pass_options, 1);
+            }
+            
+            // Enable debug logging if needed
+            if config.debug_pass_manager {
+                llvm::LLVMPassBuilderOptionsSetDebugLogging(pass_options, 1);
+            }*/
+            
+            // Build the pass pipeline string based on optimization level and config
+            let mut pass_pipeline = String::new();
+            
             if !config.no_prepopulate_passes {
-                llvm::LLVMRustAddAnalysisPasses(tm, fpm, llmod);
-                llvm::LLVMRustAddAnalysisPasses(tm, mpm, llmod);
-                let opt_level = config
-                    .opt_level
-                    .map_or(llvm::CodeGenOptLevel::None, |x| to_llvm_opt_settings(x).0);
-                with_llvm_pmb(llmod, config, opt_level, &mut |b| {
-                    llvm::LLVMPassManagerBuilderPopulateFunctionPassManager(b, fpm);
-                    llvm::LLVMPassManagerBuilderPopulateModulePassManager(b, mpm);
-                })
-            }
-
-            for pass in &config.passes {
-                if !addpass(pass) {
-                    diag_handler.warn(format!("unknown pass `{}`, ignoring", pass));
+                // Use default optimization pipeline based on level
+                match opt_level {
+                    llvm::CodeGenOptLevel::None => {
+                        pass_pipeline.push_str("default<O0>");
+                    },
+                    llvm::CodeGenOptLevel::Less => {
+                        pass_pipeline.push_str("default<O1>");
+                    },
+                    llvm::CodeGenOptLevel::Default => {
+                        pass_pipeline.push_str("default<O2>");
+                    },
+                    llvm::CodeGenOptLevel::Aggressive => {
+                        pass_pipeline.push_str("default<O3>");
+                    },
                 }
             }
-
-            diag_handler.abort_if_errors();
-
-            // Finally, run the actual optimization passes
-            llvm::LLVMRustRunFunctionPassManager(fpm, llmod);
-            llvm::LLVMRunPassManager(mpm, llmod);
-
-            // Deallocate managers that we're now done with
-            llvm::LLVMDisposePassManager(fpm);
-            llvm::LLVMDisposePassManager(mpm);
+            
+            // Add custom passes from config
+            for pass in &config.passes {
+                if !pass_pipeline.is_empty() {
+                    pass_pipeline.push(',');
+                }
+                pass_pipeline.push_str(pass);
+            }
+            
+            
+            // Convert pass pipeline string to C string
+            let c_pass_pipeline = std::ffi::CString::new(pass_pipeline)
+                .expect("Pass pipeline string contains null byte");
+            
+            // Run the passes using the new pass manager
+            
+            let result = llvm::LLVMRunPasses(
+                llmod,                          // Module
+                c_pass_pipeline.as_ptr(),       // Pass pipeline string
+                tm,                             // TargetMachine
+                pass_options                    // PassBuilderOptions
+            );
+            
+            
+            if result != 0 {
+                diag_handler.err("Failed to run optimization passes");
+            } else {
+            }
+            
+            // Clean up
+            llvm::LLVMDisposePassBuilderOptions(pass_options);
         }
+    } else {
     }
 
     Ok(())
 }
 
-unsafe fn with_llvm_pmb(
+// TODO: remove this dead code?
+/*unsafe fn with_llvm_pmb(
     llmod: &llvm::Module,
     config: &ModuleConfig,
     opt_level: llvm::CodeGenOptLevel,
@@ -472,4 +543,4 @@ unsafe fn with_llvm_pmb(
         f(builder);
         llvm::LLVMPassManagerBuilderDispose(builder);
     }
-}
+}*/

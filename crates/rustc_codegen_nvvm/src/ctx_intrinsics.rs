@@ -1,6 +1,5 @@
 use crate::context::CodegenCx;
-use crate::llvm::Type;
-use crate::llvm::Value;
+use crate::llvm::{Value, Type};
 use rustc_codegen_ssa::traits::BaseTypeCodegenMethods;
 use rustc_session::config::DebugInfo;
 
@@ -8,7 +7,8 @@ impl<'ll> CodegenCx<'ll, '_> {
     pub(crate) fn declare_intrinsic(&self, key: &str) -> Option<(&'ll Type, &'ll Value)> {
         let map = self.intrinsics_map.borrow();
         let (args, ret) = map.get(key)?;
-        Some(self.insert_intrinsic(key, Some(args), ret))
+        let result = self.insert_intrinsic(key, Some(args), ret);
+        Some(result)
     }
 
     #[rustfmt::skip] // stop rustfmt from making this 2k lines
@@ -172,8 +172,8 @@ impl<'ll> CodegenCx<'ll, '_> {
         ifn!(map, "llvm.cttz.i32", fn(t_i32, i1) -> t_i32);
         ifn!(map, "llvm.cttz.i64", fn(t_i64, i1) -> t_i64);
 
-        ifn!(map, "llvm.lifetime.start.p0i8", fn(t_i64, i8p) -> void);
-        ifn!(map, "llvm.lifetime.end.p0i8", fn(t_i64, i8p) -> void);
+        ifn!(map, "llvm.lifetime.start.p0", fn(t_i64, i8p) -> void);
+        ifn!(map, "llvm.lifetime.end.p0", fn(t_i64, i8p) -> void);
 
         ifn!(map, "llvm.expect.i1", fn(i1, i1) -> i1);
         ifn!(map, "llvm.prefetch", fn(i8p, t_i32, t_i32, t_i32) -> void);

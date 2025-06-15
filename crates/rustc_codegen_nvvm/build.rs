@@ -10,18 +10,19 @@ use curl::easy::Easy;
 use tar::Archive;
 use xz::read::XzDecoder;
 
+// TODO: update this to support v19
 static PREBUILT_LLVM_URL: &str =
     "https://github.com/rust-gpu/rustc_codegen_nvvm-llvm/releases/download/LLVM-7.1.0/";
 
-static REQUIRED_MAJOR_LLVM_VERSION: u8 = 7;
+static REQUIRED_MAJOR_LLVM_VERSION: u8 = 19;
 
-fn main() {
+fn main() {    
     rustc_llvm_build();
 
     // this is set by cuda_builder, but in case somebody is using the codegen
-    // manually, default to 520 (which is what nvvm defaults to).
+    // manually, default to 1000 (which is what nvvm defaults to).
     if option_env!("CUDA_ARCH").is_none() {
-        println!("cargo:rustc-env=CUDA_ARCH=520")
+        println!("cargo:rustc-env=CUDA_ARCH=1000")
     }
 }
 
@@ -143,11 +144,47 @@ pub fn tracked_env_var_os<K: AsRef<OsStr> + Display>(key: K) -> Option<OsString>
     env::var_os(key)
 }
 
+fn run_llvm_as() {
+    // Check if libintrinsics.ll exists
+    let libintrinsics_path = Path::new("libintrinsics.ll");
+    if !libintrinsics_path.exists() {
+        fail("libintrinsics.ll not found");
+    }
+    
+    println!("cargo:rerun-if-changed=libintrinsics.ll");
+    
+    let mut cmd = Command::new("llvm-as");
+    cmd.arg("libintrinsics.ll");
+    
+    let output = match cmd.stderr(Stdio::inherit()).output() {
+        Ok(status) => status,
+        Err(e) => fail(&format!(
+            "failed to execute llvm-as: {:?}\nerror: {}",
+            cmd, e
+        )),
+    };
+    
+    if !output.status.success() {
+        fail(&format!(
+            "llvm-as failed: {:?}\nstatus: {}",
+            cmd, output.status
+        ));
+    }
+    
+    println!("cargo:warning=Successfully ran llvm-as on libintrinsics.ll");
+}
+
 fn rustc_llvm_build() {
     let target = env::var("TARGET").expect("TARGET was not set");
     let llvm_config = find_llvm_config(&target);
 
-    let required_components = &["ipo", "bitreader", "bitwriter", "lto", "nvptx"];
+    let required_components = &[
+        "ipo", 
+        "bitreader", 
+        "bitwriter", 
+        "lto", 
+        "nvptx",
+    ];
 
     let components = output(Command::new(&llvm_config).arg("--components"));
     let mut components = components.split_whitespace().collect::<Vec<_>>();
@@ -164,6 +201,9 @@ fn rustc_llvm_build() {
     for component in components.iter() {
         println!("cargo:rustc-cfg=llvm_component=\"{}\"", component);
     }
+
+    // Run llvm-as on libintrinsics.ll
+    run_llvm_as();
 
     // Link in our own LLVM shims, compiled with the same flags as LLVM
     let mut cmd = Command::new(&llvm_config);

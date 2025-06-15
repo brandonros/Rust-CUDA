@@ -1,6 +1,7 @@
 use crate::abi::{FnAbiLlvmExt, LlvmType};
 use crate::context::CodegenCx;
-use crate::llvm::{self, Bool, False, True, Type, Value};
+use crate::llvm;
+use crate::llvm::{Bool, False, True, Type, Value};
 use libc::c_uint;
 use rustc_abi::Primitive::{Float, Int, Pointer};
 use rustc_abi::{
@@ -109,18 +110,21 @@ impl<'ll> CodegenCx<'ll, '_> {
         unsafe { llvm::LLVMVectorType(ty, len as c_uint) }
     }
 
-    pub(crate) fn type_ptr_to(&self, ty: &'ll Type) -> &'ll Type {
-        assert_ne!(
+    pub(crate) fn type_ptr_to(&self, _ty: &'ll Type) -> &'ll Type {
+        /*assert_ne!(
             self.type_kind(ty),
             TypeKind::Function,
             "don't call ptr_to on function types, use ptr_to_llvm_type on FnAbi instead or explicitly specify an address space if it makes sense"
         );
-
-        unsafe { llvm::LLVMPointerType(ty, AddressSpace::DATA.0) }
+        unsafe { llvm::LLVMPointerType(ty, AddressSpace::DATA.0) }*/
+        // LLVMPointerType is deprecated and removed in favor of opaque pointers in modern LLVM.
+        self.type_ptr()
     }
 
-    pub(crate) fn type_ptr_to_ext(&self, ty: &'ll Type, address_space: AddressSpace) -> &'ll Type {
-        unsafe { llvm::LLVMPointerType(ty, address_space.0) }
+    pub(crate) fn type_ptr_to_ext(&self, _ty: &'ll Type, address_space: AddressSpace) -> &'ll Type {
+        //unsafe { llvm::LLVMPointerType(ty, address_space.0) }
+        // LLVMPointerType is deprecated and removed in favor of opaque pointers in modern LLVM.
+        self.type_ptr_ext(address_space)
     }
 
     pub(crate) fn func_params_types(&self, ty: &'ll Type) -> Vec<&'ll Type> {
@@ -207,15 +211,20 @@ impl<'ll, 'tcx> BaseTypeCodegenMethods<'tcx> for CodegenCx<'ll, 'tcx> {
     }
 
     fn type_kind(&self, ty: &'ll Type) -> TypeKind {
-        unsafe { llvm::LLVMRustGetTypeKind(ty).to_generic() }
+        unsafe { 
+            let result = llvm::LLVMRustGetTypeKind(ty);
+            result.to_generic()
+        }
     }
 
     fn type_ptr(&self) -> Self::Type {
-        self.type_ptr_ext(AddressSpace::DATA)
+        //self.type_ptr_ext(AddressSpace::DATA)
+        unsafe { llvm::LLVMPointerTypeInContext(self.llcx, AddressSpace::DATA.0) }
     }
 
     fn type_ptr_ext(&self, address_space: AddressSpace) -> Self::Type {
-        self.type_ptr_to_ext(self.type_i8(), address_space)
+        //self.type_ptr_to_ext(self.type_i8(), address_space)
+        unsafe { llvm::LLVMPointerTypeInContext(self.llcx, address_space.0) }
     }
 
     fn element_type(&self, ty: &'ll Type) -> &'ll Type {
@@ -229,11 +238,12 @@ impl<'ll, 'tcx> BaseTypeCodegenMethods<'tcx> for CodegenCx<'ll, 'tcx> {
 
     fn float_width(&self, ty: &'ll Type) -> usize {
         match self.type_kind(ty) {
+            TypeKind::Half | TypeKind::BFloat => 16,
             TypeKind::Float => 32,
             TypeKind::Double => 64,
             TypeKind::X86_FP80 => 80,
             TypeKind::FP128 | TypeKind::PPC_FP128 => 128,
-            _ => bug!("llvm_float_width called on a non-float type"),
+            ty => bug!("llvm_float_width called on a non-float type: {:?}", ty),
         }
     }
 
