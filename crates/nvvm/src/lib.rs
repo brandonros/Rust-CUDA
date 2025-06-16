@@ -302,7 +302,7 @@ impl Display for NvvmArch {
 
 impl Default for NvvmArch {
     fn default() -> Self {
-        Self::Compute52
+        Self::Compute61
     }
 }
 
