@@ -381,7 +381,6 @@ pub(crate) enum MetadataType {
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub enum AsmDialect {
-    Other,
     Att,
     Intel,
 }
