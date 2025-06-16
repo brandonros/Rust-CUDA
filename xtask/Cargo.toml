@@ -5,7 +5,7 @@ edition = "2021"
 license = "MIT"
 
 [features]
-default = ["nvvm-v19"]
+default = ["nvvm-v7"]
 nvvm-v7 = ["dep:rustc_codegen_nvvm_v7"]
 nvvm-v19 = ["dep:rustc_codegen_nvvm_v19"]
 

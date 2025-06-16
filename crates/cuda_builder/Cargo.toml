@@ -9,7 +9,7 @@ repository = "https://github.com/Rust-GPU/Rust-CUDA"
 readme = "../../README.md"
 
 [features]
-default = ["nvvm-v19"]
+default = ["nvvm-v7"]
 nvvm-v7 = ["dep:rustc_codegen_nvvm_v7"]
 nvvm-v19 = ["dep:rustc_codegen_nvvm_v19"]
 
