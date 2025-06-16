@@ -1980,6 +1980,7 @@ unsafe extern "C" {
         SideEffects: Bool,
         AlignStack: Bool,
         Dialect: AsmDialect,
+        CanThrow: Bool,
     ) -> &Value;
     pub(crate) fn LLVMRustInlineAsmVerify(
         Ty: &Type,

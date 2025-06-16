@@ -313,6 +313,7 @@ pub(crate) fn inline_asm_call<'ll>(
                 volatile,
                 alignstack,
                 dia,
+                llvm::False,
             );
             let call = bx.call(fty, None, None, v, inputs, None, None);
 
