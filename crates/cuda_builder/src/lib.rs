@@ -378,6 +378,9 @@ impl CudaBuilder {
             .output()
             .expect("Failed to run ptxas");
         println!("cargo:warning=PTXAS output: {:?}", ptxas_output);
+        if !ptxas_output.status.success() {
+            panic!("ptxas failed with exit code: {:?}", ptxas_output.status.code());
+        }
         
         if let Some(copy_path) = &self.ptx_file_copy_path {
             println!("cargo:warning=Copying PTX file from {} to {}", path.display(), copy_path.display());
