@@ -378,7 +378,23 @@ impl CudaBuilder {
             .expect("Failed to run ptxas");
         println!("cargo:warning=PTXAS output: {:?}", ptxas_output);
         if !ptxas_output.status.success() {
-            panic!("ptxas failed with exit code: {:?}", ptxas_output.status.code());
+            match ptxas_output.status.code() {
+                Some(code) => panic!("ptxas failed with exit code: {code}"),
+                None => {
+                    // Process was terminated by a signal
+                    #[cfg(unix)]
+                    {
+                        use std::os::unix::process::ExitStatusExt;
+                        if let Some(signal) = ptxas_output.status.signal() {
+                            panic!("ptxas was killed by signal: {signal}");
+                        } else {
+                            panic!("ptxas failed with unknown signal");
+                        }
+                    }
+                    #[cfg(not(unix))]
+                    panic!("ptxas failed with signal");
+                },
+            }
         }
         
         if let Some(copy_path) = &self.ptx_file_copy_path {
