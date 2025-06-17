@@ -368,7 +368,6 @@ impl CudaBuilder {
         println!("cargo:warning=Build completed successfully, PTX file generated at: {}", path.display());
 
         // run ptxas on it to validate
-        // example: ptxas -v -arch=sm_120 /home/brandon/vanity-miner-rs/target/release/build/gpu_runner-34ef728ec383c50f/out/kernels.ptx -o /tmp/temp.cubin
         let ptxas_output = Command::new("ptxas")
             .arg("-v")
             .arg(format!("-arch={}", self.arch.to_string()))
