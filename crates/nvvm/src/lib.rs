@@ -310,12 +310,13 @@ pub enum NvvmArch {
     Compute73,
     /// This default value of 7.5 corresponds to Turing and later devices. We default to this
     /// because it is the minimum supported by CUDA 13.0 while being in the middle of the range
-    /// supported by CUDA 12.x.
+    /// supported by CUDA 12.x. Selected as the default only when the `llvm19` feature is off;
+    /// the LLVM 19 NVVM dialect can't target pre-Blackwell archs.
     // WARNING: If you change the default, consider updating:
     // - The `--target-arch` values used for compiletests in `ci_linux.yml` and
     //   `.github/workflows/ci_{linux,windows}.yml`.
     // - The CUDA versions used in `setup_cuda_environment` in `compiletests`.
-    #[default]
+    #[cfg_attr(not(feature = "llvm19"), default)]
     Compute75,
     Compute80,
     Compute86,
@@ -326,8 +327,10 @@ pub enum NvvmArch {
     Compute90a,
     /// First Blackwell arch and the cutoff for NVVM's modern IR dialect — everything at
     /// or above this capability uses the LLVM 19-flavored bitcode accepted by CUDA 12.9+
-    /// `libnvvm`. See [`NvvmArch::uses_modern_ir_dialect`]. This is also the default arch
-    /// `cuda_builder` picks when the backend is built with `LLVM_CONFIG_19` set.
+    /// `libnvvm`. See [`NvvmArch::uses_modern_ir_dialect`]. Selected as the default when
+    /// the `llvm19` feature is enabled, since the LLVM 7 dialect can't target this and
+    /// the LLVM 19 dialect can't target anything below it.
+    #[cfg_attr(feature = "llvm19", default)]
     Compute100,
     Compute100f,
     Compute100a,
