@@ -196,21 +196,6 @@ pub struct CudaBuilder {
     pub final_module_path: Option<PathBuf>,
 }
 
-/// Default arch for new `CudaBuilder`s.
-///
-/// When the backend is being built with LLVM 19 support (detected via the `LLVM_CONFIG_19`
-/// env var — the same signal `rustc_codegen_nvvm`'s build script uses), default to the
-/// lowest Blackwell compute capability (`Compute100`). Pre-Blackwell archs use the legacy
-/// LLVM 7 NVVM dialect, so pairing them with an LLVM 19 backend is never the right choice.
-/// Callers can still override via [`CudaBuilder::arch`].
-fn default_arch() -> NvvmArch {
-    if env::var_os("LLVM_CONFIG_19").is_some() {
-        NvvmArch::Compute100
-    } else {
-        NvvmArch::default()
-    }
-}
-
 impl CudaBuilder {
     pub fn new(path_to_crate_root: impl AsRef<Path>) -> Self {
         Self {
@@ -219,7 +204,7 @@ impl CudaBuilder {
             ptx_file_copy_path: None,
             generate_line_info: true,
             nvvm_opts: true,
-            arch: default_arch(),
+            arch: NvvmArch::default(),
             ftz: false,
             fast_sqrt: false,
             fast_div: false,
@@ -370,7 +355,6 @@ impl CudaBuilder {
     /// ptx file. If [`ptx_file_copy_path`](Self::ptx_file_copy_path) is set, this returns the copied path.
     pub fn build(self) -> Result<PathBuf, CudaBuilderError> {
         println!("cargo:rerun-if-changed={}", self.path_to_crate.display());
-        println!("cargo:rerun-if-env-changed=LLVM_CONFIG_19");
         let path = invoke_rustc(&self)?;
         if let Some(copy_path) = self.ptx_file_copy_path {
             std::fs::copy(path, &copy_path).map_err(CudaBuilderError::FailedToCopyPtxFile)?;
@@ -572,11 +556,10 @@ fn build_backend_and_find(filename: &str) -> Option<PathBuf> {
         .arg(&target_dir)
         .current_dir(&workspace_dir);
 
-    // Propagate the llvm19 cargo feature to the nested build when the surrounding
-    // shell is configured for LLVM 19 (signalled by LLVM_CONFIG_19). Without this
-    // rustc_codegen_nvvm's build.rs defaults to the LLVM 7 path and falls through
-    // to the prebuilt LLVM 7 download, which fails on Linux.
-    if env::var_os("LLVM_CONFIG_19").is_some() {
+    // Propagate the `llvm19` cargo feature to the nested backend build. Without this
+    // `rustc_codegen_nvvm`'s build script falls through to the prebuilt LLVM 7
+    // download, which the LLVM 19 codegen path can't link against.
+    if cfg!(feature = "llvm19") {
         cmd.args(["--features", "llvm19"]);
     }
 
