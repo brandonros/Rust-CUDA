@@ -123,14 +123,20 @@ jobs:
             --exclude blastoff --exclude cudnn --exclude cudnn-sys --exclude cust
 
       # Exclude crates that require cuDNN, not available on Windows CI: cudnn, cudnn-sys.
-      # Exclude rustc_codegen_nvvm: `--all-features` enables its `llvm19` feature,
-      # whose build.rs requires an LLVM 19 toolchain not present in the CI image.
+      # The `llvm19` feature on `nvvm` / `cuda_builder` / `rustc_codegen_nvvm` requires
+      # an LLVM 19 toolchain that isn't in the CI image, so we can't run a single
+      # `--all-features` pass over the whole workspace. Doc those three crates with
+      # default features (the LLVM 7 path the CI image already supports) and the rest
+      # of the workspace with `--all-features`.
       - name: Check documentation
         env:
           RUSTDOCFLAGS: -Dwarnings
         run: |
           cargo doc --workspace --all-features --document-private-items --no-deps `
-            --exclude cudnn --exclude cudnn-sys --exclude rustc_codegen_nvvm
+            --exclude cudnn --exclude cudnn-sys `
+            --exclude rustc_codegen_nvvm --exclude cuda_builder --exclude nvvm
+          cargo doc -p rustc_codegen_nvvm -p cuda_builder -p nvvm `
+            --document-private-items --no-deps
 
       # Disabled due to dll issues, someone with Windows knowledge needed
       # - name: Compiletest
