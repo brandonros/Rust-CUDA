@@ -3,6 +3,13 @@ name = "vecadd"
 version = "0.1.0"
 edition = "2024"
 
+[features]
+default = []
+# Build the kernels crate with the LLVM 19 backend. Forwards to `cuda_builder`,
+# which propagates the feature to `nvvm` (default arch -> Compute100 / Blackwell)
+# and to its nested `cargo build -p rustc_codegen_nvvm`.
+llvm19 = ["cuda_builder/llvm19"]
+
 [dependencies]
 cust = { path = "../../crates/cust" }
 cust_raw = { path = "../../crates/cust_raw", default-features = false, features = ["driver"] }
