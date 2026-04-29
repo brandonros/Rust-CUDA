@@ -42,6 +42,9 @@ jobs:
           - name: RockyLinux-9/CUDA-13.0.2
             image: "rust-gpu/rust-cuda-rockylinux9-cuda13"
             dockerfile: ./container/rockylinux9-cuda13/Dockerfile
+          - name: Ubuntu-24.04/CUDA-13.0.2/LLVM-19.1.7
+            image: "rust-gpu/rust-cuda-ubuntu24-cuda13-llvm19"
+            dockerfile: ./container/ubuntu24-cuda13-llvm19/Dockerfile
     steps:
       - name: Free up space
         # Without this the job will likely run out of disk space.
@@ -165,6 +168,8 @@ jobs:
             image: "rust-gpu/rust-cuda-rockylinux9-cuda12"
           - name: RockyLinux-9/CUDA-13.0.2
             image: "rust-gpu/rust-cuda-rockylinux9-cuda13"
+          - name: Ubuntu-24.04/CUDA-13.0.2/LLVM-19.1.7
+            image: "rust-gpu/rust-cuda-ubuntu24-cuda13-llvm19"
     steps:
       - name: Set artifact name
         run: |
