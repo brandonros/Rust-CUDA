@@ -10,11 +10,38 @@ use curl::easy::Easy;
 use tar::Archive;
 use xz::read::XzDecoder;
 
+struct LlvmFlavor {
+    major: u8,
+    config_env: &'static str,
+    default_binary: &'static str,
+    probe_cuda_home: bool,
+    prebuilt_url: &'static str,
+}
+
+const LLVM7: LlvmFlavor = LlvmFlavor {
+    major: 7,
+    config_env: "LLVM_CONFIG",
+    default_binary: "llvm-config",
+    probe_cuda_home: false,
+    prebuilt_url: PREBUILT_LLVM_URL_LLVM7,
+};
+
+const LLVM19: LlvmFlavor = LlvmFlavor {
+    major: 19,
+    config_env: "LLVM_CONFIG_19",
+    default_binary: "llvm-config-19",
+    probe_cuda_home: true,
+    prebuilt_url: PREBUILT_LLVM_URL_LLVM19,
+};
+
 static PREBUILT_LLVM_URL_LLVM7: &str =
-    "https://github.com/rust-gpu/rustc_codegen_nvvm-llvm/releases/download/LLVM-7.1.0/";
+    "https://github.com/rust-gpu/rustc_codegen_nvvm-llvm/releases/download/llvm-7.1.0/";
+static PREBUILT_LLVM_URL_LLVM19: &str =
+    "https://github.com/rust-gpu/rustc_codegen_nvvm-llvm/releases/download/llvm-19.1.7/";
 
 fn main() {
-    rustc_llvm_build(llvm19_enabled());
+    let flavor = if llvm19_enabled() { &LLVM19 } else { &LLVM7 };
+    rustc_llvm_build(flavor);
 }
 
 fn fail(s: &str) -> ! {
@@ -43,10 +70,6 @@ fn llvm19_enabled() -> bool {
     tracked_env_var_os("CARGO_FEATURE_LLVM19").is_some()
 }
 
-fn required_major_llvm_version(llvm19_enabled: bool) -> u8 {
-    if llvm19_enabled { 19 } else { 7 }
-}
-
 fn command_version(path: &Path) -> Option<String> {
     let output = Command::new(path).arg("--version").output().ok()?;
     if !output.status.success() {
@@ -69,98 +92,37 @@ fn llvm_version_matches(path: &Path, required_major: u8) -> bool {
 }
 
 fn sibling_llvm_tool(llvm_config: &Path, tool_prefix: &str) -> Option<PathBuf> {
-    let file_name = llvm_config.file_name()?.to_str()?;
-    let suffix = file_name.strip_prefix("llvm-config")?;
-    Some(llvm_config.with_file_name(format!("{tool_prefix}{suffix}")))
+    // Ask llvm-config where its install tree lives rather than deriving lexically.
+    // Lexical derivation breaks when llvm-config is exposed via a single symlink
+    // into /usr/bin/ but the rest of the toolchain stays in the install prefix
+    // (e.g. /usr/bin/llvm-config -> /opt/llvm-7/bin/llvm-config, with /opt/llvm-7/bin
+    // off PATH). It also handles source-built toolchains where tool names are
+    // unsuffixed (`llvm-as`) versus apt-packaged ones (`llvm-as-19`).
+    let output = Command::new(llvm_config).arg("--bindir").output().ok()?;
+    if !output.status.success() {
+        return None;
+    }
+    let bindir = String::from_utf8(output.stdout).ok()?.trim().to_string();
+    Some(PathBuf::from(bindir).join(tool_prefix))
 }
 
 fn target_to_llvm_prebuilt(target: &str) -> String {
     let base = match target {
         "x86_64-pc-windows-msvc" => "windows-x86_64",
-        // NOTE(RDambrosio016): currently disabled because of weird issues with segfaults and building the C++ shim
-        // "x86_64-unknown-linux-gnu" => "linux-x86_64",
+        "x86_64-unknown-linux-gnu" => "linux-x86_64",
+        "aarch64-unknown-linux-gnu" => "linux-aarch64",
         _ => panic!(
-            "Unsupported target with no matching prebuilt LLVM: `{target}`, install LLVM and set LLVM_CONFIG"
+            "Unsupported target with no matching prebuilt LLVM: `{target}`, install LLVM and set LLVM_CONFIG (or LLVM_CONFIG_19 when the `llvm19` feature is enabled)"
         ),
     };
     format!("{base}.tar.xz")
 }
 
-fn find_llvm_config(target: &str, llvm19_enabled: bool) -> PathBuf {
-    if llvm19_enabled {
-        return find_llvm_config_llvm19();
-    }
-
-    find_llvm_config_llvm7(target)
-}
-
-fn find_llvm_config_llvm19() -> PathBuf {
-    let required_major = required_major_llvm_version(true);
-    let mut candidates = Vec::new();
-
-    if let Some(path) = tracked_env_var_os("LLVM_CONFIG_19") {
-        candidates.push(PathBuf::from(path));
-    }
-
-    candidates.push(PathBuf::from("llvm-config-19"));
-
-    if let Some(cuda_home) = tracked_env_var_os("CUDA_HOME") {
-        let cuda_home = PathBuf::from(cuda_home);
-        candidates.push(cuda_home.join("nvvm").join("bin").join("llvm-config"));
-        candidates.push(cuda_home.join("bin").join("llvm-config"));
-    }
-
-    for candidate in &candidates {
-        if llvm_version_matches(candidate, required_major) {
-            return candidate.clone();
-        }
-    }
-
-    let tried = candidates
-        .iter()
-        .map(|candidate| format!("  - {}", candidate.display()))
-        .collect::<Vec<_>>()
-        .join("\n");
-
-    fail(&format!(
-        "LLVM 19 support is enabled, but no LLVM 19 toolchain was found.\n\
-         Tried:\n{tried}\n\n\
-         Set LLVM_CONFIG_19=/path/to/llvm-config from an LLVM 19 installation."
-    ));
-}
-
-fn find_llvm_config_llvm7(target: &str) -> PathBuf {
-    let required_major = required_major_llvm_version(false);
-    // first, if LLVM_CONFIG is set then see if its llvm version if 7.x, if so, use that.
-    let config_env = tracked_env_var_os("LLVM_CONFIG");
-    // if LLVM_CONFIG is not set, try using llvm-config as a normal app in PATH.
-    let path_to_try = config_env.unwrap_or_else(|| "llvm-config".into());
-
-    // if USE_PREBUILT_LLVM is set to 1 then download prebuilt llvm without trying llvm-config
-    if tracked_env_var_os("USE_PREBUILT_LLVM") != Some("1".into()) {
-        let cmd = Command::new(&path_to_try).arg("--version").output();
-
-        if let Ok(out) = cmd {
-            let version = String::from_utf8(out.stdout).unwrap();
-            if version.starts_with(&required_major.to_string()) {
-                return PathBuf::from(path_to_try);
-            }
-            println!(
-                "cargo:warning=Prebuilt llvm-config version does not start with {required_major}"
-            );
-        } else {
-            println!("cargo:warning=Failed to run prebuilt llvm-config");
-        }
-    }
-
-    // otherwise, download prebuilt LLVM.
-    println!("cargo:warning=Downloading prebuilt LLVM");
-    let mut url = tracked_env_var_os("PREBUILT_LLVM_URL")
-        .map(|x| x.to_string_lossy().to_string())
-        .unwrap_or_else(|| PREBUILT_LLVM_URL_LLVM7.to_string());
-
+fn download_prebuilt_llvm(target: &str, base_url: &str) -> PathBuf {
     let prebuilt_name = target_to_llvm_prebuilt(target);
-    url = format!("{url}{prebuilt_name}");
+    let url = format!("{base_url}{prebuilt_name}");
+
+    println!("cargo:warning=Downloading prebuilt LLVM from {url}");
 
     let out = env::var("OUT_DIR").expect("OUT_DIR was not set");
     let mut easy = Easy::new();
@@ -181,6 +143,13 @@ fn find_llvm_config_llvm7(target: &str) -> PathBuf {
             .expect("Failed to download prebuilt LLVM");
     }
 
+    let response_code = easy.response_code().unwrap();
+    if response_code != 200 {
+        fail(&format!(
+            "Failed to download prebuilt LLVM from {url}. HTTP response code: {response_code}"
+        ));
+    }
+
     let decompressor = XzDecoder::new(xz_encoded.as_slice());
     let mut ar = Archive::new(decompressor);
 
@@ -194,19 +163,61 @@ fn find_llvm_config_llvm7(target: &str) -> PathBuf {
         .join(format!("llvm-config{}", std::env::consts::EXE_SUFFIX))
 }
 
-fn find_llvm_as_llvm19(llvm_config: &Path) -> PathBuf {
-    let required_major = required_major_llvm_version(true);
+fn find_llvm_config(target: &str, flavor: &LlvmFlavor) -> PathBuf {
+    // USE_PREBUILT_LLVM=1 skips local probing and goes straight to download.
+    if tracked_env_var_os("USE_PREBUILT_LLVM") != Some("1".into()) {
+        let mut candidates = Vec::new();
+
+        if let Some(path) = tracked_env_var_os(flavor.config_env) {
+            candidates.push(PathBuf::from(path));
+        }
+
+        candidates.push(PathBuf::from(flavor.default_binary));
+
+        if flavor.probe_cuda_home
+            && let Some(cuda_home) = tracked_env_var_os("CUDA_HOME")
+        {
+            let cuda_home = PathBuf::from(cuda_home);
+            candidates.push(cuda_home.join("nvvm").join("bin").join("llvm-config"));
+            candidates.push(cuda_home.join("bin").join("llvm-config"));
+        }
+
+        for candidate in &candidates {
+            if llvm_version_matches(candidate, flavor.major) {
+                return candidate.clone();
+            }
+        }
+
+        let tried = candidates
+            .iter()
+            .map(|candidate| format!("  - {}", candidate.display()))
+            .collect::<Vec<_>>()
+            .join("\n");
+
+        println!(
+            "cargo:warning=No matching LLVM {} toolchain found, falling back to prebuilt LLVM. Tried:\n{}",
+            flavor.major, tried
+        );
+    }
+
+    let url = tracked_env_var_os("PREBUILT_LLVM_URL")
+        .map(|x| x.to_string_lossy().to_string())
+        .unwrap_or_else(|| flavor.prebuilt_url.to_string());
+    download_prebuilt_llvm(target, &url)
+}
+
+fn find_llvm_as(llvm_config: &Path, flavor: &LlvmFlavor) -> PathBuf {
     let mut candidates = Vec::new();
 
     if let Some(path) = sibling_llvm_tool(llvm_config, "llvm-as") {
         candidates.push(path);
     }
 
-    candidates.push(PathBuf::from("llvm-as-19"));
+    candidates.push(PathBuf::from(format!("llvm-as-{}", flavor.major)));
     candidates.push(PathBuf::from("llvm-as"));
 
     for candidate in &candidates {
-        if llvm_version_matches(candidate, required_major) {
+        if llvm_version_matches(candidate, flavor.major) {
             return candidate.clone();
         }
     }
@@ -218,8 +229,9 @@ fn find_llvm_as_llvm19(llvm_config: &Path) -> PathBuf {
         .join("\n");
 
     fail(&format!(
-        "LLVM 19 support is enabled, but llvm-as 19 was not found.\n\
-         Tried:\n{tried}"
+        "LLVM {} support is enabled, but llvm-as {} was not found.\n\
+         Tried:\n{tried}",
+        flavor.major, flavor.major
     ));
 }
 
@@ -238,60 +250,49 @@ pub fn tracked_env_var_os<K: AsRef<OsStr> + Display>(key: K) -> Option<OsString>
     env::var_os(key)
 }
 
-fn configure_libintrinsics(llvm_config: &Path, llvm19_enabled: bool) {
+fn configure_libintrinsics(llvm_config: &Path, flavor: &LlvmFlavor) {
     let manifest_dir =
         PathBuf::from(env::var("CARGO_MANIFEST_DIR").expect("CARGO_MANIFEST_DIR was not set"));
 
-    // Both paths share `libintrinsics.ll`. The LLVM 7 build consumes the checked-in
-    // `libintrinsics.bc` (regenerate manually with `llvm-as-7` when the .ll changes).
-    // The LLVM 19 build assembles the same .ll on the fly with `llvm-as-19`.
     build_helper::rerun_if_changed(Path::new("libintrinsics.ll"));
 
-    if llvm19_enabled {
-        let input = manifest_dir.join("libintrinsics.ll");
-        let output = PathBuf::from(env::var("OUT_DIR").expect("OUT_DIR was not set"))
-            .join("libintrinsics_v19.bc");
-        let llvm_as = find_llvm_as_llvm19(llvm_config);
+    let input = manifest_dir.join("libintrinsics.ll");
+    let output = PathBuf::from(env::var("OUT_DIR").expect("OUT_DIR was not set"))
+        .join(format!("libintrinsics_v{}.bc", flavor.major));
+    let llvm_as = find_llvm_as(llvm_config, flavor);
 
-        let status = Command::new(&llvm_as)
-            .arg(&input)
-            .arg("-o")
-            .arg(&output)
-            .stderr(Stdio::inherit())
-            .stdout(Stdio::inherit())
-            .status()
-            .unwrap_or_else(|err| {
-                fail(&format!(
-                    "failed to execute llvm-as for LLVM 19: {llvm_as:?}\nerror: {err}"
-                ))
-            });
-
-        if !status.success() {
+    let status = Command::new(&llvm_as)
+        .arg(&input)
+        .arg("-o")
+        .arg(&output)
+        .stderr(Stdio::inherit())
+        .stdout(Stdio::inherit())
+        .status()
+        .unwrap_or_else(|err| {
             fail(&format!(
-                "llvm-as did not assemble {} successfully",
-                input.display()
-            ));
-        }
+                "failed to execute llvm-as for LLVM {}: {llvm_as:?}\nerror: {err}",
+                flavor.major
+            ))
+        });
 
-        println!(
-            "cargo:rustc-env=NVVM_LIBINTRINSICS_BC_PATH={}",
-            output.display()
-        );
-    } else {
-        build_helper::rerun_if_changed(Path::new("libintrinsics.bc"));
-        println!(
-            "cargo:rustc-env=NVVM_LIBINTRINSICS_BC_PATH={}",
-            manifest_dir.join("libintrinsics.bc").display()
-        );
+    if !status.success() {
+        fail(&format!(
+            "llvm-as did not assemble {} successfully",
+            input.display()
+        ));
     }
+
+    println!(
+        "cargo:rustc-env=NVVM_LIBINTRINSICS_BC_PATH={}",
+        output.display()
+    );
 }
 
-fn rustc_llvm_build(llvm19_enabled: bool) {
+fn rustc_llvm_build(flavor: &LlvmFlavor) {
     let target = env::var("TARGET").expect("TARGET was not set");
-    let llvm_config = find_llvm_config(&target, llvm19_enabled);
-    let required_major = required_major_llvm_version(llvm19_enabled);
+    let llvm_config = find_llvm_config(&target, flavor);
 
-    configure_libintrinsics(&llvm_config, llvm19_enabled);
+    configure_libintrinsics(&llvm_config, flavor);
 
     let required_components = &["ipo", "bitreader", "bitwriter", "lto", "nvptx"];
 
@@ -320,6 +321,12 @@ fn rustc_llvm_build(llvm19_enabled: bool) {
         if flag.starts_with("-flto") {
             continue;
         }
+
+        // if we are on msvc, ignore all -W flags as msvc uses /W and -W is invalid.
+        if target.contains("msvc") && flag.starts_with("-W") {
+            continue;
+        }
+
         // ignore flags that aren't supported in gcc 8
         if flag == "-Wcovered-switch-default" {
             continue;
@@ -340,7 +347,7 @@ fn rustc_llvm_build(llvm19_enabled: bool) {
         cfg.define(&flag, None);
     }
 
-    let llvm_version_major = required_major.to_string();
+    let llvm_version_major = flavor.major.to_string();
     cfg.define("LLVM_VERSION_MAJOR", Some(llvm_version_major.as_str()));
 
     if tracked_env_var_os("LLVM_RUSTLLVM").is_some() {
