@@ -6,3 +6,4 @@ book
 rustc-ice-*.txt
 .nix-driver-libs
 .claude
+.direnv
