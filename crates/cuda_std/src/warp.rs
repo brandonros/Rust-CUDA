@@ -313,20 +313,20 @@ unsafe fn match_any_64(mask: u32, value: u64) -> u32 {
 #[inline(always)]
 unsafe fn match_all_32(mask: u32, value: u32) -> (u32, bool) {
     unsafe extern "C" {
-        #[allow(improper_ctypes)]
-        fn __nvvm_warp_match_all_32(mask: u32, value: u32) -> (u32, bool);
+        // see libintrinsics.ll — packs (value, predicate) into i64
+        fn __nvvm_warp_match_all_32(mask: u32, value: u32) -> u64;
     }
-    unsafe { __nvvm_warp_match_all_32(mask, value) }
+    unpack_warp_result(unsafe { __nvvm_warp_match_all_32(mask, value) })
 }
 
 #[gpu_only]
 #[inline(always)]
 unsafe fn match_all_64(mask: u32, value: u64) -> (u32, bool) {
     unsafe extern "C" {
-        #[allow(improper_ctypes)]
-        fn __nvvm_warp_match_all_64(mask: u32, value: u64) -> (u32, bool);
+        // see libintrinsics.ll — packs (value, predicate) into i64
+        fn __nvvm_warp_match_all_64(mask: u32, value: u64) -> u64;
     }
-    unsafe { __nvvm_warp_match_all_64(mask, value) }
+    unpack_warp_result(unsafe { __nvvm_warp_match_all_64(mask, value) })
 }
 
 /// Synchronizes a subset of threads in a warp then performs a reduce-and-broadcast
@@ -741,14 +741,16 @@ pub enum WarpShuffleMode {
     Xor = 3,
 }
 
-// C-compatible struct to match LLVM IR's {i32, i8} return type
-// This fixes an ABI mismatch where Rust would represent (u32, bool) as [2 x i32]
-// but the LLVM intrinsic returns {i32, i8} (a struct, not an array)
-#[doc(hidden)]
-#[repr(C)]
-pub struct WarpShuffleResult {
-    value: u32,
-    predicate: u8,
+// The libintrinsics.ll wrappers pack their (value, predicate) result into a
+// single i64: low 32 bits = value, bit 32 = predicate. Returning a primitive
+// integer avoids the small-aggregate ABI path where rustc attaches `align N`
+// to the call's return value — an attribute LLVM 19's verifier rejects on
+// non-pointer returns.
+// Unused on host targets — every caller is `#[gpu_only]`.
+#[allow(dead_code)]
+#[inline(always)]
+fn unpack_warp_result(packed: u64) -> (u32, bool) {
+    (packed as u32, (packed >> 32) & 1 != 0)
 }
 
 #[gpu_only]
@@ -761,8 +763,7 @@ unsafe fn warp_shuffle_32(
 ) -> (u32, bool) {
     unsafe extern "C" {
         // see libintrinsics.ll
-        // Returns {i32, i8} in LLVM IR, which maps to our WarpShuffleResult struct
-        fn __nvvm_warp_shuffle(mask: u32, mode: u32, a: u32, b: u32, c: u32) -> WarpShuffleResult;
+        fn __nvvm_warp_shuffle(mask: u32, mode: u32, a: u32, b: u32, c: u32) -> u64;
     }
 
     assert!(
@@ -776,7 +777,7 @@ unsafe fn warp_shuffle_32(
     c |= (32 - width) << 8;
 
     let result = unsafe { __nvvm_warp_shuffle(mask, mode as u32, value, b, c) };
-    (result.value, result.predicate != 0)
+    unpack_warp_result(result)
 }
 
 unsafe fn warp_shuffle_128(

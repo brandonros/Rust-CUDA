@@ -152,44 +152,52 @@ start:
 }
 declare {i16, i1} @llvm.umul.with.overflow.i16(i16, i16) #0
 
-; Required because we need to explicitly generate { i32, i1 } for the following intrinsics
-; except rustc will not generate them (it will make { i32, i8 }) which libnvvm rejects.
+; NVVM intrinsics return { i32, i1 }, but rustc lowering of (u32, bool) — or any
+; small two-field aggregate — produces { i32, i8 }, which libnvvm rejects. We
+; used to bridge by re-packing into { i32, i8 } here, but that aggregate return
+; causes rustc's call-site ABI to attach `align N` to the return value, which
+; LLVM 19's verifier rejects (align is only valid on pointer returns). So we
+; pack into a plain i64 instead: low 32 bits = value, bit 32 = predicate.
+; Primitive integer return ⇒ no struct ABI ⇒ no spurious return-attribute.
 
-define { i32, i8 } @__nvvm_warp_shuffle(i32, i32, i32, i32, i32) #1 {
+define i64 @__nvvm_warp_shuffle(i32, i32, i32, i32, i32) #1 {
 start:
-  %5 = call { i32, i1 } @llvm.nvvm.shfl.sync.i32(i32 %0, i32 %1, i32 %2, i32 %3, i32 %4)
-  %6 = extractvalue { i32, i1 } %5, 1
-  %7 = zext i1 %6 to i8
-  %8 = extractvalue { i32, i1 } %5, 0
-  %9 = insertvalue { i32, i8 } undef, i32 %8, 0
-  %10 = insertvalue { i32, i8 } %9, i8 %7, 1
-  ret { i32, i8 } %10
+  %r = call { i32, i1 } @llvm.nvvm.shfl.sync.i32(i32 %0, i32 %1, i32 %2, i32 %3, i32 %4)
+  %val = extractvalue { i32, i1 } %r, 0
+  %pred = extractvalue { i32, i1 } %r, 1
+  %val64 = zext i32 %val to i64
+  %pred64 = zext i1 %pred to i64
+  %pred_hi = shl i64 %pred64, 32
+  %packed = or i64 %val64, %pred_hi
+  ret i64 %packed
 }
 
 declare { i32, i1 } @llvm.nvvm.shfl.sync.i32(i32, i32, i32, i32, i32) #1
 
-define { i32, i8 } @__nvvm_warp_match_all_32(i32, i32) {
+define i64 @__nvvm_warp_match_all_32(i32, i32) {
 start:
-  %2 = call { i32, i1 } @llvm.nvvm.match.all.sync.i32(i32 %0, i32 %1)
-  %3 = extractvalue { i32, i1 } %2, 1
-  %4 = zext i1 %3 to i8
-  %5 = extractvalue { i32, i1 } %2, 0
-  %6 = insertvalue { i32, i8 } undef, i32 %5, 0
-  %7 = insertvalue { i32, i8 } %6, i8 %4, 1
-  ret { i32, i8 } %7
+  %r = call { i32, i1 } @llvm.nvvm.match.all.sync.i32(i32 %0, i32 %1)
+  %val = extractvalue { i32, i1 } %r, 0
+  %pred = extractvalue { i32, i1 } %r, 1
+  %val64 = zext i32 %val to i64
+  %pred64 = zext i1 %pred to i64
+  %pred_hi = shl i64 %pred64, 32
+  %packed = or i64 %val64, %pred_hi
+  ret i64 %packed
 }
 
 declare { i32, i1 } @llvm.nvvm.match.all.sync.i32(i32, i32) #1
 
-define { i32, i8 } @__nvvm_warp_match_all_64(i32, i64) {
+define i64 @__nvvm_warp_match_all_64(i32, i64) {
 start:
-  %2 = call { i32, i1 } @llvm.nvvm.match.all.sync.i64(i32 %0, i64 %1)
-  %3 = extractvalue { i32, i1 } %2, 1
-  %4 = zext i1 %3 to i8
-  %5 = extractvalue { i32, i1 } %2, 0
-  %6 = insertvalue { i32, i8 } undef, i32 %5, 0
-  %7 = insertvalue { i32, i8 } %6, i8 %4, 1
-  ret { i32, i8 } %7
+  %r = call { i32, i1 } @llvm.nvvm.match.all.sync.i64(i32 %0, i64 %1)
+  %val = extractvalue { i32, i1 } %r, 0
+  %pred = extractvalue { i32, i1 } %r, 1
+  %val64 = zext i32 %val to i64
+  %pred64 = zext i1 %pred to i64
+  %pred_hi = shl i64 %pred64, 32
+  %packed = or i64 %val64, %pred_hi
+  ret i64 %packed
 }
 
 declare { i32, i1 } @llvm.nvvm.match.all.sync.i64(i32, i64) #1
