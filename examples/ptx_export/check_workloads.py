@@ -51,7 +51,7 @@ def main():
     if args.miner:
         shutil.copy2(miner/'kernels/Cargo.lock', out/'Cargo.lock.resolved')
         subprocess.run([sys.executable, str(scripts/'replay_cleanup.py'), str(out), '--extended', '--only',
-                        'baseline,dce-only,memory-early-cse,memory-gvn,memory-stores,memory-combined'], check=True)
+                        'baseline,dce-only,inline-only,memory-early-cse,memory-gvn,memory-stores,memory-combined'], check=True)
 
 
 if __name__ == '__main__':
