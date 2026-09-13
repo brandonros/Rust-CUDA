@@ -383,3 +383,11 @@ remaining bounds check redundant and removes its trap; repeating correlated
 cleanup or running induction-variable cleanup did not. Its five extracted
 helpers pass the 1,608-case host oracle. It is replay-only until NVIDIA codegen
 measurements justify integrating it.
+
+[`evidence/cleanup-comparison.json`](evidence/cleanup-comparison.json) records
+per-variant PTX/SASS hashes and resource results from run 34785534228; artifact
+manifests were verified before recording them. Its correlated-cleanup PTX passes
+vector-add and SHA-256 at all five batch sizes and the 1,608 guarded-select cases
+on M5 through generic CuMetal lowering. The filtered/stepped entry remains
+blocked by the stepped helper's trap. These are standalone replay results; the
+integrated target-analysis correction is not yet confirmed by them.
