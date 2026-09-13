@@ -30,6 +30,8 @@ jobs:
           key: ptx-cargo-v1-${{ runner.os }}-${{ runner.arch }}-llvm19-${{ hashFiles('flake.nix', 'flake.lock', 'rust-toolchain.toml', '**/Cargo.toml', '**/Cargo.lock', '.cargo/**', '.github/workflows/ptx_export.yml') }}-${{ github.sha }}
           restore-keys: |
             ptx-cargo-v1-${{ runner.os }}-${{ runner.arch }}-llvm19-${{ hashFiles('flake.nix', 'flake.lock', 'rust-toolchain.toml', '**/Cargo.toml', '**/Cargo.lock', '.cargo/**', '.github/workflows/ptx_export.yml') }}-
+      - name: Test codegen inventory parser
+        run: python3 -m unittest discover -s examples/ptx_export -p test_inspect_codegen.py
       - name: Check guarded-select source semantics on CPU
         run: |
           nix develop .#v19 --command rustc --edition=2024 --test examples/ptx_export/kernels/src/guarded_select.rs -o /tmp/guarded-select-debug
@@ -37,13 +39,23 @@ jobs:
           nix develop .#v19 --command rustc --edition=2024 -O --test examples/ptx_export/kernels/src/guarded_select.rs -o /tmp/guarded-select-release
           /tmp/guarded-select-release
       - name: Compile Rust kernels without a GPU
-        run: nix develop .#v19 --command cargo run -p ptx_export --features llvm19 -- artifacts/ptx
+        run: |
+          mkdir -p artifacts/ptx
+          printf '%s\n' 'nix develop .#v19 --command cargo run -vv -p ptx_export --features llvm19 -- artifacts/ptx' > artifacts/ptx/build-command.txt
+          nix develop .#v19 --command cargo run -vv -p ptx_export --features llvm19 -- artifacts/ptx 2>&1 | tee artifacts/ptx/build.log
       - name: Record provenance
         run: |
           git rev-parse HEAD > artifacts/ptx/source-commit.txt
           nix develop .#v19 --command rustc -Vv > artifacts/ptx/rustc-version.txt
-          sha256sum artifacts/ptx/rust_kernels.ptx > artifacts/ptx/SHA256SUMS
+          nix develop .#v19 --command nvcc --version > artifacts/ptx/nvcc-version.txt
+          cp flake.lock rust-toolchain.toml Cargo.lock artifacts/ptx/
+          # Keep per-crate LLVM IR as well as the linked final-module.ll.
+          mkdir -p artifacts/ptx/llvm-ir
+          find target/nvptx64-nvidia-cuda -name '*.ll' -exec cp --parents '{}' artifacts/ptx/llvm-ir/ \;
+      - name: Assemble and inspect NVIDIA machine code without a GPU
+        run: nix develop .#v19 --command python3 examples/ptx_export/inspect_codegen.py artifacts/ptx
       - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
         with:
           name: rust-ptx
           path: artifacts/ptx/
