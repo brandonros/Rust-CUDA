@@ -15,7 +15,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .copy_to(output.join("rust_kernels.ptx"))
         .final_module_path(output.join("final-module.ll"))
         .emit_llvm_ir(true)
-        .build()?;
+        .build()
+        .map_err(|error| std::io::Error::other(format!("PTX compilation failed: {error:?}")))?;
     println!("Exported {}", ptx.display());
     Ok(())
 }
