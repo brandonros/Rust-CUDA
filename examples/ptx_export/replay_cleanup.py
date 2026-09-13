@@ -9,6 +9,8 @@ from pathlib import Path
 import re
 import subprocess
 import sys
+import time
+from optimization_pipelines import experiments
 from inspect_codegen import ptx_functions, ptx_summary
 
 
@@ -75,6 +77,7 @@ def normalized_functions(ptx):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('artifacts', type=Path)
+    parser.add_argument('--extended', action='store_true')
     args = parser.parse_args()
     root = args.artifacts.resolve()
     out = root / 'cleanup-experiment'; out.mkdir(exist_ok=True)
@@ -89,21 +92,17 @@ def main():
                 'libraries': [{'path': str(p), 'sha256': hashlib.sha256(p.read_bytes()).hexdigest()} for p in libraries],
                 'input_sha256': hashlib.sha256((root/'final-module.ll').read_bytes()).hexdigest(),
                 'results': []}
-    pipelines = {
-        'baseline': 'verify',
-        'local-cleanup': 'function(sroa,instcombine<max-iterations=2;no-verify-fixpoint>,simplifycfg,adce),verify',
-        'inline-only': 'globaldce,cgscc(inline),function(sroa,instcombine<max-iterations=2;no-verify-fixpoint>,simplifycfg,adce),globaldce,verify',
-        'inline-cleanup': 'globaldce,cgscc(inline),function(sroa,instcombine<max-iterations=2;no-verify-fixpoint>,simplifycfg,adce),globaldce,function(correlated-propagation,instcombine<max-iterations=2;no-verify-fixpoint>,simplifycfg,adce),verify',
-        'constrained-cleanup': 'globaldce,cgscc(inline),function(sroa,instcombine<max-iterations=2;no-verify-fixpoint>,simplifycfg,adce),globaldce,function(correlated-propagation,instcombine<max-iterations=2;no-verify-fixpoint>,simplifycfg,adce),function(constraint-elimination,instcombine<max-iterations=2;no-verify-fixpoint>,simplifycfg,adce),verify',
-    }
+    pipelines = experiments(args.extended)
     baseline_matches = False
-    for name, passes in pipelines.items():
+    for name, (passes, options) in pipelines.items():
         dest = out/name; dest.mkdir(exist_ok=True)
-        command = ['opt-19', '-passes='+passes, '-verify-each', str(root/'final-module.ll'), '-o', str(dest/'module.bc')]
-        item = {'name': name, 'passes': passes, 'opt_command': command}
+        command = ['opt-19', '-passes='+passes, '-verify-each', *options, str(root/'final-module.ll'), '-o', str(dest/'module.bc')]
+        item = {'name': name, 'passes': passes, 'opt_options': options, 'opt_command': command}
+        started = time.perf_counter()
         try:
             with (dest/'opt.log').open('w') as log:
                 subprocess.run(command, stdout=log, stderr=subprocess.STDOUT, check=True)
+            item['opt_seconds'] = time.perf_counter() - started
             subprocess.run(['llvm-dis-19', str(dest/'module.bc'), '-o', str(dest/'final-module.ll')], check=True)
             compile_nvvm(dest/'module.bc', libraries, dest)
             source = (dest/'rust_kernels.ptx').read_text()
@@ -116,6 +115,7 @@ def main():
             item['status'] = 'compiled_and_assembled'
         except (RuntimeError, subprocess.CalledProcessError) as error:
             item['status'] = 'failed'; item['error'] = str(error)
+        item['total_seconds'] = time.perf_counter() - started
         metadata['results'].append(item)
         (out/'experiment.json').write_text(json.dumps(metadata, indent=2)+'\n')
         print(name, item['status'], item.get('error',''), flush=True)
