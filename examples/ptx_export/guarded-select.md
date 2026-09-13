@@ -117,3 +117,46 @@ shape; it does not prove that the larger Ed25519 case was optimized identically.
 
 Tool semantics: [NVIDIA binary utilities](https://docs.nvidia.com/cuda/cuda-binary-utilities/).
 This artifact pipeline is LLVM 19 only; it does not involve the LLVM 21 worktree.
+
+## Measured LLVM 19 baseline (2026-09-13)
+
+[CI run 34782620441](https://github.com/brandonros/Rust-CUDA/actions/runs/34782620441)
+succeeded at source `f5df0590d2938c5dec42c38bf908dcd34ef193e8`. Download the
+`rust-ptx` artifact there for IR, PTX, cubin, disassembly and resource reports.
+All 43 checksummed artifact files verified after download. PTX SHA-256:
+`0abd6c9c5dc9b40eafd382180385bbd3c02d44a91c1e2e904e7951e835d72f60`.
+Assembler: CUDA 13.2, ptxas V13.2.51, target sm_100, optimization O3.
+
+| Helper | PTX instructions | Self-false PTX selects | SASS instructions through return | SASS global-load sites | SASS SEL sites |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| preserved | 123 | 0 | 172 | 21 | 0 |
+| direct | 123 | 0 | 174 | 21 | 0 |
+| observed control | 180 | 1 | 238 | 22 | 11 |
+
+These are static counts, not per-launch or per-iteration counts. SASS counts
+exclude the trailing unreachable self-branch and ten NOP padding instructions
+following the final helper's return. Helper boundaries are the named function
+labels in `nvdisasm.txt`; cuobjdump groups them under the calling kernel.
+The assembler reports zero stack frame, spill stores and spill loads for all
+three helpers. The combined `rust_guarded_select` kernel uses 32 registers;
+that is not an independently measured register count for each variant.
+
+The PTX bodies for preserved/direct are textually identical after replacing
+their own function names and function-specific `$L__BB` prefixes. In contrast,
+the pre-NVVM `final-module.ll` still contains the initial/remembered storage.
+That dump is written before adding the module to NVVM (`nvvm.rs`), so the
+redundancy is eliminated by the time NVVM emits PTX. SASS has register-allocation
+and move differences; it is not byte-identical. The difference in static
+instruction counts does not establish that either source form runs faster.
+
+Conclusion: this candidate does not reproduce the original Ed25519 missed-
+optimization suspicion. It shows NVVM removes the unnecessary bookkeeping in
+the small guarded example while retaining selection for the observable control.
+The next useful reduction starts from the original Ed25519 loop and preserves
+its PTX self-select as a reduction criterion, rather than forcing an instruction
+into the small Rust source. NVIDIA runtime correctness and performance remain
+unmeasured.
+
+`ptxas` warned that relocation preservation is not fully implemented for sm_100.
+Both disassemblers completed successfully; the warning is retained in the raw
+assembler report and no complete-relocation guarantee is inferred.
