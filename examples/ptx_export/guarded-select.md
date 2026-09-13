@@ -282,3 +282,21 @@ ordinary defined globals subject to the existing internalization behavior.
 The export workflow now verifies the real LLVM 19 handoff module with stock
 `opt-19` on every run, independent of whether cleanup replay is requested.
 This fixes a concrete IR validity issue; it is not a performance claim.
+
+### Experimental compiler integration
+
+`CudaBuilder::llvm19_cleanup(Llvm19Cleanup::Scalar)` opts into modern-PM
+SROA, instruction combining, CFG simplification and aggressive DCE at the
+merged-module handoff. `Llvm19Cleanup::Inline` additionally runs the modern
+inliner first and GlobalDCE afterward. The default is `None`; LLVM 7 requests
+are rejected. The low-level flags are `--llvm19-cleanup=scalar` and
+`--llvm19-cleanup=inline`. No target-independent CPU default pipeline is enabled.
+The wrapper registers modern analyses/proxies and verifies LLVM IR before and
+after the pass pipeline. NVVM verification/compilation still follow normally.
+
+The exporter accepts an optional second argument `scalar` or `inline` after
+its output directory. It saves both `final-module.before-cleanup.ll` and
+`final-module.ll`. The opt-in workflow now also compiles both modes through the
+real backend and requires their PTX function bodies to match offline replay,
+then assembles and disassembles them. This tests plumbing and output consistency;
+it does not establish numerical GPU correctness or warrant enabling defaults.

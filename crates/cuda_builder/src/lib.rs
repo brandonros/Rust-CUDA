@@ -51,6 +51,13 @@ impl DebugInfo {
     }
 }
 
+/// Experimental pre-NVVM optimization. Requires the LLVM 19 backend.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Llvm19Cleanup {
+    Scalar,
+    Inline,
+}
+
 pub enum EmitOption {
     LlvmIr,
     Bitcode,
@@ -194,6 +201,8 @@ pub struct CudaBuilder {
     /// An optional path where to dump LLVM IR of the final output the codegen will feed to libnvvm. Usually
     /// used for debugging.
     pub final_module_path: Option<PathBuf>,
+    /// Opt-in modern LLVM cleanup; disabled by default.
+    pub llvm19_cleanup: Option<Llvm19Cleanup>,
 }
 
 impl CudaBuilder {
@@ -216,7 +225,15 @@ impl CudaBuilder {
             debug: DebugInfo::None,
             build_args: vec![],
             final_module_path: None,
+            llvm19_cleanup: None,
         }
+    }
+
+    /// Enable a bounded LLVM 19 cleanup pipeline before NVVM compilation.
+    /// This is experimental; compare numerical results and generated code.
+    pub fn llvm19_cleanup(mut self, cleanup: Llvm19Cleanup) -> Self {
+        self.llvm19_cleanup = Some(cleanup);
+        self
     }
 
     /// Additional arguments passed to cargo during `cargo build`.
@@ -723,6 +740,13 @@ fn invoke_rustc(builder: &CudaBuilder) -> Result<PathBuf, CudaBuilderError> {
     }
 
     let mut llvm_args = vec![NvvmOption::Arch(builder.arch).to_string()];
+    if let Some(mode) = builder.llvm19_cleanup {
+        let mode = match mode {
+            Llvm19Cleanup::Scalar => "scalar",
+            Llvm19Cleanup::Inline => "inline",
+        };
+        llvm_args.push(format!("--llvm19-cleanup={mode}"));
+    }
 
     if !builder.nvvm_opts {
         llvm_args.push("-opt=0".to_string());

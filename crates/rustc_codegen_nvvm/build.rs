@@ -294,7 +294,11 @@ fn rustc_llvm_build(flavor: &LlvmFlavor) {
 
     configure_libintrinsics(&llvm_config, flavor);
 
-    let required_components = &["ipo", "bitreader", "bitwriter", "lto", "nvptx"];
+    let required_components: &[&str] = if flavor.major == 19 {
+        &["ipo", "bitreader", "bitwriter", "lto", "nvptx", "passes"]
+    } else {
+        &["ipo", "bitreader", "bitwriter", "lto", "nvptx"]
+    };
 
     let components = output(Command::new(&llvm_config).arg("--components"));
     let mut components = components.split_whitespace().collect::<Vec<_>>();

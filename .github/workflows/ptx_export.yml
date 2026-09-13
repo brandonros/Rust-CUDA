@@ -64,6 +64,9 @@ jobs:
       - name: Investigate pre-NVVM cleanup (opt-in)
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.cleanup_experiment }}
         run: nix develop .#v19 --command python3 examples/ptx_export/replay_cleanup.py artifacts/ptx
+      - name: Validate integrated cleanup against replay (opt-in)
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.cleanup_experiment }}
+        run: nix develop .#v19 --command python3 examples/ptx_export/check_integrated_cleanup.py artifacts/ptx
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
