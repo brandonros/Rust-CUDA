@@ -172,7 +172,10 @@ extern "C" void LLVMPassManagerBuilderPopulateLTOPassManager(
 
 // Explicit, bounded modern-PM cleanup at the final NVVM handoff. This is
 // separate from the legacy compatibility builder and remains opt-in.
-extern "C" LLVMRustResult LLVMRustRunNvvmCleanup(LLVMModuleRef M, bool Inline)
+// Keep discriminants in sync with llvm::NvvmCleanup on the Rust side.
+enum class LLVMRustNvvmCleanup : uint32_t { Scalar = 0, Inline = 1, GlobalDce = 2 };
+
+extern "C" LLVMRustResult LLVMRustRunNvvmCleanup(LLVMModuleRef M, LLVMRustNvvmCleanup Mode)
 {
 #if LLVM_VERSION_MAJOR >= 19
   Module &Mod = *unwrap(M);
@@ -211,7 +214,9 @@ extern "C" LLVMRustResult LLVMRustRunNvvmCleanup(LLVMModuleRef M, bool Inline)
   ModulePassManager PM;
   // Prune unreachable functions before inlining, then expose and simplify
   // branch-correlated iterator values. Keep this identical to offline replay.
-  const char *Pipeline = Inline
+  const char *Pipeline = Mode == LLVMRustNvvmCleanup::GlobalDce
+      ? "globaldce,verify"
+      : Mode == LLVMRustNvvmCleanup::Inline
       ? "globaldce,cgscc(inline),function(sroa,instcombine<max-iterations=2;no-verify-fixpoint>,simplifycfg,adce),"
         "globaldce,function(correlated-propagation,instcombine<max-iterations=2;no-verify-fixpoint>,simplifycfg,adce),verify"
       : "function(sroa,instcombine<max-iterations=2;no-verify-fixpoint>,simplifycfg,adce),verify";

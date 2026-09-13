@@ -8,6 +8,7 @@ CORRELATED = f'function(correlated-propagation,{IC},simplifycfg,adce)'
 def experiments(extended=False):
     pipelines = {
         'baseline': ('verify', []),
+        'dce-only': ('globaldce,verify', []),
         'local-cleanup': (f'{SCALAR},verify', []),
         'inline-only': (f'{INLINE},verify', []),
         'inline-cleanup': (f'{INLINE},{CORRELATED},verify', []),
@@ -18,7 +19,6 @@ def experiments(extended=False):
             'cfg-no-final': (f'{INLINE},function(correlated-propagation,{IC},adce),verify', []),
             'cfg-before-combine': (f'{INLINE},function(correlated-propagation,simplifycfg,{IC},adce),verify', []),
             'cfg-no-both': (f'globaldce,cgscc(inline),function(sroa,{IC},adce),globaldce,function(correlated-propagation,{IC},adce),verify', []),
-            'dce-only': ('globaldce,verify', []),
             'dce-scalar': (f'globaldce,{SCALAR},globaldce,verify', []),
             'memory-early-cse': (f'{INLINE},function(early-cse<memssa>,{IC},adce),verify', []),
             'memory-gvn': (f'{INLINE},function(gvn,{IC},adce),verify', []),

@@ -15,7 +15,7 @@ def main():
     args = parser.parse_args()
     root = args.artifacts.resolve()
     results = []
-    for mode, replay in [('scalar', 'local-cleanup'), ('inline', 'inline-cleanup')]:
+    for mode, replay in [('dce', 'dce-only'), ('scalar', 'local-cleanup'), ('inline', 'inline-cleanup')]:
         dest = root/'integrated-cleanup'/mode
         dest.mkdir(parents=True, exist_ok=True)
         command = ['cargo', 'run', '-vv', '-p', 'ptx_export', '--features', 'llvm19', '--', str(dest), mode]
@@ -31,6 +31,15 @@ def main():
         required = {'rust_vecadd', 'rust_sha256_32', 'rust_guarded_select', 'rust_filtered_select'}
         if not required <= actual.keys(): raise RuntimeError('cleanup removed an exported kernel')
         result = {'mode': mode, 'matches_replay_function_bodies': matches}
+        if mode == 'dce':
+            baseline = normalized_functions((root/'rust_kernels.ptx').read_text())
+            if actual != baseline:
+                raise RuntimeError('DCE-only changed baseline PTX function bodies')
+            before_count = len(re.findall(r'^define ', before.read_text(), re.M))
+            after_count = len(re.findall(r'^define ', (dest/'final-module.ll').read_text(), re.M))
+            if not 0 < after_count < before_count:
+                raise RuntimeError('DCE-only did not prune unused definitions')
+            result['definitions_before_after'] = [before_count, after_count]
         if mode == 'inline':
             # Check the real compiler output, not a hand-written substitute.
             # The negative control must still carry its observable dependency.
@@ -48,7 +57,7 @@ def main():
         (root/'integrated-cleanup'/'comparison.json').write_text(json.dumps(results, indent=2)+'\n')
         if not matches: raise RuntimeError(f'{mode}: integrated cleanup differs from replay')
         subprocess.run([sys.executable, str(Path(__file__).with_name('inspect_codegen.py')), str(dest)], check=True)
-        if mode == 'inline':
+        if mode in ('dce', 'inline'):
             subprocess.run([sys.executable, str(Path(__file__).with_name('check_cleanup_ir.py')),
                             str(dest/'final-module.ll'), '--out', str(dest/'host-ir-check')], check=True)
         print(f'{mode}: real backend matches replay; LLVM verified and PTX assembled', flush=True)

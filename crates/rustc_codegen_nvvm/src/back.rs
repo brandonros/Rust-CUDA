@@ -360,7 +360,7 @@ pub fn compile_codegen_unit(tcx: TyCtxt<'_>, cgu_name: Symbol) -> (ModuleCodegen
             };
             dump("before");
             unsafe {
-                llvm::LLVMRustRunNvvmCleanup(llmod, false)
+                llvm::LLVMRustRunNvvmCleanup(llmod, llvm::NvvmCleanup::Scalar)
                     .into_result()
                     .unwrap_or_else(|_| {
                         llvm_err(tcx.sess.dcx(), "LLVM 19 per-module cleanup failed");

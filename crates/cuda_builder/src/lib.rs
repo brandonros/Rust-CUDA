@@ -54,6 +54,8 @@ impl DebugInfo {
 /// Experimental pre-NVVM optimization. Requires the LLVM 19 backend.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Llvm19Cleanup {
+    /// Remove unreachable internal definitions without rewriting live function bodies.
+    GlobalDce,
     Scalar,
     Inline,
 }
@@ -755,6 +757,7 @@ fn invoke_rustc(builder: &CudaBuilder) -> Result<PathBuf, CudaBuilderError> {
     }
     if let Some(mode) = builder.llvm19_cleanup {
         let mode = match mode {
+            Llvm19Cleanup::GlobalDce => "dce",
             Llvm19Cleanup::Scalar => "scalar",
             Llvm19Cleanup::Inline => "inline",
         };

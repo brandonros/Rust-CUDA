@@ -115,7 +115,7 @@ pub fn codegen_bitcode_modules(
 
         LLVMAddNamedMetadataOperand(module, c"nvvmir.version".as_ptr().cast(), node);
 
-        if let Some(inline) = args.llvm19_cleanup {
+        if let Some(mode) = args.llvm19_cleanup {
             if let Some(path) = &args.final_module_path {
                 let before = path.with_extension("before-cleanup.ll");
                 let before = before.to_str().unwrap();
@@ -128,7 +128,7 @@ pub fn codegen_bitcode_modules(
                 .into_result()
                 .expect("failed to write pre-cleanup LLVM IR");
             }
-            if LLVMRustRunNvvmCleanup(module, inline)
+            if LLVMRustRunNvvmCleanup(module, mode)
                 .into_result()
                 .is_err()
             {
