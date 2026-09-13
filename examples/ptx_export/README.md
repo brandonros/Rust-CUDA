@@ -59,3 +59,6 @@ per-module cleanup, inlining policy and size-oriented builds, memory cleanup,
 and a pinned Solana mining workload. Static Solana results favor inlining plus
 scalar cleanup; additional memory passes have not shown an advantage. Runtime
 performance on NVIDIA remains unmeasured.
+
+The consolidated [optimization results](optimization-results.md) record which
+passes helped, which did not, and the remaining runtime-validation limits.
