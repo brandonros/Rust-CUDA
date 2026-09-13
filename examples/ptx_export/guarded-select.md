@@ -323,3 +323,8 @@ disabled. This is additional consumer evidence, not NVIDIA execution evidence.
 The filtered/stepped entry did not translate: CuMetal rejects a `trap` in the
 stepped helper. Do not report that entry as numerically validated or alter its
 PTX to bypass the check.
+
+The same baseline also passes vector addition and SHA-256 at counts 1, 31, 32,
+33 and 257 on M5. [`evidence/cleanup-baseline-apple.json`](evidence/cleanup-baseline-apple.json)
+records the PTX, translator/library and runner hashes plus numerical results.
+These are correctness checks, not timing comparisons.
