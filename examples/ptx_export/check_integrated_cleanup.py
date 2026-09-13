@@ -48,6 +48,9 @@ def main():
         (root/'integrated-cleanup'/'comparison.json').write_text(json.dumps(results, indent=2)+'\n')
         if not matches: raise RuntimeError(f'{mode}: integrated cleanup differs from replay')
         subprocess.run([sys.executable, str(Path(__file__).with_name('inspect_codegen.py')), str(dest)], check=True)
+        if mode == 'inline':
+            subprocess.run([sys.executable, str(Path(__file__).with_name('check_cleanup_ir.py')),
+                            str(dest/'final-module.ll'), '--out', str(dest/'host-ir-check')], check=True)
         print(f'{mode}: real backend matches replay; LLVM verified and PTX assembled', flush=True)
 
 

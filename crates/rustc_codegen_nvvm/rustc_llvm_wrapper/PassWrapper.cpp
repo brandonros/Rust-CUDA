@@ -13,6 +13,7 @@
 #include <vector>
 #include <set>
 #include <optional>
+#include <memory>
 #include <string>
 
 #include "rustllvm.h"
@@ -185,7 +186,23 @@ extern "C" LLVMRustResult LLVMRustRunNvvmCleanup(LLVMModuleRef M, bool Inline)
   FunctionAnalysisManager FAM;
   CGSCCAnalysisManager CGAM;
   ModuleAnalysisManager MAM;
-  PassBuilder PB;
+  // Match opt's target-aware analyses. Without a TargetMachine the inliner
+  // uses generic costs and can disagree with replay even on identical IR.
+  // Use the module's NVPTX triple and generic CPU, as the existing backend
+  // does; NVVM remains responsible for the selected compute architecture.
+  std::string TargetError;
+  const Target *T = TargetRegistry::lookupTarget(Mod.getTargetTriple(), TargetError);
+  if (!T) {
+    LLVMRustSetLastError(TargetError.c_str());
+    return LLVMRustResult::Failure;
+  }
+  std::unique_ptr<TargetMachine> TM(T->createTargetMachine(
+      Mod.getTargetTriple(), "", "", TargetOptions(), std::nullopt));
+  if (!TM) {
+    LLVMRustSetLastError("Could not create cleanup TargetMachine");
+    return LLVMRustResult::Failure;
+  }
+  PassBuilder PB(TM.get());
   PB.registerModuleAnalyses(MAM);
   PB.registerCGSCCAnalyses(CGAM);
   PB.registerFunctionAnalyses(FAM);
