@@ -270,3 +270,15 @@ resource-report directory per variant and `experiment.json` for status. The
 initial investigation was launched as
 [run 34783692948](https://github.com/brandonros/Rust-CUDA/actions/runs/34783692948)
 on source `4678196`; this entry records launch, not a successful result.
+
+### Handoff verification prerequisite
+
+The first replay failed before running any cleanup: stock LLVM 19 rejected
+`@llvm.used = internal global ...` with `invalid linkage for intrinsic global
+variable`. The backend's internalization loop was changing every defined global
+to internal linkage, including special appending globals. The fix preserves
+appending linkage (including `llvm.used` and `llvm.compiler.used`) and leaves
+ordinary defined globals subject to the existing internalization behavior.
+The export workflow now verifies the real LLVM 19 handoff module with stock
+`opt-19` on every run, independent of whether cleanup replay is requested.
+This fixes a concrete IR validity issue; it is not a performance claim.

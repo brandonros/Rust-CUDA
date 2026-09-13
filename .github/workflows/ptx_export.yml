@@ -48,6 +48,8 @@ jobs:
           mkdir -p artifacts/ptx
           printf '%s\n' 'nix develop .#v19 --command cargo run -vv -p ptx_export --features llvm19 -- artifacts/ptx' > artifacts/ptx/build-command.txt
           nix develop .#v19 --command cargo run -vv -p ptx_export --features llvm19 -- artifacts/ptx 2>&1 | tee artifacts/ptx/build.log
+      - name: Verify LLVM 19 handoff IR
+        run: nix develop .#v19 --command opt-19 -passes=verify -disable-output artifacts/ptx/final-module.ll
       - name: Record provenance
         run: |
           git rev-parse HEAD > artifacts/ptx/source-commit.txt
