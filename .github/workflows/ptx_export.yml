@@ -44,7 +44,7 @@ jobs:
           restore-keys: |
             ptx-cargo-v1-${{ runner.os }}-${{ runner.arch }}-llvm19-${{ hashFiles('flake.nix', 'flake.lock', 'rust-toolchain.toml', '**/Cargo.toml', '**/Cargo.lock', '.cargo/**', '.github/workflows/ptx_export.yml') }}-
       - name: Test codegen inventory parser
-        run: python3 -m unittest discover -s examples/ptx_export -p test_inspect_codegen.py
+        run: python3 -m unittest discover -s examples/ptx_export -p 'test_*.py'
       - name: Check guarded-select source semantics on CPU
         run: |
           nix develop .#v19 --command rustc --edition=2024 --test examples/ptx_export/kernels/src/guarded_select.rs -o /tmp/guarded-select-debug
@@ -52,6 +52,7 @@ jobs:
           nix develop .#v19 --command rustc --edition=2024 -O --test examples/ptx_export/kernels/src/guarded_select.rs -o /tmp/guarded-select-release
           /tmp/guarded-select-release
       - name: Compile Rust kernels without a GPU
+        id: export
         run: |
           mkdir -p artifacts/ptx
           printf '%s\n' 'nix develop .#v19 --command cargo run -vv -p ptx_export --features llvm19 -- artifacts/ptx' > artifacts/ptx/build-command.txt
@@ -76,20 +77,20 @@ jobs:
         if: ${{ github.event_name == 'workflow_dispatch' && (inputs.cleanup_experiment || inputs.optimization_sweep) }}
         run: nix develop .#v19 --command python3 examples/ptx_export/check_integrated_cleanup.py artifacts/ptx
       - name: Validate per-module cleanup (extended sweep)
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.optimization_sweep }}
+        if: ${{ !cancelled() && steps.export.outcome == 'success' && github.event_name == 'workflow_dispatch' && inputs.optimization_sweep }}
         run: nix develop .#v19 --command python3 examples/ptx_export/check_module_cleanup.py artifacts/ptx
       - name: Validate size-oriented builds (extended sweep)
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.optimization_sweep }}
+        if: ${{ !cancelled() && steps.export.outcome == 'success' && github.event_name == 'workflow_dispatch' && inputs.optimization_sweep }}
         run: nix develop .#v19 --command python3 examples/ptx_export/check_workloads.py artifacts/ptx
       - name: Checkout pinned mining workload
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.mining_workload }}
+        if: ${{ !cancelled() && steps.export.outcome == 'success' && github.event_name == 'workflow_dispatch' && inputs.mining_workload }}
         uses: actions/checkout@v4
         with:
           repository: brandonros/vanity-miner-rs
           ref: 9791234249fc8cb762c296c4fda4503d2686ff77
           path: workloads/vanity-miner
       - name: Compare cleanup on Solana mining kernel
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.mining_workload }}
+        if: ${{ !cancelled() && steps.export.outcome == 'success' && github.event_name == 'workflow_dispatch' && inputs.mining_workload }}
         run: nix develop .#v19 --command python3 examples/ptx_export/check_workloads.py artifacts/ptx --miner workloads/vanity-miner
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}

@@ -61,3 +61,14 @@ single CI observation, total replay/inspection time drops from 3.137 to 2.147
 seconds. This supports a compiler-cost candidate, not a GPU speed claim.
 Validation on the larger workload is still pending, as are the per-module and
 size-oriented comparisons; the five-area objective is not complete.
+
+The first per-module run compiled successfully but its textual comparison was
+too strict about LLVM predecessor comments, local SSA names and PHI pair order.
+The comparison now uses LLVM's `strip-nondebug` on comparison copies, ignores
+comments outside strings and sorts complete PHI incoming pairs. Instructions,
+attributes, constants and each value/block association remain compared. Negative
+tests cover changed values and strings. All 22 saved module-scalar units from
+run 34787242514 match standalone replay under this comparison; module-inline
+and final workload checks still need the new CI run. Independent size/mining
+checks now run after a successful baseline export even if another experiment
+fails, while the overall workflow continues to report those failures.
