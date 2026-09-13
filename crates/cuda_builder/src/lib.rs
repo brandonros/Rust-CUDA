@@ -203,6 +203,8 @@ pub struct CudaBuilder {
     pub final_module_path: Option<PathBuf>,
     /// Opt-in modern LLVM cleanup; disabled by default.
     pub llvm19_cleanup: Option<Llvm19Cleanup>,
+    /// Experimental scalar cleanup of each codegen unit before serialization.
+    pub llvm19_module_cleanup: bool,
 }
 
 impl CudaBuilder {
@@ -226,7 +228,15 @@ impl CudaBuilder {
             build_args: vec![],
             final_module_path: None,
             llvm19_cleanup: None,
+            llvm19_module_cleanup: false,
         }
+    }
+
+    /// Enable verified scalar cleanup before each codegen unit is serialized.
+    /// Disabled by default; independent of merged-module cleanup.
+    pub fn llvm19_module_cleanup(mut self, enabled: bool) -> Self {
+        self.llvm19_module_cleanup = enabled;
+        self
     }
 
     /// Enable a bounded LLVM 19 cleanup pipeline before NVVM compilation.
@@ -740,6 +750,9 @@ fn invoke_rustc(builder: &CudaBuilder) -> Result<PathBuf, CudaBuilderError> {
     }
 
     let mut llvm_args = vec![NvvmOption::Arch(builder.arch).to_string()];
+    if builder.llvm19_module_cleanup {
+        llvm_args.push("--llvm19-module-cleanup".to_string());
+    }
     if let Some(mode) = builder.llvm19_cleanup {
         let mode = match mode {
             Llvm19Cleanup::Scalar => "scalar",

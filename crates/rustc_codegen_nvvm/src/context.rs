@@ -654,6 +654,7 @@ pub struct CodegenArgs {
     // None leaves the existing NVVM handoff unchanged; false is scalar cleanup,
     // true additionally exposes internal calls through the modern inliner.
     pub llvm19_cleanup: Option<bool>,
+    pub llvm19_module_cleanup: bool,
     pub disassemble: Option<DisassembleMode>,
 }
 
@@ -678,14 +679,23 @@ impl CodegenArgs {
                 cg_args.override_libm = true;
             } else if arg == "--use-constant-memory-space" {
                 cg_args.use_constant_memory_space = true;
+            } else if arg == "--llvm19-module-cleanup" {
+                if !cfg!(feature = "llvm19") {
+                    sess.dcx()
+                        .fatal("--llvm19-module-cleanup requires the llvm19 backend feature");
+                }
+                cg_args.llvm19_module_cleanup = true;
             } else if let Some(mode) = arg.strip_prefix("--llvm19-cleanup=") {
                 if !cfg!(feature = "llvm19") {
-                    sess.dcx().fatal("--llvm19-cleanup requires the llvm19 backend feature");
+                    sess.dcx()
+                        .fatal("--llvm19-cleanup requires the llvm19 backend feature");
                 }
                 cg_args.llvm19_cleanup = Some(match mode {
                     "scalar" => false,
                     "inline" => true,
-                    _ => sess.dcx().fatal("--llvm19-cleanup expects scalar or inline"),
+                    _ => sess
+                        .dcx()
+                        .fatal("--llvm19-cleanup expects scalar or inline"),
                 });
             } else if arg == "--final-module-path" {
                 let path = match args.get(idx + 1) {

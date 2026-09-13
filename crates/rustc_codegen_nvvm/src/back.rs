@@ -328,6 +328,47 @@ pub fn compile_codegen_unit(tcx: TyCtxt<'_>, cgu_name: Symbol) -> (ModuleCodegen
             }
         }
 
+        // Run only after definitions, used globals and debug metadata are
+        // finalized. Scalar cleanup preserves cross-module linkage; no DCE or
+        // inlining is performed here. Merged-module cleanup remains independent.
+        let args = crate::context::CodegenArgs::from_session(tcx.sess);
+        if args.llvm19_module_cleanup {
+            let llmod = unsafe { &*llvm_module.llmod };
+            let dump = |stage: &str| {
+                if let Some(final_path) = &args.final_module_path {
+                    let directory = final_path.parent().unwrap().join("per-module");
+                    std::fs::create_dir_all(&directory).unwrap_or_else(|error| {
+                        tcx.sess
+                            .dcx()
+                            .fatal(format!("cannot create module IR directory: {error}"))
+                    });
+                    let path = directory.join(format!("{cgu_name}.{stage}.ll"));
+                    let path = path.to_str().unwrap();
+                    unsafe {
+                        llvm::LLVMRustPrintModule(
+                            llmod,
+                            path.as_c_char_ptr(),
+                            path.len(),
+                            demangle_callback,
+                        )
+                        .into_result()
+                        .unwrap_or_else(|_| {
+                            llvm_err(tcx.sess.dcx(), "cannot save per-module IR");
+                        });
+                    }
+                }
+            };
+            dump("before");
+            unsafe {
+                llvm::LLVMRustRunNvvmCleanup(llmod, false)
+                    .into_result()
+                    .unwrap_or_else(|_| {
+                        llvm_err(tcx.sess.dcx(), "LLVM 19 per-module cleanup failed");
+                    });
+            }
+            dump("after");
+        }
+
         ModuleCodegen::new_regular(cgu_name.to_string(), llvm_module)
     }
 
