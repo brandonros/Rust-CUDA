@@ -1,0 +1,29 @@
+name: Export portable PTX
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [poc/portable-ptx-export]
+
+permissions:
+  contents: read
+
+jobs:
+  export:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@main
+      - name: Compile Rust kernels without a GPU
+        run: nix develop .#v19 --command cargo run -p ptx_export --features llvm19 -- artifacts/ptx
+      - name: Record provenance
+        run: |
+          git rev-parse HEAD > artifacts/ptx/source-commit.txt
+          nix develop .#v19 --command rustc -Vv > artifacts/ptx/rustc-version.txt
+          sha256sum artifacts/ptx/rust_kernels.ptx > artifacts/ptx/SHA256SUMS
+      - uses: actions/upload-artifact@v4
+        with:
+          name: rust-ptx
+          path: artifacts/ptx/
+          if-no-files-found: error
