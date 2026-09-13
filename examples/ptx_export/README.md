@@ -8,6 +8,11 @@ Rust-CUDA Linux toolchain, CUDA toolkit, and NVVM libraries.
 nix develop .#v19 --command cargo run -p ptx_export --features llvm19 -- artifacts/ptx
 ```
 
+The exporter uses `CudaBuilder`'s feature-dependent target default: `compute_100`
+with `llvm19`, or `compute_75` without it. This keeps the target compatible with
+the selected NVVM IR dialect; overriding it to `compute_89` on the LLVM 19 path
+selects NVVM's legacy reader and fails to parse the generated bitcode.
+
 The output `rust_kernels.ptx` contains:
 
 - `rust_vecadd(a: pointer, b: pointer, out: pointer, count: u32)`
