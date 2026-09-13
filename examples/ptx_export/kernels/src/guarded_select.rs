@@ -44,6 +44,26 @@ pub fn observed(table: &[u64; 64], limit: u32, initial: u64) -> u64 {
     sum
 }
 
+/// Preserve Dalek's filtered-range idiom; strip curve arithmetic first.
+#[inline(never)]
+pub fn filtered(table: &[u64; 64], limit: u32) -> u64 {
+    let mut sum = 0u64;
+    for i in (0..limit.min(64) as usize).filter(|x| x % 2 == 1) {
+        sum = sum.wrapping_add(table[i]);
+    }
+    sum
+}
+
+/// Same odd-index accesses, without Filter::next's retained result.
+#[inline(never)]
+pub fn stepped(table: &[u64; 64], limit: u32) -> u64 {
+    let mut sum = 0u64;
+    for i in (1..limit.min(64) as usize).step_by(2) {
+        sum = sum.wrapping_add(table[i]);
+    }
+    sum
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -73,6 +93,8 @@ mod tests {
                     });
                     assert_eq!(preserved(&table, limit, initial), expected);
                     assert_eq!(direct(&table, limit), expected);
+                    assert_eq!(filtered(&table, limit), expected);
+                    assert_eq!(stepped(&table, limit), expected);
                     assert_eq!(observed(&table, limit, initial), observed_expected);
                 }
             }

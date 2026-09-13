@@ -1,6 +1,6 @@
 # Export PTX without a GPU host application
 
-This example compiles three Rust kernels to PTX without linking a CUDA host
+This example compiles four Rust kernels to PTX without linking a CUDA host
 application or launching an NVIDIA GPU. Compilation still requires the normal
 Rust-CUDA Linux toolchain, CUDA toolkit, and NVVM libraries.
 
@@ -17,6 +17,7 @@ The output `rust_kernels.ptx` contains:
 
 - `rust_vecadd(a: pointer, b: pointer, out: pointer, count: u32)`
 - `rust_sha256_32(input: pointer, out: pointer, count: u32)`
+- `rust_filtered_select(table: pointer, limits: pointer, out: pointer, count: u32)`
 - `rust_guarded_select(table: pointer, limits: pointer, initials: pointer, out: pointer, count: u32)`
 
 Pointers are 64-bit PTX addresses. Each SHA-256 work item reads exactly 32 bytes
