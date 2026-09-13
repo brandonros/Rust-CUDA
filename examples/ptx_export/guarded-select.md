@@ -357,7 +357,7 @@ byte-identical pre-cleanup IR. Stock `opt` supplies a target machine to its
 PassBuilder; the first integrated implementation omitted it. The integration
 now supplies a generic NVPTX target machine to match standalone analysis costs,
 with exact PTX comparison retained as a gate. NVVM still selects the compute
-architecture for final compilation. This correction needs CI confirmation.
+architecture for final compilation. Run 34786097065 confirms this correction: both integrated modes match replay.
 
 `check_cleanup_ir.py` extracts the five integer-only helpers from the actual
 optimized module and links them to `cleanup_ir_oracle.c` for 1,608 host numerical
@@ -391,3 +391,39 @@ vector-add and SHA-256 at all five batch sizes and the 1,608 guarded-select case
 on M5 through generic CuMetal lowering. The filtered/stepped entry remains
 blocked by the stepped helper's trap. These are standalone replay results; the
 integrated target-analysis correction is not yet confirmed by them.
+
+## Validated integration
+
+[Run 34786097065](https://github.com/brandonros/Rust-CUDA/actions/runs/34786097065),
+on `973e0ae`, passes all five standalone replay/assembly variants and both
+integrated modes. The integrated PTX function bodies match replay exactly.
+The inline IR has zero selects in `filtered` and one in the observable control;
+all four kernel exports remain. The five extracted optimized helpers pass
+1,608 numerical cases on Linux x86-64, in addition to local Apple ARM checks.
+The default remains disabled.
+
+| Pipeline | Combined filtered/stepped non-NOP SASS instructions | SASS selects | Registers |
+| --- | ---: | ---: | ---: |
+| Baseline | 103 | 4 | 17 |
+| Scalar | 115 | 4 | 16 |
+| Inline without correlated cleanup | 114 | 4 | 19 |
+| Integrated inline with correlated cleanup | 124 | 2 | 18 |
+| Additional constraint elimination (replay only) | 124 | 2 | 18 |
+
+Constraint elimination produces byte-identical PTX and SASS to correlated
+cleanup in this experiment, so it is not added to the compiler API. These
+counts describe static code for the combined kernel, not dynamic instruction
+counts or performance. Load sites stay unchanged; this is register bookkeeping,
+not removal of unnecessary table reads.
+
+Both integrated modes pass the available Apple M5 vector-add, SHA-256 and
+1,608-case guarded-select checks through generic CuMetal lowering. Inline PTX
+is byte-identical to the previously GPU-checked replay artifact. The combined
+filtered/stepped entry remains blocked by CuMetal's handling of `trap`; it has
+host IR numerical coverage but no GPU execution result. NVIDIA numerical tests,
+performance measurements and broader workload coverage remain prerequisites
+for considering a default optimization pipeline.
+
+[`evidence/cleanup-validated.json`](evidence/cleanup-validated.json) records
+source/run provenance, IR checks, PTX/SASS hashes, numerical evidence and
+consumer hashes. The CI artifact contains the full compiler output and logs.
