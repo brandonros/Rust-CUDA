@@ -246,3 +246,27 @@ performance regression or proof of a Rust source correctness bug. `step_by`
 also changes loop structure; its instruction count alone is not a performance
 comparison. Next investigations can use this small case to compare NVIDIA's
 handling of the iterator lowering or benchmark equivalent loops on hardware.
+
+## Opt-in handoff cleanup investigation
+
+The workflow's manual `cleanup_experiment` input replays the saved pre-NVVM
+module with LLVM 19 `opt`, without changing compiler defaults. It compares:
+
+- `verify`: unchanged assembly/replay baseline.
+- `function(sroa,instcombine,simplifycfg,adce),verify`: local scalar/control cleanup.
+- `cgscc(inline),function(sroa,instcombine,simplifycfg,adce),globaldce,verify`:
+  expose helper control flow before the same cleanup.
+
+`replay_cleanup.py` uses the backend's LLVM 19 intrinsic bitcode, toolkit
+libdevice, and the exporter's sole explicit NVVM option `-arch=compute_100`.
+Library hashes, commands, pass strings and per-stage logs are retained. The
+baseline must reproduce the original PTX function bodies (ignoring whitespace
+and comments) before cleanup comparisons proceed. This guard does not substitute
+for GPU numerical tests. Modified IR rejected by NVVM is reported as failure,
+not evidence that the cleanup is safe to enable by default.
+
+Artifacts are under `cleanup-experiment/`, with a separate IR/PTX/cubin/SASS and
+resource-report directory per variant and `experiment.json` for status. The
+initial investigation was launched as
+[run 34783692948](https://github.com/brandonros/Rust-CUDA/actions/runs/34783692948)
+on source `4678196`; this entry records launch, not a successful result.
