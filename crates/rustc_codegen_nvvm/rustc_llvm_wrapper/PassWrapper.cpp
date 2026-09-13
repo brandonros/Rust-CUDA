@@ -193,8 +193,8 @@ extern "C" LLVMRustResult LLVMRustRunNvvmCleanup(LLVMModuleRef M, bool Inline)
   PB.crossRegisterProxies(LAM, FAM, CGAM, MAM);
   ModulePassManager PM;
   const char *Pipeline = Inline
-      ? "cgscc(inline),function(sroa,instcombine,simplifycfg,adce),globaldce,verify"
-      : "function(sroa,instcombine,simplifycfg,adce),verify";
+      ? "cgscc(inline),function(sroa,instcombine<max-iterations=2;no-verify-fixpoint>,simplifycfg,adce),globaldce,verify"
+      : "function(sroa,instcombine<max-iterations=2;no-verify-fixpoint>,simplifycfg,adce),verify";
   if (auto Error = PB.parsePassPipeline(PM, Pipeline)) {
     LLVMRustSetLastError(toString(std::move(Error)).c_str());
     return LLVMRustResult::Failure;

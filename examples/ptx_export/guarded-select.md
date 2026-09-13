@@ -253,8 +253,8 @@ The workflow's manual `cleanup_experiment` input replays the saved pre-NVVM
 module with LLVM 19 `opt`, without changing compiler defaults. It compares:
 
 - `verify`: unchanged assembly/replay baseline.
-- `function(sroa,instcombine,simplifycfg,adce),verify`: local scalar/control cleanup.
-- `cgscc(inline),function(sroa,instcombine,simplifycfg,adce),globaldce,verify`:
+- `function(sroa,instcombine<max-iterations=2;no-verify-fixpoint>,simplifycfg,adce),verify`: local scalar/control cleanup.
+- `cgscc(inline),function(sroa,instcombine<max-iterations=2;no-verify-fixpoint>,simplifycfg,adce),globaldce,verify`:
   expose helper control flow before the same cleanup.
 
 `replay_cleanup.py` uses the backend's LLVM 19 intrinsic bitcode, toolkit
@@ -300,3 +300,10 @@ its output directory. It saves both `final-module.before-cleanup.ll` and
 real backend and requires their PTX function bodies to match offline replay,
 then assembles and disassembles them. This tests plumbing and output consistency;
 it does not establish numerical GPU correctness or warrant enabling defaults.
+
+InstCombine is explicitly bounded to two iterations with its fixed-point
+assertion disabled. LLVM 19's default one-iteration fixed-point assertion aborts
+on this valid handoff module; failing to finish all simplifications is distinct
+from producing invalid IR. Replay still uses `-verify-each`, and the integrated
+backend verifies the module before and after cleanup. This setting permits
+bounded optimization without promising that every combining opportunity is exhausted.

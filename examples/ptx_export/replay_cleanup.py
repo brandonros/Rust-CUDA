@@ -91,8 +91,8 @@ def main():
                 'results': []}
     pipelines = {
         'baseline': 'verify',
-        'local-cleanup': 'function(sroa,instcombine,simplifycfg,adce),verify',
-        'inline-cleanup': 'cgscc(inline),function(sroa,instcombine,simplifycfg,adce),globaldce,verify',
+        'local-cleanup': 'function(sroa,instcombine<max-iterations=2;no-verify-fixpoint>,simplifycfg,adce),verify',
+        'inline-cleanup': 'cgscc(inline),function(sroa,instcombine<max-iterations=2;no-verify-fixpoint>,simplifycfg,adce),globaldce,verify',
     }
     baseline_matches = False
     for name, passes in pipelines.items():
