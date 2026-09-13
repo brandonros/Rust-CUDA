@@ -66,7 +66,8 @@ def main():
     # cleanup removes. Preserve their semantics in the host copy; these are
     # target-independent LLVM intrinsics, not GPU operations or external calls.
     allowed = {'llvm.trap', 'llvm.umin.i32', 'llvm.umin.i64', 'llvm.assume', 'llvm.expect.i1',
-               'llvm.lifetime.start.p0', 'llvm.lifetime.end.p0'}
+               'llvm.lifetime.start.p0', 'llvm.lifetime.end.p0',
+               'llvm.experimental.noalias.scope.decl'}
     if any(s not in allowed for s in declarations):
         raise RuntimeError(f'host extraction contains unexpected declarations: {declarations}')
     host = re.sub(r'^target datalayout = .*$', 'target datalayout = ""', extracted, flags=re.M)
