@@ -1,5 +1,5 @@
 import unittest
-from inspect_codegen import ptx_summary, sass_summary
+from inspect_codegen import ptx_summary, sass_summary, sass_symbols
 
 
 class InventoryTests(unittest.TestCase):
@@ -35,6 +35,32 @@ Function : direct
 ''')
         self.assertEqual(result['preserved'], {'LDG.E': 1, 'SEL': 1})
         self.assertEqual(result['direct'], {'EXIT': 1})
+
+    def test_helper_extents_exclude_adjacent_functions(self):
+        source = """
+ .size kernel,(END - kernel)
+kernel:
+ /*0000*/ CALL.REL helper;
+ .size $kernel$first,($kernel$second - $kernel$first)
+$kernel$first:
+ /*0010*/ @P0 SEL R1, R2, R3, P0;
+LOCAL:
+ /*0020*/ RET.REL.NODEC;
+ .size $kernel$second,(END - $kernel$second)
+$kernel$second:
+ /*0030*/ LDG.E R2, [R4];
+ /*0040*/ NOP;
+END:
+"""
+        result = sass_symbols(source)
+        self.assertEqual(result['$kernel$first']['opcode_histogram'], {'SEL': 1, 'RET.REL.NODEC': 1})
+        self.assertEqual(result['$kernel$second']['non_nop_instructions'], 1)
+        self.assertEqual(result['kernel']['non_nop_instructions'], 4)
+        self.assertEqual(result['kernel']['scope'], 'entry_including_helpers')
+
+    def test_missing_symbol_end_is_an_error(self):
+        with self.assertRaises(ValueError):
+            sass_symbols('.size helper,(MISSING - helper)\nhelper:\n /*0000*/ RET;\n')
 
 
 if __name__ == '__main__':

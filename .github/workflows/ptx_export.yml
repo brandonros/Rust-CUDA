@@ -7,6 +7,10 @@ on:
         description: Replay LLVM 19 handoff IR with opt-in cleanup passes
         type: boolean
         default: false
+      optimization_sweep:
+        description: Run the extended CFG, DCE, memory and inlining experiments
+        type: boolean
+        default: false
   push:
     branches: [poc/portable-ptx-export]
 
@@ -62,10 +66,10 @@ jobs:
       - name: Assemble and inspect NVIDIA machine code without a GPU
         run: nix develop .#v19 --command python3 examples/ptx_export/inspect_codegen.py artifacts/ptx
       - name: Investigate pre-NVVM cleanup (opt-in)
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.cleanup_experiment }}
-        run: nix develop .#v19 --command python3 examples/ptx_export/replay_cleanup.py artifacts/ptx
+        if: ${{ github.event_name == 'workflow_dispatch' && (inputs.cleanup_experiment || inputs.optimization_sweep) }}
+        run: nix develop .#v19 --command python3 examples/ptx_export/replay_cleanup.py artifacts/ptx ${{ inputs.optimization_sweep && '--extended' || '' }}
       - name: Validate integrated cleanup against replay (opt-in)
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.cleanup_experiment }}
+        if: ${{ github.event_name == 'workflow_dispatch' && (inputs.cleanup_experiment || inputs.optimization_sweep) }}
         run: nix develop .#v19 --command python3 examples/ptx_export/check_integrated_cleanup.py artifacts/ptx
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}

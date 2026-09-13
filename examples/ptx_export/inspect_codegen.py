@@ -51,6 +51,24 @@ def sass_summary(source):
     return result
 
 
+def sass_symbols(source):
+    """Use nvdisasm symbol extents; entry extents may include helper bodies."""
+    labels = {m[1]: m.end() for m in re.finditer(r'^([\w.$]+):[ \t]*$', source, re.M)}
+    result = {}
+    for m in re.finditer(r'^\s*\.size\s+([\w.$]+),\(([\w.$]+)\s*-\s*([\w.$]+)\)', source, re.M):
+        name, end, start = m.groups()
+        if name != start or start not in labels or end not in labels:
+            raise ValueError(f'unresolved SASS symbol extent: {m[0].strip()}')
+        if labels[end] <= labels[start]: raise ValueError(f'invalid SASS extent: {name}')
+        body = source[labels[start]:labels[end]]
+        ops = Counter(re.findall(r'/\*[0-9a-fA-F]+\*/\s+(?:@!?[\w]+\s+)?([A-Z][A-Z0-9_.]*)\b', body))
+        result[name] = {'opcode_histogram': dict(ops),
+                        'non_nop_instructions': sum(ops.values()) - ops.get('NOP', 0),
+                        'scope': 'helper' if name.startswith('$') else 'entry_including_helpers',
+                        'end_label': end}
+    return result
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('artifacts', type=Path)
@@ -80,7 +98,10 @@ def main():
     run(['cuobjdump', '--dump-sass', str(out / 'rust_kernels.cubin')], 'sass.txt')
     run(['cuobjdump', '--dump-resource-usage', str(out / 'rust_kernels.cubin')], 'resources.txt')
     summary = {'target': target[1], 'ptx': ptx_summary(source),
-               'sass': sass_summary((out / 'sass.txt').read_text())}
+               'sass': sass_summary((out / 'sass.txt').read_text()),
+               'sass_symbols': sass_symbols((out / 'nvdisasm.txt').read_text()),
+               'ptx_bytes': (out / 'rust_kernels.ptx').stat().st_size,
+               'cubin_bytes': (out / 'rust_kernels.cubin').stat().st_size}
     (out / 'codegen-summary.json').write_text(json.dumps(summary, indent=2) + '\n')
     lines = ['# Guarded-select codegen inventory', '',
              'Static instruction counts only; no GPU execution or performance claim.',
