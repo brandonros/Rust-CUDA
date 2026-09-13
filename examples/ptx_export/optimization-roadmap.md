@@ -45,3 +45,19 @@ vanity-miner-rs at `9791234`, builds the full Solana mining kernel, and repeats
 the independent DCE and memory-cleanup comparisons. Only cuda_std's dependency
 location changes to the backend under test; original/resolved manifests and
 locks are retained. This does not modify the user's vanity-miner checkout.
+
+## First extended sweep
+
+Run 34787085815 passes all 17 variants and the existing integrated checks.
+`evidence/extended-sweep.json` records verified artifact hashes and per-helper
+metrics. None of the tested CFG orderings, memory passes or inlining thresholds
+improves the small filtered helper's instruction count over baseline (28).
+SHA-256's non-NOP SASS count remains 1,623. Equal counts do not imply identical
+code; some threshold variants alter output without improving these metrics.
+
+GlobalDCE alone reduces the printed module from 13,107,292 to 257,877 bytes and
+3,299 to 93 definitions while producing byte-identical PTX and SASS. In this
+single CI observation, total replay/inspection time drops from 3.137 to 2.147
+seconds. This supports a compiler-cost candidate, not a GPU speed claim.
+Validation on the larger workload is still pending, as are the per-module and
+size-oriented comparisons; the five-area objective is not complete.
