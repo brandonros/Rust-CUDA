@@ -97,3 +97,23 @@ isolates Rust-CUDA/NVVM from CuMetal; running the same artifact on Metal adds a
 consumer comparison. This change adds the export kernel and CPU oracle, but no
 NVIDIA runner or GPU numerical result. PTX generation cannot run natively in
 this Mac's CUDA-less environment and has not yet been verified for this change.
+
+## LLVM 19 offline codegen artifact
+
+The export workflow now runs `inspect_codegen.py` after PTX generation. It uses
+that PTX's declared target, assembles at `-O3` with relocation preservation,
+and records NVIDIA disassembly and resource usage without launching a GPU.
+The `rust-ptx` artifact includes build commands/logs, compiler/tool versions,
+lockfiles, per-crate LLVM IR, linked `final-module.ll`, unchanged PTX, cubin,
+`nvdisasm.txt`, `sass.txt`, assembler spill/register reports, and checksums.
+`codegen-summary.md` and `.json` inventory named functions and opcodes.
+
+The analysis must follow the preserved/direct helpers through any merging,
+inlining or renaming. Static counts and matching histograms are not proofs of
+semantic equivalence or runtime cost. Use the observable control to distinguish
+removing unused preservation from incorrectly deleting a meaningful dependency.
+A missing self-select means this candidate did not reproduce the original PTX
+shape; it does not prove that the larger Ed25519 case was optimized identically.
+
+Tool semantics: [NVIDIA binary utilities](https://docs.nvidia.com/cuda/cuda-binary-utilities/).
+This artifact pipeline is LLVM 19 only; it does not involve the LLVM 21 worktree.
