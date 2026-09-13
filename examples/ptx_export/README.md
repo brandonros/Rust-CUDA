@@ -33,16 +33,17 @@ The guarded-select experiment has a separate [test guide](guarded-select.md).
 
 ## Experimental LLVM 19 cleanup
 
-The exporter accepts `none` (default), `scalar`, or `inline` after the output
+The exporter accepts `none` (default), `dce`, `scalar`, or `inline` after the output
 directory. For example:
 
 ```sh
 nix develop .#v19 --command cargo run -p ptx_export --features llvm19 -- artifacts/ptx-inline inline
 ```
 
-The builder API is `CudaBuilder::llvm19_cleanup(Llvm19Cleanup::Scalar)` or
-`Llvm19Cleanup::Inline`. Both use verified, bounded LLVM 19 pass pipelines at
-the merged-module handoff. Inline mode adds target-aware inlining and
+The builder API is `CudaBuilder::llvm19_cleanup(...)`, with
+`Llvm19Cleanup::{GlobalDce, Scalar, Inline}`. These use verified, bounded LLVM 19 pass pipelines at
+the merged-module handoff. GlobalDce removes unreachable internal definitions
+without scalar cleanup or inlining. Inline mode adds target-aware inlining and
 branch-correlated cleanup. These modes are experimental and disabled by default.
 
 [Run 34786097065](https://github.com/brandonros/Rust-CUDA/actions/runs/34786097065)

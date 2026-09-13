@@ -45,6 +45,15 @@ jobs:
             ptx-cargo-v1-${{ runner.os }}-${{ runner.arch }}-llvm19-${{ hashFiles('flake.nix', 'flake.lock', 'rust-toolchain.toml', '**/Cargo.toml', '**/Cargo.lock', '.cargo/**', '.github/workflows/ptx_export.yml') }}-
       - name: Test codegen inventory parser
         run: python3 -m unittest discover -s examples/ptx_export -p 'test_*.py'
+      - name: Rebuild the checked-out backend and regenerate device evidence
+        run: |
+          # cuda_builder searches for an existing backend before trying Cargo.
+          # A restored .so alone therefore does not establish source freshness.
+          nix develop .#v19 --command cargo build -p rustc_codegen_nvvm --features llvm19 --target-dir target/cuda-builder-codegen
+          # Device Cargo fingerprints do not track changes to the backend .so;
+          # cached builds also omit the IR side outputs required by this job.
+          # Retain the expensive host/backend dependency cache.
+          rm -rf target/nvptx64-nvidia-cuda
       - name: Check guarded-select source semantics on CPU
         run: |
           nix develop .#v19 --command rustc --edition=2024 --test examples/ptx_export/kernels/src/guarded_select.rs -o /tmp/guarded-select-debug
@@ -65,6 +74,7 @@ jobs:
           nix develop .#v19 --command rustc -Vv > artifacts/ptx/rustc-version.txt
           nix develop .#v19 --command nvcc --version > artifacts/ptx/nvcc-version.txt
           cp flake.lock rust-toolchain.toml Cargo.lock artifacts/ptx/
+          sha256sum target/cuda-builder-codegen/debug/librustc_codegen_nvvm.so > artifacts/ptx/backend-sha256.txt
           # Keep per-crate LLVM IR as well as the linked final-module.ll.
           mkdir -p artifacts/ptx/llvm-ir
           find target/nvptx64-nvidia-cuda -name '*.ll' -exec cp --parents '{}' artifacts/ptx/llvm-ir/ \;

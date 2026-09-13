@@ -79,3 +79,27 @@ generic CuMetal lowering. `evidence/module-scalar-apple.json` records its hash
 and consumer provenance. This adds numerical evidence while final per-module,
 size-oriented and mining comparisons are still running; it is not a timing
 result or NVIDIA execution proof.
+
+## Larger workload and per-module evidence
+
+Run 34787847715 passes both per-module modes (22 codegen units each) and the
+Solana DCE/memory sweep. Its overall failure is the independent size-s build:
+the libdevice override lookup calls `item_name` on an unnamed libm closure.
+Commit cf5965a replaces that lookup with `opt_item_name`; both size modes must
+compile before that investigation can be considered validated.
+
+`evidence/solana-first-sweep.json` records the first full mining comparison,
+including per-symbol instruction histograms, resource reports and hashes.
+GlobalDCE alone reduces LLVM definitions from 3,883 to 151 and printed IR from
+15,716,570 to 1,341,603 bytes, with byte-identical PTX and SASS. This reinforces
+the compiler-cost result from the smaller suite. An independent opt-in builder
+mode `Llvm19Cleanup::GlobalDce` now has integrated replay and oracle checks in CI.
+
+The memory pipelines reduce registers from 216 to 178 and PTX from 1,481,081
+to 1,301,076 bytes. All include inlining and scalar cleanup, so these gains
+cannot yet be attributed to memory passes: the next run adds `inline-only`.
+No NVIDIA runtime performance or numerical claim follows from these static
+metrics. Current CuMetal rejects both baseline and memory-stores before launch
+with the same restriction: trap reporting requires a call-free kernel without
+barriers or collectives. That consumer limitation remains separate from the
+optimization experiment; no trap semantics were bypassed.
