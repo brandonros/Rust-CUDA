@@ -72,3 +72,10 @@ run 34787242514 match standalone replay under this comparison; module-inline
 and final workload checks still need the new CI run. Independent size/mining
 checks now run after a successful baseline export even if another experiment
 fails, while the overall workflow continues to report those failures.
+
+Per-module scalar PTX from run 34787242514 passes vector-add and SHA-256 at
+counts 1/31/32/33/257, plus all 1,608 guarded-select cases, on Apple M5 through
+generic CuMetal lowering. `evidence/module-scalar-apple.json` records its hash
+and consumer provenance. This adds numerical evidence while final per-module,
+size-oriented and mining comparisons are still running; it is not a timing
+result or NVIDIA execution proof.
