@@ -42,13 +42,32 @@ def main():
         found = re.findall(r'^define [^\n]*@([\w]+guarded_select\d+'+name+r')\(', source, re.M)
         if len(found) != 1: raise RuntimeError(f'expected one {name} definition')
         symbols[name] = found[0]
-    run([llvm/'llvm-extract', *['--func='+s for s in symbols.values()], '--recursive',
-         '-S', args.ir.resolve(), '-o', out/'extracted-gpu.ll'], 'extract.log')
-    extracted = (out/'extracted-gpu.ll').read_text()
+    # --recursive follows function calls, but does not retain referenced global
+    # initializers. Before scalar cleanup, panic paths still reference source
+    # locations. Include those globals and their transitive data dependencies
+    # unchanged instead of substituting dummy definitions or dropping paths.
+    globals_to_keep = set()
+    while True:
+        run([llvm/'llvm-extract', *['--func='+s for s in symbols.values()],
+             *['--glob='+s for s in sorted(globals_to_keep)], '--recursive',
+             '-S', args.ir.resolve(), '-o', out/'extracted-gpu.ll'], 'extract.log')
+        extracted = (out/'extracted-gpu.ll').read_text()
+        external = re.findall(r'^@("[^"\\]*"|[-\w.$]+) = external ', extracted, re.M)
+        if not external:
+            break
+        names = {s.strip('"') for s in external}
+        if names <= globals_to_keep:
+            raise RuntimeError(f'host extraction contains unresolved globals: {sorted(names)}')
+        globals_to_keep.update(names)
     # These five helpers use only integer arithmetic and ordinary table loads.
     # Reject a changed reproducer that acquires GPU-specific or external calls.
     declarations = re.findall(r'^declare [^\n]*@([^ (]+)\(', extracted, re.M)
-    if any(s not in {'llvm.trap', 'llvm.umin.i32', 'llvm.umin.i64'} for s in declarations):
+    # DCE-only retains ordinary lifetime markers and assumptions that scalar
+    # cleanup removes. Preserve their semantics in the host copy; these are
+    # target-independent LLVM intrinsics, not GPU operations or external calls.
+    allowed = {'llvm.trap', 'llvm.umin.i32', 'llvm.umin.i64', 'llvm.assume',
+               'llvm.lifetime.start.p0', 'llvm.lifetime.end.p0'}
+    if any(s not in allowed for s in declarations):
         raise RuntimeError(f'host extraction contains unexpected declarations: {declarations}')
     host = re.sub(r'^target datalayout = .*$', 'target datalayout = ""', extracted, flags=re.M)
     host = re.sub(r'^target triple = .*$', f'target triple = "{triple}"', host, flags=re.M)
