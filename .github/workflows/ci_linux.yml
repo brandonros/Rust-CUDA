@@ -53,13 +53,11 @@ jobs:
             runner: ubuntu-24.04
             llvm: 21
             artifact: linux-x86_64
-            sha256: f05360ab8f442accc18f2ff27853f98b44e857726958b2124b9fdd9e817af501
           - name: Ubuntu-24.04 / CUDA-13.3.1 / LLVM-21 / ARM64
             image: "nvidia/cuda:13.3.1-devel-ubuntu24.04"
             runner: ubuntu-24.04-arm
             llvm: 21
             artifact: linux-aarch64
-            sha256: 7e196f66af63b99bf9801ad3693e357cbe07258222bfc12d4f2b2f2f7ec59b8e
 
     steps:
       - name: Free up space
@@ -133,13 +131,11 @@ jobs:
         if: matrix.variance.llvm == 21
         env:
           LLVM_ARCH: ${{ matrix.variance.artifact }}
-          LLVM_SHA256: ${{ matrix.variance.sha256 }}
         run: |
           mkdir -p llvm-prebuilt
           curl --fail --location --retry 3 \
-            "https://github.com/brandonros/rustc_codegen_nvvm-llvm/releases/download/llvm-21.1.8/$LLVM_ARCH.tar.xz" \
+            "https://github.com/Rust-GPU/rustc_codegen_nvvm-llvm/releases/download/llvm-21.1.8/$LLVM_ARCH.tar.xz" \
             -o "llvm-prebuilt/$LLVM_ARCH.tar.xz"
-          echo "$LLVM_SHA256  llvm-prebuilt/$LLVM_ARCH.tar.xz" | sha256sum --check
           tar -xf "llvm-prebuilt/$LLVM_ARCH.tar.xz" -C llvm-prebuilt
           docker exec "$CONTAINER_NAME" bash -lc 'set -euo pipefail
             apt-get update

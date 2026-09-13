@@ -15,7 +15,7 @@ struct LlvmFlavor {
     config_env: &'static str,
     default_binary: &'static str,
     probe_cuda_home: bool,
-    prebuilt_url: Option<&'static str>,
+    prebuilt_url: &'static str,
 }
 
 const LLVM7: LlvmFlavor = LlvmFlavor {
@@ -23,7 +23,7 @@ const LLVM7: LlvmFlavor = LlvmFlavor {
     config_env: "LLVM_CONFIG",
     default_binary: "llvm-config",
     probe_cuda_home: false,
-    prebuilt_url: Some(PREBUILT_LLVM_URL_LLVM7),
+    prebuilt_url: PREBUILT_LLVM_URL_LLVM7,
 };
 
 const LLVM21: LlvmFlavor = LlvmFlavor {
@@ -31,12 +31,14 @@ const LLVM21: LlvmFlavor = LlvmFlavor {
     config_env: "LLVM_CONFIG_21",
     default_binary: "llvm-config-21",
     probe_cuda_home: true,
-    // No project-maintained LLVM 21 prebuilt has been published.
-    prebuilt_url: None,
+    prebuilt_url: PREBUILT_LLVM_URL_LLVM21,
 };
 
 static PREBUILT_LLVM_URL_LLVM7: &str =
     "https://github.com/rust-gpu/rustc_codegen_nvvm-llvm/releases/download/llvm-7.1.0/";
+
+static PREBUILT_LLVM_URL_LLVM21: &str =
+    "https://github.com/rust-gpu/rustc_codegen_nvvm-llvm/releases/download/llvm-21.1.8/";
 
 fn main() {
     let flavor = if llvm21_enabled() { &LLVM21 } else { &LLVM7 };
@@ -201,8 +203,7 @@ fn find_llvm_config(target: &str, flavor: &LlvmFlavor) -> PathBuf {
 
     let url = tracked_env_var_os("PREBUILT_LLVM_URL")
         .map(|x| x.to_string_lossy().to_string())
-        .or_else(|| flavor.prebuilt_url.map(str::to_owned))
-        .unwrap_or_else(|| fail("No LLVM 21 prebuilt is configured. Install LLVM 21.1.8 and set LLVM_CONFIG_21, or provide PREBUILT_LLVM_URL."));
+        .unwrap_or_else(|| flavor.prebuilt_url.to_owned());
     download_prebuilt_llvm(target, &url)
 }
 
