@@ -1,5 +1,10 @@
 # LLVM 19 optimization investigation
 
+Completed: the full [validation matrix](https://github.com/brandonros/Rust-CUDA/actions/runs/34789945556) passes.
+
+The evaluated outcomes are consolidated in [optimization-results.md](optimization-results.md).
+The chronological notes below retain the intermediate failures and their fixes.
+
 Objective: work through all five areas below using actual Rust-generated IR,
 NVIDIA PTX/SASS, resource reports and numerical checks. A smaller IR or PTX file
 alone is not a runtime performance result. Existing defaults stay unchanged
@@ -7,11 +12,11 @@ until broader correctness and hardware measurements justify a change.
 
 | Area | Experiment | Required evidence | Status |
 | --- | --- | --- | --- |
-| CFG ordering | Omit/reorder final SimplifyCFG; compare cleanup with neither CFG stage | Per-helper filtered/stepped SASS, registers, numerical oracle | Extended sweep implemented; validation in progress |
-| Independent DCE | GlobalDCE alone and before/after scalar cleanup | Reachable exports/data retained; IR/PTX sizes, compile time, unchanged behavior | Extended sweep implemented; validation in progress |
-| Computation/memory cleanup | EarlyCSE, GVN, memcpy optimization and DSE, separately and together | SHA-256 and a larger mining kernel; loads/stores, spills, numerical results | Reproducer/SHA sweep implemented; pinned Solana workload implemented; compilation pending |
-| Inlining policy | Thresholds 0/50/450 plus a size-oriented build | Call sites, code size, registers, spills and correctness | Threshold sweep implemented; size-oriented builds implemented; validation pending |
-| Per-module optimization | Verified opt-in LLVM 19 cleanup before serialization, compared with merged-only cleanup | Before/after per-module IR; final PTX/SASS and correctness; default-off and LLVM feature gates | Opt-in hook and replay checks implemented; Linux validation pending |
+| CFG ordering | Omit/reorder final SimplifyCFG; compare cleanup with neither CFG stage | Per-helper filtered/stepped SASS, registers, numerical oracle | Evaluated: no improvement over baseline helper instruction count |
+| Independent DCE | GlobalDCE alone and before/after scalar cleanup | Reachable exports/data retained; IR/PTX sizes, compile time, unchanged behavior | Evaluated on both workloads; independent opt-in DCE integrated |
+| Computation/memory cleanup | EarlyCSE, GVN, memcpy optimization and DSE, separately and together | SHA-256 and a larger mining kernel; loads/stores, spills, numerical results | Evaluated on SHA and full Solana; no gain beyond inlining/scalar cleanup |
+| Inlining policy | Thresholds 0/50/450 plus a size-oriented build | Call sites, code size, registers, spills and correctness | Evaluated thresholds and both size modes; simpler inlining mode integrated |
+| Per-module optimization | Verified opt-in LLVM 19 cleanup before serialization, compared with merged-only cleanup | Before/after per-module IR; final PTX/SASS and correctness; default-off and LLVM feature gates | Both modes verified across 22 CGUs; no measured static advantage on the small suite |
 
 The previous stage is documented in `guarded-select.md` and
 `evidence/cleanup-validated.json`. It removed two filtered-helper SASS selects

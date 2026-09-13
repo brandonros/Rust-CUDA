@@ -127,10 +127,7 @@ pub fn codegen_bitcode_modules(
                 .into_result()
                 .expect("failed to write pre-cleanup LLVM IR");
             }
-            if LLVMRustRunNvvmCleanup(module, mode)
-                .into_result()
-                .is_err()
-            {
+            if LLVMRustRunNvvmCleanup(module, mode).into_result().is_err() {
                 sess.dcx().fatal(format!(
                     "LLVM 19 cleanup failed: {}",
                     crate::llvm::last_error().unwrap_or_else(|| "unknown LLVM error".into())
