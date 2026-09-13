@@ -366,3 +366,20 @@ copy, rejects unexpected external/GPU declarations, and records commands,
 hashes and results. This passed locally for correlated-cleanup IR and now runs
 in the integrated inline CI check. It tests optimized IR behavior, not NVVM
 or NVIDIA execution, and supplements the PTX consumer checks.
+
+### NVIDIA results and remaining control flow
+
+Standalone replay in run 34785534228 confirms that correlated cleanup removes
+the two SASS selects in the filtered helper. Across the combined
+filtered/stepped kernel, selects drop from four to two, but non-NOP instructions
+increase from 103 to 124 and registers from 17 to 18. Global-load sites remain
+three and stack/spills remain zero. Scalar cleanup and inline-only cleanup
+still have four SASS selects. Removing bookkeeping is therefore established;
+a net performance improvement is not.
+
+A further standalone `constrained-cleanup` candidate tests LLVM constraint
+elimination after correlated cleanup. Locally it proves the filtered loop's
+remaining bounds check redundant and removes its trap; repeating correlated
+cleanup or running induction-variable cleanup did not. Its five extracted
+helpers pass the 1,608-case host oracle. It is replay-only until NVIDIA codegen
+measurements justify integrating it.

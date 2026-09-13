@@ -94,6 +94,7 @@ def main():
         'local-cleanup': 'function(sroa,instcombine<max-iterations=2;no-verify-fixpoint>,simplifycfg,adce),verify',
         'inline-only': 'globaldce,cgscc(inline),function(sroa,instcombine<max-iterations=2;no-verify-fixpoint>,simplifycfg,adce),globaldce,verify',
         'inline-cleanup': 'globaldce,cgscc(inline),function(sroa,instcombine<max-iterations=2;no-verify-fixpoint>,simplifycfg,adce),globaldce,function(correlated-propagation,instcombine<max-iterations=2;no-verify-fixpoint>,simplifycfg,adce),verify',
+        'constrained-cleanup': 'globaldce,cgscc(inline),function(sroa,instcombine<max-iterations=2;no-verify-fixpoint>,simplifycfg,adce),globaldce,function(correlated-propagation,instcombine<max-iterations=2;no-verify-fixpoint>,simplifycfg,adce),function(constraint-elimination,instcombine<max-iterations=2;no-verify-fixpoint>,simplifycfg,adce),verify',
     }
     baseline_matches = False
     for name, passes in pipelines.items():
