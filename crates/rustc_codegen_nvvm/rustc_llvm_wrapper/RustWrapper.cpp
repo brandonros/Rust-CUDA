@@ -285,7 +285,7 @@ static Attribute::AttrKind fromRust(LLVMRustAttribute Kind)
     return Attribute::SExt;
   case StructRet:
 #if LLVM_VERSION_MAJOR >= 19
-    report_fatal_error("StructRet not supported without a type on LLVM 19+");
+    report_fatal_error("StructRet not supported without a type on LLVM 21+");
 #else
     return Attribute::StructRet;
 #endif
@@ -444,7 +444,7 @@ extern "C" void LLVMRustAddFunctionAttributeWithType(LLVMValueRef Fn, unsigned I
   A->setAttributes(A->getAttributes().addAttributesAtIndex(Ctx, Index, B));
 #else
   // LLVM 7's StructRet/ByVal are plain attribute kinds with no type payload,
-  // so the Ty argument is only meaningful on the LLVM 19 path above. Fall through
+  // so the Ty argument is only meaningful on the LLVM 21 path above. Fall through
   // to the kind-only add on legacy LLVM.
   (void)Ty;
   Function *A = unwrap<Function>(Fn);
@@ -588,7 +588,7 @@ LLVMRustBuildAtomicLoad(LLVMBuilderRef B, LLVMValueRef Source, const char *Name,
                         LLVMAtomicOrdering Order)
 {
 #if LLVM_VERSION_MAJOR >= 19
-  report_fatal_error("LLVMRustBuildAtomicLoad requires a type-aware LLVM 19 wrapper");
+  report_fatal_error("LLVMRustBuildAtomicLoad requires a type-aware LLVM 21 wrapper");
 #else
   LoadInst *LI = new LoadInst(unwrap(Source), 0);
   LI->setAtomic(fromRust(Order));
@@ -1743,7 +1743,7 @@ static FunctionType *LLVMRustGetFunctionTypeForCallee(Value *Callee)
   if (Function *Fn = dyn_cast<Function>(Callee->stripPointerCasts()))
     return Fn->getFunctionType();
 
-  report_fatal_error("LLVMRustBuildCall requires an explicit callee type on LLVM 19");
+  report_fatal_error("LLVMRustBuildCall requires an explicit callee type on LLVM 21");
 }
 #endif
 
@@ -2030,7 +2030,7 @@ extern "C" LLVMRustModuleBuffer *
 LLVMRustModuleBufferCreate(LLVMModuleRef M)
 {
   // Longhand form avoids std::make_unique (C++14) so this compiles under
-  // LLVM 7's `-std=c++11` llvm-config cxxflags as well as LLVM 19's C++17.
+  // LLVM 7's `-std=c++11` llvm-config cxxflags as well as LLVM 21's C++17.
   auto Ret = std::unique_ptr<LLVMRustModuleBuffer>(new LLVMRustModuleBuffer());
   {
     raw_string_ostream OS(Ret->data);

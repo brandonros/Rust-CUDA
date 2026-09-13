@@ -169,7 +169,7 @@ extern "C" void LLVMPassManagerBuilderPopulateLTOPassManager(
 extern "C" void LLVMInitializePasses()
 {
 #if LLVM_VERSION_MAJOR >= 19
-  // LLVM 19's pass pipeline is driven through PassBuilder, so the legacy
+  // LLVM 21's pass pipeline is driven through PassBuilder, so the legacy
   // registry initialization hooks are not needed here.
 #else
   PassRegistry &Registry = *PassRegistry::getPassRegistry();
@@ -1134,7 +1134,7 @@ LLVMRustWriteThinBitcodeToFile(LLVMPassManagerRef PMR,
   (void)M;
   (void)BcFile;
   (void)BcFileLen;
-  LLVMRustSetLastError("ThinLTO bitcode writing is not implemented for LLVM 19 yet");
+  LLVMRustSetLastError("ThinLTO bitcode writing is not implemented for LLVM 21 yet");
   return false;
 }
 
@@ -1159,7 +1159,7 @@ LLVMRustCreateThinLTOData(LLVMRustThinLTOModule *modules,
   (void)num_modules;
   (void)preserved_symbols;
   (void)num_symbols;
-  LLVMRustSetLastError("ThinLTO indexing is not implemented for LLVM 19 yet");
+  LLVMRustSetLastError("ThinLTO indexing is not implemented for LLVM 21 yet");
   return nullptr;
 }
 
@@ -1174,7 +1174,7 @@ LLVMRustPrepareThinLTORename(const LLVMRustThinLTOData *Data, LLVMModuleRef M)
 {
   (void)Data;
   (void)M;
-  LLVMRustSetLastError("ThinLTO rename is not implemented for LLVM 19 yet");
+  LLVMRustSetLastError("ThinLTO rename is not implemented for LLVM 21 yet");
   return false;
 }
 
@@ -1183,7 +1183,7 @@ LLVMRustPrepareThinLTOResolveWeak(const LLVMRustThinLTOData *Data, LLVMModuleRef
 {
   (void)Data;
   (void)M;
-  LLVMRustSetLastError("ThinLTO weak resolution is not implemented for LLVM 19 yet");
+  LLVMRustSetLastError("ThinLTO weak resolution is not implemented for LLVM 21 yet");
   return false;
 }
 
@@ -1192,7 +1192,7 @@ LLVMRustPrepareThinLTOInternalize(const LLVMRustThinLTOData *Data, LLVMModuleRef
 {
   (void)Data;
   (void)M;
-  LLVMRustSetLastError("ThinLTO internalization is not implemented for LLVM 19 yet");
+  LLVMRustSetLastError("ThinLTO internalization is not implemented for LLVM 21 yet");
   return false;
 }
 
@@ -1201,7 +1201,7 @@ LLVMRustPrepareThinLTOImport(const LLVMRustThinLTOData *Data, LLVMModuleRef M)
 {
   (void)Data;
   (void)M;
-  LLVMRustSetLastError("ThinLTO importing is not implemented for LLVM 19 yet");
+  LLVMRustSetLastError("ThinLTO importing is not implemented for LLVM 21 yet");
   return false;
 }
 

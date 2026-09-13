@@ -367,9 +367,9 @@ After installing the CUDA Toolkit, verify the following directories are on your 
 
 ```powershell
 # CUDA 13.x
-$env:PATH += ";C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v13.2\bin"
-$env:PATH += ";C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v13.2\bin\x64"
-$env:PATH += ";C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v13.2\nvvm\bin\x64"
+$env:PATH += ";C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v13.3\bin"
+$env:PATH += ";C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v13.3\bin\x64"
+$env:PATH += ";C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v13.3\nvvm\bin\x64"
 
 # CUDA 12.x -- replace v12.x with your installed version
 $env:PATH += ";C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.9\bin"
