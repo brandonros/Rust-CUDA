@@ -13,9 +13,19 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut builder = CudaBuilder::new(kernels);
     match env::args().nth(2).as_deref().unwrap_or("none") {
         "none" => {}
+        "module-scalar" => builder = builder.llvm19_module_cleanup(true),
+        "module-inline" => {
+            builder = builder
+                .llvm19_module_cleanup(true)
+                .llvm19_cleanup(Llvm19Cleanup::Inline)
+        }
         "scalar" => builder = builder.llvm19_cleanup(Llvm19Cleanup::Scalar),
         "inline" => builder = builder.llvm19_cleanup(Llvm19Cleanup::Inline),
-        _ => return Err("cleanup mode must be none, scalar, or inline".into()),
+        _ => {
+            return Err(
+                "cleanup mode must be none, scalar, inline, module-scalar, or module-inline".into(),
+            );
+        }
     }
     let ptx = builder
         .copy_to(output.join("rust_kernels.ptx"))

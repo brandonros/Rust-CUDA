@@ -11,7 +11,7 @@ until broader correctness and hardware measurements justify a change.
 | Independent DCE | GlobalDCE alone and before/after scalar cleanup | Reachable exports/data retained; IR/PTX sizes, compile time, unchanged behavior | Extended sweep implemented; validation in progress |
 | Computation/memory cleanup | EarlyCSE, GVN, memcpy optimization and DSE, separately and together | SHA-256 and a larger mining kernel; loads/stores, spills, numerical results | Reproducer/SHA sweep implemented; mining workload pending |
 | Inlining policy | Thresholds 0/50/450 plus a size-oriented build | Call sites, code size, registers, spills and correctness | Threshold sweep implemented; size-oriented build pending |
-| Per-module optimization | Verified opt-in LLVM 19 cleanup before serialization, compared with merged-only cleanup | Before/after per-module IR; final PTX/SASS and correctness; default-off and LLVM feature gates | Pending implementation and evaluation |
+| Per-module optimization | Verified opt-in LLVM 19 cleanup before serialization, compared with merged-only cleanup | Before/after per-module IR; final PTX/SASS and correctness; default-off and LLVM feature gates | Opt-in hook and replay checks implemented; Linux validation pending |
 
 The previous stage is documented in `guarded-select.md` and
 `evidence/cleanup-validated.json`. It removed two filtered-helper SASS selects
@@ -29,3 +29,12 @@ Completion requires evaluating every row, recording negative results as well
 as improvements, retaining meaningful regression checks, and integrating only
 changes justified by the evidence. NVIDIA runtime benchmarking remains distinct
 from offline compilation and Apple-GPU consumer checks.
+
+The per-module experiment uses `CudaBuilder::llvm19_module_cleanup(true)`
+(`--llvm19-module-cleanup`) after each codegen unit's definitions, used globals
+and debug information are finalized, before serialization and the legacy
+optimization hook. It uses scalar cleanup only, preserving cross-module linkage.
+It is independent of merged cleanup and disabled by default. Exporter modes
+`module-scalar` and `module-inline` test it alone and with merged inline cleanup.
+The extended workflow saves before/after IR for every rebuilt codegen unit and
+checks each against standalone LLVM replay, including dependency modules.

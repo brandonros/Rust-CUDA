@@ -71,6 +71,9 @@ jobs:
       - name: Validate integrated cleanup against replay (opt-in)
         if: ${{ github.event_name == 'workflow_dispatch' && (inputs.cleanup_experiment || inputs.optimization_sweep) }}
         run: nix develop .#v19 --command python3 examples/ptx_export/check_integrated_cleanup.py artifacts/ptx
+      - name: Validate per-module cleanup (extended sweep)
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.optimization_sweep }}
+        run: nix develop .#v19 --command python3 examples/ptx_export/check_module_cleanup.py artifacts/ptx
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
