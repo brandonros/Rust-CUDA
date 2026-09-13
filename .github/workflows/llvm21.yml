@@ -50,7 +50,7 @@ jobs:
               set -euo pipefail
               apt-get update
               DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-                build-essential curl ca-certificates git pkg-config libssl-dev \
+                build-essential libclang-dev curl ca-certificates git pkg-config libssl-dev \
                 libffi-dev libedit-dev libxml2-dev libtinfo-dev zlib1g-dev xz-utils
               curl --proto "=https" --tlsv1.2 -sSf https://sh.rustup.rs | \
                 sh -s -- -y --profile minimal --default-toolchain none
