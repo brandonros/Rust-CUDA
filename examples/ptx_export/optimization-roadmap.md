@@ -9,8 +9,8 @@ until broader correctness and hardware measurements justify a change.
 | --- | --- | --- | --- |
 | CFG ordering | Omit/reorder final SimplifyCFG; compare cleanup with neither CFG stage | Per-helper filtered/stepped SASS, registers, numerical oracle | Extended sweep implemented; validation in progress |
 | Independent DCE | GlobalDCE alone and before/after scalar cleanup | Reachable exports/data retained; IR/PTX sizes, compile time, unchanged behavior | Extended sweep implemented; validation in progress |
-| Computation/memory cleanup | EarlyCSE, GVN, memcpy optimization and DSE, separately and together | SHA-256 and a larger mining kernel; loads/stores, spills, numerical results | Reproducer/SHA sweep implemented; mining workload pending |
-| Inlining policy | Thresholds 0/50/450 plus a size-oriented build | Call sites, code size, registers, spills and correctness | Threshold sweep implemented; size-oriented build pending |
+| Computation/memory cleanup | EarlyCSE, GVN, memcpy optimization and DSE, separately and together | SHA-256 and a larger mining kernel; loads/stores, spills, numerical results | Reproducer/SHA sweep implemented; pinned Solana workload implemented; compilation pending |
+| Inlining policy | Thresholds 0/50/450 plus a size-oriented build | Call sites, code size, registers, spills and correctness | Threshold sweep implemented; size-oriented builds implemented; validation pending |
 | Per-module optimization | Verified opt-in LLVM 19 cleanup before serialization, compared with merged-only cleanup | Before/after per-module IR; final PTX/SASS and correctness; default-off and LLVM feature gates | Opt-in hook and replay checks implemented; Linux validation pending |
 
 The previous stage is documented in `guarded-select.md` and
@@ -38,3 +38,10 @@ It is independent of merged cleanup and disabled by default. Exporter modes
 `module-scalar` and `module-inline` test it alone and with merged inline cleanup.
 The extended workflow saves before/after IR for every rebuilt codegen unit and
 checks each against standalone LLVM replay, including dependency modules.
+
+Size modes `size-s` and `size-z` hold merged inline cleanup constant and change
+Cargo's release opt-level. The `mining_workload` workflow input checks out
+vanity-miner-rs at `9791234`, builds the full Solana mining kernel, and repeats
+the independent DCE and memory-cleanup comparisons. Only cuda_std's dependency
+location changes to the backend under test; original/resolved manifests and
+locks are retained. This does not modify the user's vanity-miner checkout.

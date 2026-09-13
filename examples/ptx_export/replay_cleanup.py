@@ -78,6 +78,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('artifacts', type=Path)
     parser.add_argument('--extended', action='store_true')
+    parser.add_argument('--only', help='Comma-separated experiment names; baseline is always included')
     args = parser.parse_args()
     root = args.artifacts.resolve()
     out = root / 'cleanup-experiment'; out.mkdir(exist_ok=True)
@@ -93,6 +94,11 @@ def main():
                 'input_sha256': hashlib.sha256((root/'final-module.ll').read_bytes()).hexdigest(),
                 'results': []}
     pipelines = experiments(args.extended)
+    if args.only:
+        requested = set(args.only.split(',')) | {'baseline'}
+        unknown = requested - pipelines.keys()
+        if unknown: raise ValueError(f'unknown experiments: {sorted(unknown)}')
+        pipelines = {name: spec for name, spec in pipelines.items() if name in requested}
     baseline_matches = False
     for name, (passes, options) in pipelines.items():
         dest = out/name; dest.mkdir(exist_ok=True)

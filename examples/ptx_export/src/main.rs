@@ -9,10 +9,26 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     );
     fs::create_dir_all(&output)?;
     let output = output.canonicalize()?;
-    let kernels = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("kernels");
+    let kernels = env::args_os()
+        .nth(3)
+        .map(PathBuf::from)
+        .unwrap_or_else(|| PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("kernels"));
     let mut builder = CudaBuilder::new(kernels);
+    if let Some(features) = env::args().nth(4) {
+        builder = builder.build_args(&["--no-default-features", "--features", &features]);
+    }
     match env::args().nth(2).as_deref().unwrap_or("none") {
         "none" => {}
+        "size-s" => {
+            builder = builder
+                .llvm19_cleanup(Llvm19Cleanup::Inline)
+                .build_args(&["--config", "profile.release.opt-level=\"s\""])
+        }
+        "size-z" => {
+            builder = builder
+                .llvm19_cleanup(Llvm19Cleanup::Inline)
+                .build_args(&["--config", "profile.release.opt-level=\"z\""])
+        }
         "module-scalar" => builder = builder.llvm19_module_cleanup(true),
         "module-inline" => {
             builder = builder
@@ -23,7 +39,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         "inline" => builder = builder.llvm19_cleanup(Llvm19Cleanup::Inline),
         _ => {
             return Err(
-                "cleanup mode must be none, scalar, inline, module-scalar, or module-inline".into(),
+                "cleanup mode must be none, scalar, inline, module-scalar, module-inline, size-s, or size-z".into(),
             );
         }
     }

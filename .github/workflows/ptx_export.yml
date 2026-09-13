@@ -11,6 +11,10 @@ on:
         description: Run the extended CFG, DCE, memory and inlining experiments
         type: boolean
         default: false
+      mining_workload:
+        description: Compile pinned Solana mining source and replay memory cleanup
+        type: boolean
+        default: false
   push:
     branches: [poc/portable-ptx-export]
 
@@ -74,6 +78,19 @@ jobs:
       - name: Validate per-module cleanup (extended sweep)
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.optimization_sweep }}
         run: nix develop .#v19 --command python3 examples/ptx_export/check_module_cleanup.py artifacts/ptx
+      - name: Validate size-oriented builds (extended sweep)
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.optimization_sweep }}
+        run: nix develop .#v19 --command python3 examples/ptx_export/check_workloads.py artifacts/ptx
+      - name: Checkout pinned mining workload
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.mining_workload }}
+        uses: actions/checkout@v4
+        with:
+          repository: brandonros/vanity-miner-rs
+          ref: 9791234249fc8cb762c296c4fda4503d2686ff77
+          path: workloads/vanity-miner
+      - name: Compare cleanup on Solana mining kernel
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.mining_workload }}
+        run: nix develop .#v19 --command python3 examples/ptx_export/check_workloads.py artifacts/ptx --miner workloads/vanity-miner
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
