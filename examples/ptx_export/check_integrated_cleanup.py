@@ -2,6 +2,7 @@
 """Compile through the real backend and compare against the offline pass replay."""
 import argparse
 import json
+import re
 from pathlib import Path
 import subprocess
 import sys
@@ -27,7 +28,23 @@ def main():
         actual = normalized_functions((dest/'rust_kernels.ptx').read_text())
         expected = normalized_functions((root/'cleanup-experiment'/replay/'rust_kernels.ptx').read_text())
         matches = actual == expected
-        results.append({'mode': mode, 'matches_replay_function_bodies': matches})
+        required = {'rust_vecadd', 'rust_sha256_32', 'rust_guarded_select', 'rust_filtered_select'}
+        if not required <= actual.keys(): raise RuntimeError('cleanup removed an exported kernel')
+        result = {'mode': mode, 'matches_replay_function_bodies': matches}
+        if mode == 'inline':
+            # Check the real compiler output, not a hand-written substitute.
+            # The negative control must still carry its observable dependency.
+            ir = (dest/'final-module.ll').read_text()
+            counts = {}
+            for helper in ('filtered', 'observed'):
+                bodies = re.findall(r'^define [^\n]*guarded_select\d+' + helper +
+                                    r'\([^\n]*\{\n(.*?)^}', ir, re.M | re.S)
+                if len(bodies) != 1: raise RuntimeError(f'expected one {helper} IR definition')
+                counts[helper] = len(re.findall(r'= select ', bodies[0]))
+            result['ir_select_counts'] = counts
+            if counts != {'filtered': 0, 'observed': 1}:
+                raise RuntimeError(f'guarded-select cleanup regression: {counts}')
+        results.append(result)
         (root/'integrated-cleanup'/'comparison.json').write_text(json.dumps(results, indent=2)+'\n')
         if not matches: raise RuntimeError(f'{mode}: integrated cleanup differs from replay')
         subprocess.run([sys.executable, str(Path(__file__).with_name('inspect_codegen.py')), str(dest)], check=True)

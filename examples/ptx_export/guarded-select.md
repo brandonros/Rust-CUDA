@@ -254,8 +254,10 @@ module with LLVM 19 `opt`, without changing compiler defaults. It compares:
 
 - `verify`: unchanged assembly/replay baseline.
 - `function(sroa,instcombine<max-iterations=2;no-verify-fixpoint>,simplifycfg,adce),verify`: local scalar/control cleanup.
-- `cgscc(inline),function(sroa,instcombine<max-iterations=2;no-verify-fixpoint>,simplifycfg,adce),globaldce,verify`:
-  expose helper control flow before the same cleanup.
+- `inline-only`: GlobalDCE, inlining, the same scalar cleanup, then GlobalDCE.
+- `inline-cleanup`: the `inline-only` stages followed by correlated-value
+  propagation, instruction combining, CFG simplification and aggressive DCE.
+  Exact bounded pass strings are recorded in `experiment.json`.
 
 `replay_cleanup.py` uses the backend's LLVM 19 intrinsic bitcode, toolkit
 libdevice, and the exporter's sole explicit NVVM option `-arch=compute_100`.
@@ -288,7 +290,8 @@ This fixes a concrete IR validity issue; it is not a performance claim.
 `CudaBuilder::llvm19_cleanup(Llvm19Cleanup::Scalar)` opts into modern-PM
 SROA, instruction combining, CFG simplification and aggressive DCE at the
 merged-module handoff. `Llvm19Cleanup::Inline` additionally runs the modern
-inliner first and GlobalDCE afterward. The default is `None`; LLVM 7 requests
+inliner between GlobalDCE stages, then correlated-value propagation and
+a second scalar cleanup. The default is `None`; LLVM 7 requests
 are rejected. The low-level flags are `--llvm19-cleanup=scalar` and
 `--llvm19-cleanup=inline`. No target-independent CPU default pipeline is enabled.
 The wrapper registers modern analyses/proxies and verifies LLVM IR before and
@@ -328,3 +331,20 @@ The same baseline also passes vector addition and SHA-256 at counts 1, 31, 32,
 33 and 257 on M5. [`evidence/cleanup-baseline-apple.json`](evidence/cleanup-baseline-apple.json)
 records the PTX, translator/library and runner hashes plus numerical results.
 These are correctness checks, not timing comparisons.
+
+### Branch-correlated cleanup candidate
+
+Local LLVM 19.1.7 experiments on the verified handoff IR from run 34784267526
+found 3,299 definitions before cleanup. Pruning unreachable functions before
+inlining produced byte-identical final IR to pruning afterward, but the complete
+pruned pipeline took 0.56 seconds on this Mac. This is an illustrative local
+compiler-time observation, not a benchmark or GPU performance result.
+
+After inlining and initial scalar cleanup, the filtered helper has five IR
+selects. Repeating scalar cleanup leaves two. Correlated-value propagation
+before that second cleanup removes all of them; the observable-false-path
+control retains its one meaningful select. Adding jump threading did not
+further reduce the filtered helper's select/phi counts, so it is not included.
+All these local runs used `-verify-each`. NVIDIA compilation and numerical
+validation of this candidate remain separate gates. The integrated CI check
+asserts the filtered/control select counts and retention of all four exports.

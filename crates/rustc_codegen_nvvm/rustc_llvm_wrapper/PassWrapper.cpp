@@ -192,8 +192,11 @@ extern "C" LLVMRustResult LLVMRustRunNvvmCleanup(LLVMModuleRef M, bool Inline)
   PB.registerLoopAnalyses(LAM);
   PB.crossRegisterProxies(LAM, FAM, CGAM, MAM);
   ModulePassManager PM;
+  // Prune unreachable functions before inlining, then expose and simplify
+  // branch-correlated iterator values. Keep this identical to offline replay.
   const char *Pipeline = Inline
-      ? "cgscc(inline),function(sroa,instcombine<max-iterations=2;no-verify-fixpoint>,simplifycfg,adce),globaldce,verify"
+      ? "globaldce,cgscc(inline),function(sroa,instcombine<max-iterations=2;no-verify-fixpoint>,simplifycfg,adce),"
+        "globaldce,function(correlated-propagation,instcombine<max-iterations=2;no-verify-fixpoint>,simplifycfg,adce),verify"
       : "function(sroa,instcombine<max-iterations=2;no-verify-fixpoint>,simplifycfg,adce),verify";
   if (auto Error = PB.parsePassPipeline(PM, Pipeline)) {
     LLVMRustSetLastError(toString(std::move(Error)).c_str());
