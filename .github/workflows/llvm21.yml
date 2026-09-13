@@ -1,0 +1,74 @@
+name: LLVM 21 experiment
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [experiment/cuda13.3-llvm21]
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  vecadd:
+    name: CUDA 13.3 / LLVM 21 / ${{ matrix.arch }}
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: ubuntu-24.04
+            arch: linux-x86_64
+          - runner: ubuntu-24.04-arm
+            arch: linux-aarch64
+    steps:
+      - uses: actions/checkout@v4
+
+      # Temporary experiment input until the LLVM 21 prebuilts have a release.
+      # Built from update/llvm-21.1.8 at 2cf27700bffbab35dff21a58d1e19ca12525ca6f.
+      - name: Download LLVM 21.1.8 prebuilt
+        env:
+          GH_TOKEN: ${{ github.token }}
+          LLVM_ARCH: ${{ matrix.arch }}
+        run: |
+          gh run download 34781677658 \
+            --repo brandonros/rustc_codegen_nvvm-llvm \
+            --name "$LLVM_ARCH-llvm-21.1.8" --dir llvm-prebuilt
+          tar -xf "llvm-prebuilt/$LLVM_ARCH.tar.xz" -C llvm-prebuilt
+
+      - name: Build vector-add host and PTX with CUDA 13.3.1
+        env:
+          LLVM_ARCH: ${{ matrix.arch }}
+        run: |
+          docker run --rm \
+            -v "$PWD:/workspace" -w /workspace \
+            -e LLVM_CONFIG_21="/workspace/llvm-prebuilt/$LLVM_ARCH/bin/llvm-config" \
+            -e LLVM_LINK_STATIC=1 \
+            -e RUST_CUDA_DUMP_FINAL_MODULE=1 \
+            -e RUST_CUDA_EMIT_LLVM_IR=1 \
+            nvidia/cuda:13.3.1-devel-ubuntu24.04 bash -c '
+              set -euo pipefail
+              apt-get update
+              DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+                build-essential curl ca-certificates git pkg-config libssl-dev \
+                libffi-dev libedit-dev libxml2-dev libtinfo-dev zlib1g-dev xz-utils
+              curl --proto "=https" --tlsv1.2 -sSf https://sh.rustup.rs | \
+                sh -s -- -y --profile minimal --default-toolchain none
+              export PATH="/root/.cargo/bin:$PATH"
+              export LD_LIBRARY_PATH="$(dirname "$LLVM_CONFIG_21")/../lib:/usr/local/cuda/nvvm/lib64:${LD_LIBRARY_PATH:-}"
+              export LIBRARY_PATH="/usr/local/cuda/lib64/stubs:${LIBRARY_PATH:-}"
+              test "$("$LLVM_CONFIG_21" --version)" = 21.1.8
+              nvcc --version
+              rustup show
+              cargo build -p vecadd --features llvm21
+            '
+
+      - name: Upload PTX and LLVM IR
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: vecadd-llvm21-${{ matrix.arch }}
+          path: |
+            target/**/kernels.ptx
+            target/**/final-module.ll
+          if-no-files-found: warn
