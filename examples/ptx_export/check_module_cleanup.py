@@ -3,17 +3,59 @@
 import argparse
 import hashlib
 import json
+import re
 from pathlib import Path
 import subprocess
 import sys
 from optimization_pipelines import SCALAR
 
 
+def canonical_phi(line):
+    # PHI incoming pairs are unordered. Keep each value attached to its block;
+    # this is applied only after LLVM has verified and stripped local names.
+    if ' = phi ' not in line:
+        return line
+    groups = []
+    depth = 0
+    quoted = escaped = False
+    start = 0
+    for index, char in enumerate(line):
+        if not quoted:
+            if char == '[':
+                if depth == 0: start = index
+                depth += 1
+            elif char == ']':
+                depth -= 1
+                if depth == 0:
+                    group = line[start:index + 1]
+                    if re.search(r',\s*%[\w.$-]+\s*\]$', group):
+                        groups.append((start, index + 1, group))
+        if char == '"' and not escaped: quoted = not quoted
+        escaped = char == "\\" and not escaped
+    if len(groups) < 2:
+        return line
+    if any(line[a[1]:b[0]].strip() != ',' for a, b in zip(groups, groups[1:])):
+        return line
+    return line[:groups[0][0]] + ', '.join(sorted(g[2] for g in groups)) + line[groups[-1][1]:]
+
+
 def canonical(ir):
-    # LLVM's printer puts module identifiers and demangled annotations in
-    # standalone comments. Preserve strings and all actual IR declarations.
-    return '\n'.join(line for line in ir.splitlines()
-                     if line.strip() and not line.lstrip().startswith(';'))
+    # Ignore LLVM printer comments (including predecessor order), but preserve
+    # semicolons inside quoted identifiers, inline assembly and string constants.
+    lines = []
+    for line in ir.splitlines():
+        quoted = escaped = False
+        end = len(line)
+        for index, char in enumerate(line):
+            if char == ';' and not quoted:
+                end = index
+                break
+            if char == '"' and not escaped:
+                quoted = not quoted
+            escaped = char == "\\" and not escaped
+        text = line[:end].rstrip()
+        if text.strip(): lines.append(canonical_phi(text))
+    return '\n'.join(lines)
 
 
 def main():
@@ -35,8 +77,8 @@ def main():
             after = path.with_name(path.name.replace('.before.ll', '.after.ll'))
             replay = path.with_name(path.name.replace('.before.ll', '.replay.ll'))
             normalized = path.with_name(path.name.replace('.before.ll', '.normalized.ll'))
-            subprocess.run(['opt-19', '-passes='+SCALAR+',verify', '-verify-each', '-S', str(path), '-o', str(replay)], check=True)
-            subprocess.run(['opt-19', '-passes=verify', '-S', str(after), '-o', str(normalized)], check=True)
+            subprocess.run(['opt-19', '-passes='+SCALAR+',strip-nondebug,verify', '-verify-each', '-S', str(path), '-o', str(replay)], check=True)
+            subprocess.run(['opt-19', '-passes=strip-nondebug,verify', '-S', str(after), '-o', str(normalized)], check=True)
             if canonical(replay.read_text()) != canonical(normalized.read_text()):
                 raise RuntimeError(f'per-module replay mismatch: {path.name}')
             checked.append({'module':path.name.removesuffix('.before.ll'),
