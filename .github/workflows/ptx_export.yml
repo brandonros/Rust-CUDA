@@ -2,6 +2,11 @@ name: Export portable PTX
 
 on:
   workflow_dispatch:
+    inputs:
+      cleanup_experiment:
+        description: Replay LLVM 19 handoff IR with opt-in cleanup passes
+        type: boolean
+        default: false
   push:
     branches: [poc/portable-ptx-export]
 
@@ -54,6 +59,9 @@ jobs:
           find target/nvptx64-nvidia-cuda -name '*.ll' -exec cp --parents '{}' artifacts/ptx/llvm-ir/ \;
       - name: Assemble and inspect NVIDIA machine code without a GPU
         run: nix develop .#v19 --command python3 examples/ptx_export/inspect_codegen.py artifacts/ptx
+      - name: Investigate pre-NVVM cleanup (opt-in)
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.cleanup_experiment }}
+        run: nix develop .#v19 --command python3 examples/ptx_export/replay_cleanup.py artifacts/ptx
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
