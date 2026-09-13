@@ -35,12 +35,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .llvm19_module_cleanup(true)
                 .llvm19_cleanup(Llvm19Cleanup::Inline)
         }
+        "inline-scalar" => builder = builder.llvm19_cleanup(Llvm19Cleanup::InlineScalar),
         "dce" => builder = builder.llvm19_cleanup(Llvm19Cleanup::GlobalDce),
         "scalar" => builder = builder.llvm19_cleanup(Llvm19Cleanup::Scalar),
         "inline" => builder = builder.llvm19_cleanup(Llvm19Cleanup::Inline),
         _ => {
             return Err(
-                "cleanup mode must be none, dce, scalar, inline, module-scalar, module-inline, size-s, or size-z".into(),
+                "cleanup mode must be none, dce, scalar, inline, inline-scalar, module-scalar, module-inline, size-s, or size-z".into(),
             );
         }
     }
