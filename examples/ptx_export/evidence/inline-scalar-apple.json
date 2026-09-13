@@ -1,0 +1,36 @@
+{
+  "run": 34788545905,
+  "mode": "offline inline-only (inline-scalar pipeline)",
+  "producer_note": "This run reused the prior cached backend; evidence describes the hashed offline replay PTX, not validation of new backend source.",
+  "consumer": "CuMetal generic PTX lowering",
+  "device": "Apple M5",
+  "nvidia_execution": false,
+  "performance_measurement": false,
+  "sha256": {
+    "ptx": "732df2f175dcf0841f273645e79164dd23a1e2b3bea808f455633ec248377821",
+    "cumetalc": "5d6dfdb0b26231d991226cf98d5d565c05e1a92cd374d2a1e71453a83531f45e",
+    "libcumetal": "a101fdff598e160af5ec6e9d5fffdb65b88bb19f47a9ae8364224abed1a7fdb0",
+    "vector_sha_runner": "623f9230f26b9dbc5c4241b32b37c8831a0fb36e80970161d6aac72efd368448",
+    "vector_sha_harness": "bd62e6f8e55770f677697eb546569479a637796afc3bfa5e23e3821b57204992",
+    "guarded_runner": "165cad8e45b1fdc9f9c41ed2a69ae4fe3fc9d0d940b876aedd821c8ef87d8286"
+  },
+  "results": {
+    "vector_add": [
+      "NUMERICAL_PASS kernel=rust_vecadd count=1",
+      "NUMERICAL_PASS kernel=rust_vecadd count=31",
+      "NUMERICAL_PASS kernel=rust_vecadd count=32",
+      "NUMERICAL_PASS kernel=rust_vecadd count=33",
+      "NUMERICAL_PASS kernel=rust_vecadd count=257"
+    ],
+    "sha256": [
+      "NUMERICAL_PASS kernel=rust_sha256_32 count=1",
+      "NUMERICAL_PASS kernel=rust_sha256_32 count=31",
+      "NUMERICAL_PASS kernel=rust_sha256_32 count=32",
+      "NUMERICAL_PASS kernel=rust_sha256_32 count=33",
+      "NUMERICAL_PASS kernel=rust_sha256_32 count=257"
+    ],
+    "guarded_select": [
+      "NUMERICAL_PASS rust_guarded_select: 1608 cases, independent oracle and guards; device=Apple M5 driver=/Users/brandon/Desktop/gpu/cuda-metal/build-rust-ptx-apple/libcumetal.dylib"
+    ]
+  }
+}
