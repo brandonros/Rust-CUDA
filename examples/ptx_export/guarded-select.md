@@ -177,3 +177,72 @@ odd-index table entries for `min(limit, 64)`. CPU tests exercise both functions
 alongside the previous variants. No instruction shape is forced with assembly
 or undefined Rust. This is a candidate reduction until LLVM 19 output confirms
 whether an unobserved self-select survives.
+
+## Successful source reduction: filtered range (2026-09-13)
+
+[CI run 34783117581](https://github.com/brandonros/Rust-CUDA/actions/runs/34783117581)
+compiled, assembled and uploaded the reduction at source
+`d360d1184dfd36ec9723dea83c047cb234613e2b`. All downloaded artifact checksums
+verified. Full PTX SHA-256:
+`d97b462c4c17e9390b82f676d39d3359dd5a438598b10382fef8705ab9379f37`.
+
+The small `filtered` Rust function DOES reproduce the original shape. No curve
+arithmetic, scalar conversion, precomputed tables, or undefined Rust is needed:
+
+```rust
+let mut sum = 0u64;
+for i in (0..limit.min(64) as usize).filter(|x| x % 2 == 1) {
+    sum = sum.wrapping_add(table[i]);
+}
+```
+
+The exact emitted helper is checked in at
+[evidence/llvm19-filtered-helper.ptx](evidence/llvm19-filtered-helper.ptx).
+Its relevant original instructions are:
+
+```ptx
+and.b64 %rd5, %rd10, 1;
+setp.ne.b64 %p2, %rd5, 0;
+selp.b64 %rd11, %rd10, %rd11, %p2;
+mov.b64 %rd10, %rd3;
+@%p2 bra $L__BB1_3;
+bra.uni $L__BB1_1;
+$L__BB1_3:
+shl.b64 %rd6, %rd11, 3;
+```
+
+As in Ed25519, the selected index is read only on the matching true path. The
+false path preserves an index that is not observed before replacement. This is
+not the sum accumulator: `%rd9` carries that separately. The `stepped` comparison
+has no self-referential false select. Both source variants pass the CPU oracle in
+debug and optimized builds, including empty, capped, and wrapping-sum cases.
+
+Unlike the explicit-if candidate, NVIDIA assembly retains the index selection:
+
+```text
+/*0530*/      LOP3.LUT P1, RZ, R10, 0x1, RZ, 0xc0, !PT ;
+/*0540*/      SEL R11, R10, R11, P1 ;
+/*0550*/      SEL R14, R9, R14, P1 ;
+...
+/*0590*/  @P1 LEA R4, P0, R11, R4, 0x3 ;
+/*05a0*/  @P1 LEA.HI.X R5, R11, R5, R14, 0x3, P0 ;
+/*05b0*/  @P1 LDG.E.64 R4, desc[UR6][R4.64] ;
+```
+
+The 64-bit PTX select becomes two unpredicated 32-bit SASS selects. The indexed
+load remains predicated, so this is evidence of retained register bookkeeping,
+not an unnecessary table load. Both helpers have zero reported stack frame and
+spills. The combined `rust_filtered_select` kernel uses 17 registers; per-helper
+register savings are not established.
+
+The pre-NVVM LLVM IR for `filtered` calls the standard library's
+`Range<usize>::try_fold` with `Iterator::find::check`, returning an aggregate
+`ControlFlow<usize>` value. This provides the next compiler-side tracing point
+for how a filtered iterator result turns into the loop-carried select.
+
+This is now a concrete candidate missed optimization that survives PTX and SASS
+on CUDA 13.2 / sm_100, not merely a rejected CuMetal input. It is not a measured
+performance regression or proof of a Rust source correctness bug. `step_by`
+also changes loop structure; its instruction count alone is not a performance
+comparison. Next investigations can use this small case to compare NVIDIA's
+handling of the iterator lowering or benchmark equivalent loops on hardware.
