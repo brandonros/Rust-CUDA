@@ -348,3 +348,21 @@ further reduce the filtered helper's select/phi counts, so it is not included.
 All these local runs used `-verify-each`. NVIDIA compilation and numerical
 validation of this candidate remain separate gates. The integrated CI check
 asserts the filtered/control select counts and retention of all four exports.
+
+### Integrated target analysis and host IR regression
+
+Run 34784897164 compiled and assembled both standalone cleanup variants. The
+scalar integrated output matched replay, but inline SHA-256 differed despite
+byte-identical pre-cleanup IR. Stock `opt` supplies a target machine to its
+PassBuilder; the first integrated implementation omitted it. The integration
+now supplies a generic NVPTX target machine to match standalone analysis costs,
+with exact PTX comparison retained as a gate. NVVM still selects the compute
+architecture for final compilation. This correction needs CI confirmation.
+
+`check_cleanup_ir.py` extracts the five integer-only helpers from the actual
+optimized module and links them to `cleanup_ir_oracle.c` for 1,608 host numerical
+cases. It changes only the target triple and data layout in the extracted host
+copy, rejects unexpected external/GPU declarations, and records commands,
+hashes and results. This passed locally for correlated-cleanup IR and now runs
+in the integrated inline CI check. It tests optimized IR behavior, not NVVM
+or NVIDIA execution, and supplements the PTX consumer checks.
