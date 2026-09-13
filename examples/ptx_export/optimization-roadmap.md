@@ -103,3 +103,24 @@ metrics. Current CuMetal rejects both baseline and memory-stores before launch
 with the same restriction: trap reporting requires a call-free kernel without
 barriers or collectives. That consumer limitation remains separate from the
 optimization experiment; no trap semantics were bypassed.
+
+The offline inlining-only ablation from run 34788545905 gives 38,428 non-NOP
+Solana SASS instructions and 178 registers, versus baseline 39,738 and 216.
+EarlyCSE and GVN add no instruction/register improvement; store cleanup adds
+two instructions, with the same registers and load/store counts. All variants
+retain a 208-byte kernel stack and a helper with 32-byte spill loads/stores.
+This supports testing the simpler `InlineScalar` builder mode rather than
+adding the memory passes. Integrated replay checks now cover that mode on
+both the small suite and the full Solana kernel.
+
+That run restored an old backend because cuda_builder finds an existing shared
+library before asking Cargo to rebuild it. The offline ablation remains valid
+for its recorded input, but this run does not validate cf5965a's backend fix.
+The workflow now explicitly builds the checked-out backend, records its hash,
+and removes only cached device outputs before generating fresh IR evidence.
+The same cache reuse also explains the missing per-module dependency dumps.
+
+`evidence/inline-scalar-apple.json` records generic M5 execution of the hashed
+offline inline-scalar PTX: vector-add and SHA-256 at five boundary counts and
+1,608 guarded-select oracle cases, with guards intact. This supplies numerical
+evidence for the small suite, not for the full mining kernel.

@@ -33,7 +33,7 @@ The guarded-select experiment has a separate [test guide](guarded-select.md).
 
 ## Experimental LLVM 19 cleanup
 
-The exporter accepts `none` (default), `dce`, `scalar`, or `inline` after the output
+The exporter accepts `none` (default), `dce`, `scalar`, `inline-scalar`, or `inline` after the output
 directory. For example:
 
 ```sh
@@ -41,10 +41,10 @@ nix develop .#v19 --command cargo run -p ptx_export --features llvm19 -- artifac
 ```
 
 The builder API is `CudaBuilder::llvm19_cleanup(...)`, with
-`Llvm19Cleanup::{GlobalDce, Scalar, Inline}`. These use verified, bounded LLVM 19 pass pipelines at
+`Llvm19Cleanup::{GlobalDce, Scalar, InlineScalar, Inline}`. These use verified, bounded LLVM 19 pass pipelines at
 the merged-module handoff. GlobalDce removes unreachable internal definitions
-without scalar cleanup or inlining. Inline mode adds target-aware inlining and
-branch-correlated cleanup. These modes are experimental and disabled by default.
+without scalar cleanup or inlining. InlineScalar combines target-aware inlining
+and scalar cleanup; Inline additionally runs branch-correlated cleanup. These modes are experimental and disabled by default.
 
 [Run 34786097065](https://github.com/brandonros/Rust-CUDA/actions/runs/34786097065)
 verifies both modes against standalone replay and packages IR, PTX, SASS,
@@ -53,3 +53,9 @@ selects, but the combined filtered/stepped kernel grows in instruction count;
 this is not an established performance win. See the [measured results and
 correctness limits](guarded-select.md#validated-integration) before using either
 mode for a workload.
+
+The [five-area investigation](optimization-roadmap.md) includes default-off
+per-module cleanup, inlining policy and size-oriented builds, memory cleanup,
+and a pinned Solana mining workload. Static Solana results favor inlining plus
+scalar cleanup; additional memory passes have not shown an advantage. Runtime
+performance on NVIDIA remains unmeasured.
