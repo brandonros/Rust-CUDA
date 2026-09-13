@@ -651,9 +651,8 @@ pub struct CodegenArgs {
     pub override_libm: bool,
     pub use_constant_memory_space: bool,
     pub final_module_path: Option<PathBuf>,
-    // None leaves the existing NVVM handoff unchanged; false is scalar cleanup,
-    // true additionally exposes internal calls through the modern inliner.
-    pub llvm19_cleanup: Option<bool>,
+    // None leaves the existing NVVM handoff unchanged.
+    pub llvm19_cleanup: Option<crate::llvm::NvvmCleanup>,
     pub llvm19_module_cleanup: bool,
     pub disassemble: Option<DisassembleMode>,
 }
@@ -691,11 +690,12 @@ impl CodegenArgs {
                         .fatal("--llvm19-cleanup requires the llvm19 backend feature");
                 }
                 cg_args.llvm19_cleanup = Some(match mode {
-                    "scalar" => false,
-                    "inline" => true,
+                    "scalar" => crate::llvm::NvvmCleanup::Scalar,
+                    "inline" => crate::llvm::NvvmCleanup::Inline,
+                    "dce" => crate::llvm::NvvmCleanup::GlobalDce,
                     _ => sess
                         .dcx()
-                        .fatal("--llvm19-cleanup expects scalar or inline"),
+                        .fatal("--llvm19-cleanup expects scalar, inline, or dce"),
                 });
             } else if arg == "--final-module-path" {
                 let path = match args.get(idx + 1) {
