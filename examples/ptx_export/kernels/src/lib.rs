@@ -58,3 +58,28 @@ pub unsafe fn rust_guarded_select(
         }
     }
 }
+
+/// Compare the filtered iterator in Dalek's basepoint multiplication with a
+/// stepped iterator, using runtime table contents and loop limits.
+///
+/// # Safety
+/// `table` addresses 64 readable u64s, `limits` addresses `count` readable u32s,
+/// and `out` addresses `count * 2` writable u64s. Output must not overlap inputs.
+#[kernel]
+pub unsafe fn rust_filtered_select(
+    table: *const u64,
+    limits: *const u32,
+    out: *mut u64,
+    count: u32,
+) {
+    let i = thread::index_1d();
+    if i < count {
+        let i = i as usize;
+        let table = unsafe { &*table.cast::<[u64; 64]>() };
+        let limit = unsafe { *limits.add(i) };
+        unsafe {
+            *out.add(i * 2) = guarded_select::filtered(table, limit);
+            *out.add(i * 2 + 1) = guarded_select::stepped(table, limit);
+        }
+    }
+}

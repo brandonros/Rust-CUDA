@@ -160,3 +160,20 @@ unmeasured.
 `ptxas` warned that relocation preservation is not fully implemented for sm_100.
 Both disassemblers completed successfully; the warning is retained in the raw
 assembler report and no complete-relocation guarantee is inferred.
+
+## Source-guided reduction: filtered iteration
+
+Dalek 4.1.3 `edwards.rs`, `mul_base`, iterates with
+`(0..$adds).filter(|x| x % 2 == 1)` before an even-index pass. The first
+reproducer used an explicit conditional inside the loop and omitted this
+iterator structure. The next candidate retains the filtered range but removes
+curve arithmetic, scalar conversion and the precomputed-point table, replacing
+the body with a wrapping sum of runtime table entries. `stepped` performs the
+same odd-index accesses using `step_by(2)` as a source-level comparison.
+
+`rust_filtered_select(table, limits, out, count)` writes two u64 results per
+case: filtered and stepped. Both must equal the existing independent sum of
+odd-index table entries for `min(limit, 64)`. CPU tests exercise both functions
+alongside the previous variants. No instruction shape is forced with assembly
+or undefined Rust. This is a candidate reduction until LLVM 19 output confirms
+whether an unobserved self-select survives.
