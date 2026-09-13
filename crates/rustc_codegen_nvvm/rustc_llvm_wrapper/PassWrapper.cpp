@@ -25,6 +25,9 @@
 #include "llvm/Support/FileSystem.h"
 #if LLVM_VERSION_MAJOR >= 19
 #include "llvm/Transforms/IPO/Internalize.h"
+#include "llvm/Passes/PassBuilder.h"
+#include "llvm/IR/Verifier.h"
+#include "llvm/Support/Error.h"
 #endif
 #if LLVM_VERSION_MAJOR >= 19
 #include "llvm/TargetParser/Host.h"
@@ -165,6 +168,49 @@ extern "C" void LLVMPassManagerBuilderPopulateLTOPassManager(
 {
 }
 #endif
+
+// Explicit, bounded modern-PM cleanup at the final NVVM handoff. This is
+// separate from the legacy compatibility builder and remains opt-in.
+extern "C" LLVMRustResult LLVMRustRunNvvmCleanup(LLVMModuleRef M, bool Inline)
+{
+#if LLVM_VERSION_MAJOR >= 19
+  Module &Mod = *unwrap(M);
+  std::string Diagnostics;
+  raw_string_ostream OS(Diagnostics);
+  if (verifyModule(Mod, &OS)) {
+    LLVMRustSetLastError(OS.str().c_str());
+    return LLVMRustResult::Failure;
+  }
+  LoopAnalysisManager LAM;
+  FunctionAnalysisManager FAM;
+  CGSCCAnalysisManager CGAM;
+  ModuleAnalysisManager MAM;
+  PassBuilder PB;
+  PB.registerModuleAnalyses(MAM);
+  PB.registerCGSCCAnalyses(CGAM);
+  PB.registerFunctionAnalyses(FAM);
+  PB.registerLoopAnalyses(LAM);
+  PB.crossRegisterProxies(LAM, FAM, CGAM, MAM);
+  ModulePassManager PM;
+  const char *Pipeline = Inline
+      ? "cgscc(inline),function(sroa,instcombine,simplifycfg,adce),globaldce,verify"
+      : "function(sroa,instcombine,simplifycfg,adce),verify";
+  if (auto Error = PB.parsePassPipeline(PM, Pipeline)) {
+    LLVMRustSetLastError(toString(std::move(Error)).c_str());
+    return LLVMRustResult::Failure;
+  }
+  PM.run(Mod, MAM);
+  Diagnostics.clear();
+  if (verifyModule(Mod, &OS)) {
+    LLVMRustSetLastError(OS.str().c_str());
+    return LLVMRustResult::Failure;
+  }
+  return LLVMRustResult::Success;
+#else
+  LLVMRustSetLastError("NVVM cleanup requires LLVM 19");
+  return LLVMRustResult::Failure;
+#endif
+}
 
 extern "C" void LLVMInitializePasses()
 {

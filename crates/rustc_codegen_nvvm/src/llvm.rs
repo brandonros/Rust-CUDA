@@ -1331,6 +1331,7 @@ unsafe extern "C" {
     ) -> Option<&'a DILocation>;
 
     pub(crate) fn LLVMRustRunFunctionPassManager(PM: &PassManager, M: &Module);
+    pub(crate) fn LLVMRustRunNvvmCleanup(M: &Module, inline: bool) -> LLVMRustResult;
     pub(crate) fn LLVMRustAddAlwaysInlinePass(P: &PassManagerBuilder, AddLifetimes: bool);
 
     pub(crate) fn LLVMRustAddBuilderLibraryInfo(
