@@ -35,6 +35,7 @@ pub enum NvvmCleanup {
     Scalar = 0,
     Inline = 1,
     GlobalDce = 2,
+    InlineScalar = 3,
 }
 
 impl PartialEq for Value {

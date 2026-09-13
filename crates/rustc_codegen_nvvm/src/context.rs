@@ -693,9 +693,10 @@ impl CodegenArgs {
                     "scalar" => crate::llvm::NvvmCleanup::Scalar,
                     "inline" => crate::llvm::NvvmCleanup::Inline,
                     "dce" => crate::llvm::NvvmCleanup::GlobalDce,
+                    "inline-scalar" => crate::llvm::NvvmCleanup::InlineScalar,
                     _ => sess
                         .dcx()
-                        .fatal("--llvm19-cleanup expects scalar, inline, or dce"),
+                        .fatal("--llvm19-cleanup expects scalar, inline, inline-scalar, or dce"),
                 });
             } else if arg == "--final-module-path" {
                 let path = match args.get(idx + 1) {

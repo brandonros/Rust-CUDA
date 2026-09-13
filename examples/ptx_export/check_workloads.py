@@ -7,6 +7,7 @@ import re
 import shutil
 import subprocess
 import sys
+from replay_cleanup import normalized_functions
 
 
 def main():
@@ -51,7 +52,24 @@ def main():
     if args.miner:
         shutil.copy2(miner/'kernels/Cargo.lock', out/'Cargo.lock.resolved')
         subprocess.run([sys.executable, str(scripts/'replay_cleanup.py'), str(out), '--extended', '--only',
-                        'baseline,dce-only,inline-only,memory-early-cse,memory-gvn,memory-stores,memory-combined'], check=True)
+                        'baseline,dce-only,inline-only,inline-cleanup,memory-early-cse,memory-gvn,memory-stores,memory-combined'], check=True)
+        results = []
+        for mode, replay in [('dce', 'dce-only'), ('inline-scalar', 'inline-only')]:
+            dest = out/'integrated-cleanup'/mode
+            dest.mkdir(parents=True, exist_ok=True)
+            command = ['cargo', 'run', '-vv', '-p', 'ptx_export', '--features', 'llvm19', '--',
+                       str(dest), mode, str(miner/'kernels'), 'solana']
+            (dest/'compiler-command.json').write_text(json.dumps(command, indent=2)+'\n')
+            with (dest/'build.log').open('w') as log:
+                subprocess.run(command, stdout=log, stderr=subprocess.STDOUT, check=True)
+            subprocess.run(['opt-19', '-passes=verify', '-disable-output', str(dest/'final-module.ll')], check=True)
+            actual = normalized_functions((dest/'rust_kernels.ptx').read_text())
+            expected = normalized_functions((out/'cleanup-experiment'/replay/'rust_kernels.ptx').read_text())
+            if 'kernel_find_solana_vanity_private_key' not in actual or actual != expected:
+                raise RuntimeError(f'Solana {mode}: integrated cleanup differs from replay')
+            subprocess.run([sys.executable, str(scripts/'inspect_codegen.py'), str(dest)], check=True)
+            results.append({'mode':mode, 'matches_replay_function_bodies':True})
+            (out/'integrated-cleanup/comparison.json').write_text(json.dumps(results, indent=2)+'\n')
 
 
 if __name__ == '__main__':
