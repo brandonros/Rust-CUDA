@@ -307,3 +307,19 @@ on this valid handoff module; failing to finish all simplifications is distinct
 from producing invalid IR. Replay still uses `-verify-each`, and the integrated
 backend verifies the module before and after cleanup. This setting permits
 bounded optimization without promising that every combining opportunity is exhausted.
+
+### Runtime numerical check
+
+`run_guarded_select.py MODULE --kernel rust_guarded_select` loads unchanged PTX
+or cubin using NVIDIA's CUDA Driver API (`libcuda.so.1` by default). It checks
+1,608 runtime-input cases against an independent Python index oracle, including
+wrapping sums, boundary limits, the observable-false-path control and output
+guards. Use `--kernel rust_filtered_select` for the filtered/stepped pair.
+A compatible consumer can be selected explicitly with `--driver PATH`.
+
+The baseline artifact from run 34784267526 passed the guarded-select check on
+Apple M5 through CuMetal's generic PTX lowering, with workload specializations
+disabled. This is additional consumer evidence, not NVIDIA execution evidence.
+The filtered/stepped entry did not translate: CuMetal rejects a `trap` in the
+stepped helper. Do not report that entry as numerically validated or alter its
+PTX to bypass the check.
