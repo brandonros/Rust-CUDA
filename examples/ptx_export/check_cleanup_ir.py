@@ -73,7 +73,9 @@ def main():
     host = re.sub(r'^target triple = .*$', f'target triple = "{triple}"', host, flags=re.M)
     (out/'host.ll').write_text(host)
     run([llvm/'opt', '-passes=verify', '-disable-output', out/'host.ll'], 'verify.log')
-    run([llvm/'llc', '-filetype=obj', out/'host.ll', '-o', out/'helpers.o'], 'llc.log')
+    # Linux's host compiler links PIE by default. Referenced source-location
+    # data requires PIC relocations; this affects only the host oracle object.
+    run([llvm/'llc', '-relocation-model=pic', '-filetype=obj', out/'host.ll', '-o', out/'helpers.o'], 'llc.log')
     header = []
     for name, symbol in symbols.items():
         parameters = 'const uint64_t *, uint32_t'
