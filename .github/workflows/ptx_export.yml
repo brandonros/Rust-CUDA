@@ -30,6 +30,12 @@ jobs:
           key: ptx-cargo-v1-${{ runner.os }}-${{ runner.arch }}-llvm19-${{ hashFiles('flake.nix', 'flake.lock', 'rust-toolchain.toml', '**/Cargo.toml', '**/Cargo.lock', '.cargo/**', '.github/workflows/ptx_export.yml') }}-${{ github.sha }}
           restore-keys: |
             ptx-cargo-v1-${{ runner.os }}-${{ runner.arch }}-llvm19-${{ hashFiles('flake.nix', 'flake.lock', 'rust-toolchain.toml', '**/Cargo.toml', '**/Cargo.lock', '.cargo/**', '.github/workflows/ptx_export.yml') }}-
+      - name: Check guarded-select source semantics on CPU
+        run: |
+          nix develop .#v19 --command rustc --edition=2024 --test examples/ptx_export/kernels/src/guarded_select.rs -o /tmp/guarded-select-debug
+          /tmp/guarded-select-debug
+          nix develop .#v19 --command rustc --edition=2024 -O --test examples/ptx_export/kernels/src/guarded_select.rs -o /tmp/guarded-select-release
+          /tmp/guarded-select-release
       - name: Compile Rust kernels without a GPU
         run: nix develop .#v19 --command cargo run -p ptx_export --features llvm19 -- artifacts/ptx
       - name: Record provenance
