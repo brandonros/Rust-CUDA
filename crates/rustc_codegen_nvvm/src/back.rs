@@ -252,6 +252,7 @@ pub(crate) unsafe fn codegen(
 /// codegen on all the modules at once) and then link it (once again, nvvm does linking and codegen
 /// in a single step)
 pub fn compile_codegen_unit(tcx: TyCtxt<'_>, cgu_name: Symbol) -> (ModuleCodegen<LlvmMod>, u64) {
+    let _timing = crate::timing::phase("codegen_unit", cgu_name.as_str());
     let dep_node = tcx.codegen_unit(cgu_name).codegen_dep_node(tcx);
     let (module, _) = tcx.dep_graph.with_task(
         dep_node,
@@ -390,6 +391,7 @@ pub(crate) unsafe fn optimize(
     let dcx = DiagCtxt::new(Box::new(shared_emitter.clone()));
     let diag_handler = dcx.handle();
     let _timer = prof.generic_activity_with_arg("LLVM_module_optimize", &module.name[..]);
+    let _timing = crate::timing::phase("llvm_module_optimize", &module.name);
 
     let llmod = unsafe { &*module.module_llvm.llmod };
 

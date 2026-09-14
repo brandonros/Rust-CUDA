@@ -13,6 +13,9 @@ use cust_raw::nvvm_sys;
 
 pub use cust_raw::nvvm_sys::LIBDEVICE_BITCODE;
 
+/// Optional compiler and build-driver timing records.
+pub mod timing;
+
 /// Get the major and minor NVVM IR version.
 pub fn ir_version() -> (i32, i32) {
     unsafe {
