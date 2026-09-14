@@ -353,7 +353,7 @@ pub fn compile_codegen_unit(tcx: TyCtxt<'_>, cgu_name: Symbol) -> (ModuleCodegen
                         )
                         .into_result()
                         .unwrap_or_else(|_| {
-                            llvm_err(tcx.sess.dcx(), "cannot save per-module IR");
+                            llvm_err(tcx.sess.dcx(), "cannot save per-module IR").raise();
                         });
                     }
                 }
@@ -363,7 +363,7 @@ pub fn compile_codegen_unit(tcx: TyCtxt<'_>, cgu_name: Symbol) -> (ModuleCodegen
                 llvm::LLVMRustRunNvvmCleanup(llmod, llvm::NvvmCleanup::Scalar)
                     .into_result()
                     .unwrap_or_else(|_| {
-                        llvm_err(tcx.sess.dcx(), "LLVM 19 per-module cleanup failed");
+                        llvm_err(tcx.sess.dcx(), "LLVM 19 per-module cleanup failed").raise();
                     });
             }
             dump("after");
