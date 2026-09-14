@@ -93,6 +93,7 @@ pub fn codegen_bitcode_modules(
 
     let module = merge_llvm_modules(modules, llcx);
     unsafe {
+        LLVMRustRestoreNvvmKernelAnnotations(module);
         internalize_pass(module, llcx);
         dce_pass(module);
 

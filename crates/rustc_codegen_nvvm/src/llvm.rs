@@ -2216,6 +2216,8 @@ unsafe extern "C" {
     pub(crate) fn LLVMRustPrepareThinLTOResolveWeak(Data: &ThinLTOData, Module: &Module) -> bool;
     pub(crate) fn LLVMRustPrepareThinLTOInternalize(Data: &ThinLTOData, Module: &Module) -> bool;
     pub(crate) fn LLVMRustFreeThinLTOData(Data: &'static mut ThinLTOData);
+    pub(crate) fn LLVMRustRestoreNvvmKernelAnnotations(M: &Module);
+
     pub(crate) fn LLVMRustParseBitcodeForLTO(
         Context: &Context,
         Data: *const u8,

@@ -1,6 +1,8 @@
 #include "rustllvm.h"
 #include "llvm/IR/Verifier.h"
 #include <cstdlib>
+#include "llvm/AsmParser/Parser.h"
+#include "llvm/Transforms/IPO/GlobalDCE.h"
 
 extern "C" void LLVMRustSetNormalizedTarget(LLVMModuleRef, const char *);
 extern "C" void LLVMRustAddFunctionAttribute(LLVMValueRef, unsigned, LLVMRustAttribute);
@@ -18,7 +20,39 @@ static void require(bool Condition) {
     std::abort();
 }
 
+extern "C" void LLVMRustRestoreNvvmKernelAnnotations(LLVMModuleRef);
+
+static void kernelRetention() {
+  llvm::LLVMContext C;
+  llvm::SMDiagnostic Error;
+  auto M = llvm::parseAssemblyString(R"(
+    target triple = "nvptx64-nvidia-cuda"
+    define void @entry(ptr %out) { store i32 42, ptr %out ret void }
+    define internal void @dead() { ret void }
+    !nvvm.annotations = !{!0}
+    !0 = !{ptr @entry, !"kernel", i32 1}
+  )", Error, C);
+  require(bool(M));
+  auto *F = M->getFunction("entry");
+  require(F->getCallingConv() == llvm::CallingConv::PTX_Kernel);
+  require(M->getNamedMetadata("nvvm.annotations")->getNumOperands() == 0);
+  LLVMRustRestoreNvvmKernelAnnotations(llvm::wrap(M.get()));
+  LLVMRustRestoreNvvmKernelAnnotations(llvm::wrap(M.get()));
+  auto *Annotations = M->getNamedMetadata("nvvm.annotations");
+  require(Annotations->getNumOperands() == 1);
+  auto *Node = Annotations->getOperand(0);
+  require(llvm::cast<llvm::ValueAsMetadata>(Node->getOperand(0))->getValue() == F);
+  require(llvm::cast<llvm::MDString>(Node->getOperand(1))->getString() == "kernel");
+  require(llvm::mdconst::extract<llvm::ConstantInt>(Node->getOperand(2))->equalsInt(1));
+  llvm::ModuleAnalysisManager AM;
+  llvm::GlobalDCEPass().run(*M, AM);
+  require(M->getFunction("entry") == F);
+  require(M->getFunction("dead") == nullptr);
+  require(!llvm::verifyModule(*M, &llvm::errs()));
+}
+
 int main() {
+  kernelRetention();
   llvm::LLVMContext C;
   llvm::Module M("wrapper-test", C);
   LLVMRustSetNormalizedTarget(llvm::wrap(&M), "nvptx64-nvidia-cuda");

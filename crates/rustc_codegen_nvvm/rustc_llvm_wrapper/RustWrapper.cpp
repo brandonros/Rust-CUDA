@@ -2284,3 +2284,36 @@ extern "C" LLVMValueRef LLVMBuildInBoundsGEP2(LLVMBuilderRef B, LLVMTypeRef Ty,
 }
 
 #endif
+
+// LLVM 21 upgrades NVVM kernel metadata to PTX_Kernel while reading bitcode.
+// Keep the legacy annotations used by internalization and the NVVM handoff.
+extern "C" void LLVMRustRestoreNvvmKernelAnnotations(LLVMModuleRef Mod) {
+#if LLVM_VERSION_MAJOR >= 21
+  Module &M = *unwrap(Mod);
+  auto *Annotations = M.getOrInsertNamedMetadata("nvvm.annotations");
+  for (Function &F : M) {
+    if (F.getCallingConv() != CallingConv::PTX_Kernel)
+      continue;
+    bool Found = false;
+    for (MDNode *Node : Annotations->operands()) {
+      if (Node->getNumOperands() < 2)
+        continue;
+      auto *Value = dyn_cast_or_null<ValueAsMetadata>(Node->getOperand(0));
+      auto *Kind = dyn_cast_or_null<MDString>(Node->getOperand(1));
+      if (Value && Value->getValue() == &F && Kind && Kind->getString() == "kernel") {
+        Found = true;
+        break;
+      }
+    }
+    if (!Found) {
+      Metadata *Fields[] = {ValueAsMetadata::get(&F),
+                            MDString::get(M.getContext(), "kernel"),
+                            ConstantAsMetadata::get(ConstantInt::get(
+                                Type::getInt32Ty(M.getContext()), 1))};
+      Annotations->addOperand(MDNode::get(M.getContext(), Fields));
+    }
+  }
+#else
+  (void)Mod;
+#endif
+}
