@@ -341,12 +341,15 @@ unsafe fn internalize_pass(module: &Module, cx: &Context) {
         }
 
         let iter = GlobalIter::new(&module);
-        for func in iter {
-            let is_decl = LLVMIsDeclaration(func) == True;
-
-            if !is_decl {
-                LLVMRustSetLinkage(func, Linkage::InternalLinkage);
-                LLVMRustSetVisibility(func, Visibility::Default);
+        for global in iter {
+            let is_decl = LLVMIsDeclaration(global) == True;
+            // llvm.used, llvm.compiler.used and other appending globals have
+            // special linker/optimizer semantics. Internalizing them produces
+            // invalid LLVM IR and prevents verified pre-NVVM optimization.
+            let is_appending = LLVMRustGetLinkage(global) == Linkage::AppendingLinkage;
+            if !is_decl && !is_appending {
+                LLVMRustSetLinkage(global, Linkage::InternalLinkage);
+                LLVMRustSetVisibility(global, Visibility::Default);
             }
         }
     }
