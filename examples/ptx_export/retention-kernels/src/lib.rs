@@ -45,7 +45,7 @@ pub static RETENTION_USED: [Callback; 1] = [retention_used_target];
 pub static RETENTION_DATA: [u32; 3] = [11, 29, 47];
 
 #[no_mangle]
-pub static RETENTION_DATA_REF: &'static [u32; 3] = &RETENTION_DATA;
+pub static RETENTION_DATA_REF: &[u32; 3] = &RETENTION_DATA;
 
 // Emitted as externally named items, then internalized and eligible for DCE.
 #[no_mangle]
