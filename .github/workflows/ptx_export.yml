@@ -64,8 +64,8 @@ jobs:
         id: export
         run: |
           mkdir -p artifacts/ptx
-          printf '%s\n' 'nix develop .#v19 --command cargo run -vv -p ptx_export --features llvm19 -- artifacts/ptx' > artifacts/ptx/build-command.txt
-          nix develop .#v19 --command cargo run -vv -p ptx_export --features llvm19 -- artifacts/ptx 2>&1 | tee artifacts/ptx/build.log
+          printf '%s\n' 'nix develop .#v19 --command cargo run -vv -p ptx_export --features llvm19 -- artifacts/ptx none' > artifacts/ptx/build-command.txt
+          nix develop .#v19 --command cargo run -vv -p ptx_export --features llvm19 -- artifacts/ptx none 2>&1 | tee artifacts/ptx/build.log
       - name: Verify LLVM 19 handoff IR
         run: nix develop .#v19 --command opt-19 -passes=verify -disable-output artifacts/ptx/final-module.ll
       - name: Record provenance
@@ -80,6 +80,8 @@ jobs:
           find target/nvptx64-nvidia-cuda -name '*.ll' -exec cp --parents '{}' artifacts/ptx/llvm-ir/ \;
       - name: Assemble and inspect NVIDIA machine code without a GPU
         run: nix develop .#v19 --command python3 examples/ptx_export/inspect_codegen.py artifacts/ptx
+      - name: Verify default DCE retention and explicit disable
+        run: nix develop .#v19 --command python3 examples/ptx_export/check_default_dce.py artifacts/ptx
       - name: Investigate pre-NVVM cleanup (opt-in)
         if: ${{ github.event_name == 'workflow_dispatch' && (inputs.cleanup_experiment || inputs.optimization_sweep) }}
         run: nix develop .#v19 --command python3 examples/ptx_export/replay_cleanup.py artifacts/ptx ${{ inputs.optimization_sweep && '--extended' || '' }}
