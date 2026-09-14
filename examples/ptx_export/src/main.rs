@@ -20,7 +20,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mode = env::args().nth(2).unwrap_or_else(|| "default".into());
     // Historical wave-1 experiments explicitly isolate their selected pipeline.
     // The default mode exercises the production default without overrides.
-    if mode != "default" {
+    if cfg!(feature = "llvm19") && mode != "default" {
         builder = builder.llvm19_global_dce(false);
     }
     match mode.as_str() {

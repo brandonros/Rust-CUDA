@@ -37,9 +37,9 @@ mod tests {
                         }
                     );
                     if is_up {
-                        assert_eq!(lane as i32 - 1 >= bound as i32, lane % width != 0);
+                        assert_eq!(lane > bound, lane % width != 0);
                     } else {
-                        assert_eq!(lane + 1 <= bound, lane % width + 1 < width);
+                        assert_eq!(lane < bound, lane % width + 1 < width);
                     }
                 }
             }
