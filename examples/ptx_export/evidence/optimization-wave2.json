@@ -2425,5 +2425,806 @@
       }
     },
     "nvidia_execution": false
+  },
+  "final_matrix": {
+    "run": 34794484421,
+    "conclusion": "success",
+    "nvidia_execution": false,
+    "runtime_performance_measured": false,
+    "workloads": {
+      "small": {
+        "source_commit": "d111f80dbfa2374fb50af5b6d49407ffab13bd1a",
+        "comparison": {
+          "workload": "small",
+          "expected_entry_count": 4,
+          "default_matches_disabled_ptx": true,
+          "inline_scalar_matches_replay": true,
+          "nvidia_execution": false,
+          "ptx_sha256": {
+            "none": "b325305f1d43b314bf0c794f099a4412b6ae038b17b841670d011d94d21e0702",
+            "default": "b325305f1d43b314bf0c794f099a4412b6ae038b17b841670d011d94d21e0702",
+            "inline-scalar": "732df2f175dcf0841f273645e79164dd23a1e2b3bea808f455633ec248377821"
+          }
+        },
+        "provenance": {
+          "workload": "small",
+          "source_commit": "d111f80dbfa2374fb50af5b6d49407ffab13bd1a",
+          "expected_entries": [
+            "rust_filtered_select",
+            "rust_guarded_select",
+            "rust_sha256_32",
+            "rust_vecadd"
+          ]
+        },
+        "modes": {
+          "none": {
+            "llvm_ir_bytes": 13851708,
+            "llvm_definitions": 3299,
+            "ptx_bytes": 106204,
+            "cubin_bytes": 57984,
+            "hashes": {
+              "final-module.ll": "aaaad5aa668b30aa0bdbe625c0de8697b20cd83265d5944902e4de03b2c98780",
+              "rust_kernels.ptx": "b325305f1d43b314bf0c794f099a4412b6ae038b17b841670d011d94d21e0702",
+              "rust_kernels.cubin": "d4d4bad56fe1566f987d6dc906d86a7917466def28952491c2b65b22ab4640bb",
+              "ptxas-resource-report.txt": "6705c54628340dff2c8edfa73463ce22aaa720b910cff3b898c0475a6e21c02f",
+              "resources.txt": "95b727cbd8e1dfda6757cdcf2f14fe1bf5d81c4836ead56904c904bb4e33cdf1",
+              "nvdisasm.txt": "03989129d419e2b1d0ac697157557202cc19ce1675406edeb00c5edeb774cfaf"
+            },
+            "inspection_reused": false,
+            "entries": {
+              "rust_filtered_select": {
+                "non_nop_instructions": 103,
+                "scope": "entry_including_helpers"
+              },
+              "rust_guarded_select": {
+                "non_nop_instructions": 614,
+                "scope": "entry_including_helpers"
+              },
+              "rust_sha256_32": {
+                "non_nop_instructions": 1623,
+                "scope": "entry_including_helpers"
+              },
+              "rust_vecadd": {
+                "non_nop_instructions": 21,
+                "scope": "entry_including_helpers"
+              }
+            }
+          },
+          "default": {
+            "llvm_ir_bytes": 303325,
+            "llvm_definitions": 93,
+            "ptx_bytes": 106204,
+            "cubin_bytes": 57984,
+            "hashes": {
+              "final-module.ll": "4a947cf8666c618e979c337081cd6fa16820f4e09d7d922d7dcf131ba174d963",
+              "rust_kernels.ptx": "b325305f1d43b314bf0c794f099a4412b6ae038b17b841670d011d94d21e0702",
+              "rust_kernels.cubin": "d4d4bad56fe1566f987d6dc906d86a7917466def28952491c2b65b22ab4640bb",
+              "ptxas-resource-report.txt": "6705c54628340dff2c8edfa73463ce22aaa720b910cff3b898c0475a6e21c02f",
+              "resources.txt": "95b727cbd8e1dfda6757cdcf2f14fe1bf5d81c4836ead56904c904bb4e33cdf1",
+              "nvdisasm.txt": "03989129d419e2b1d0ac697157557202cc19ce1675406edeb00c5edeb774cfaf"
+            },
+            "inspection_reused": true,
+            "entries": {
+              "rust_filtered_select": {
+                "non_nop_instructions": 103,
+                "scope": "entry_including_helpers"
+              },
+              "rust_guarded_select": {
+                "non_nop_instructions": 614,
+                "scope": "entry_including_helpers"
+              },
+              "rust_sha256_32": {
+                "non_nop_instructions": 1623,
+                "scope": "entry_including_helpers"
+              },
+              "rust_vecadd": {
+                "non_nop_instructions": 21,
+                "scope": "entry_including_helpers"
+              }
+            }
+          },
+          "inline-scalar": {
+            "llvm_ir_bytes": 232552,
+            "llvm_definitions": 10,
+            "ptx_bytes": 106100,
+            "cubin_bytes": 58232,
+            "hashes": {
+              "final-module.ll": "58e0a29aab3abb75208927615183eaa7c15c75baa092b5d164406ecce1c0d7b3",
+              "rust_kernels.ptx": "732df2f175dcf0841f273645e79164dd23a1e2b3bea808f455633ec248377821",
+              "rust_kernels.cubin": "0e5da5af1d382319fd96c59e36eedc58f3693f995ef8dfdefb7a94a2e18dafc7",
+              "ptxas-resource-report.txt": "30402e196fca66b78b0f91486856879b6df4cbc169a10c48b6353423d1bc2882",
+              "resources.txt": "e4578845e1eea790f1c0b596434799785843d62f4c4c751c219954b238d9c742",
+              "nvdisasm.txt": "6239b420e6ac0932a954510a24643e9ab5d22cc99aca332740b3a3fadaed1a05"
+            },
+            "inspection_reused": false,
+            "entries": {
+              "rust_filtered_select": {
+                "non_nop_instructions": 114,
+                "scope": "entry_including_helpers"
+              },
+              "rust_guarded_select": {
+                "non_nop_instructions": 614,
+                "scope": "entry_including_helpers"
+              },
+              "rust_sha256_32": {
+                "non_nop_instructions": 1623,
+                "scope": "entry_including_helpers"
+              },
+              "rust_vecadd": {
+                "non_nop_instructions": 21,
+                "scope": "entry_including_helpers"
+              }
+            }
+          }
+        }
+      },
+      "representative": {
+        "source_commit": "d111f80dbfa2374fb50af5b6d49407ffab13bd1a",
+        "comparison": {
+          "workload": "representative",
+          "expected_entry_count": 4,
+          "default_matches_disabled_ptx": true,
+          "inline_scalar_matches_replay": true,
+          "nvidia_execution": false,
+          "ptx_sha256": {
+            "none": "6c4fe4b9a3031fbe6138daf2fd6f1fe6130b2efd9e8ccc270d0b2f2728d3df46",
+            "default": "6c4fe4b9a3031fbe6138daf2fd6f1fe6130b2efd9e8ccc270d0b2f2728d3df46",
+            "inline-scalar": "aa05ea8cc449823d6e22b4cc332946afbf569a98a5856f489b9b7480cc0ffd0f"
+          }
+        },
+        "provenance": {
+          "workload": "representative",
+          "source_commit": "d111f80dbfa2374fb50af5b6d49407ffab13bd1a",
+          "expected_entries": [
+            "wave2_atomic",
+            "wave2_float",
+            "wave2_shared",
+            "wave2_shuffle"
+          ]
+        },
+        "modes": {
+          "none": {
+            "llvm_ir_bytes": 13353282,
+            "llvm_definitions": 3202,
+            "ptx_bytes": 4701,
+            "cubin_bytes": 15640,
+            "hashes": {
+              "final-module.ll": "0c3992a50198e79f8bbd32f6f0faef607a042fd4dd06711ba36fffa293faea80",
+              "rust_kernels.ptx": "6c4fe4b9a3031fbe6138daf2fd6f1fe6130b2efd9e8ccc270d0b2f2728d3df46",
+              "rust_kernels.cubin": "14a76f1d0e29eb4fd7a379faeb48472ab433a0e3e1dcb51cbfc946d99c5148f3",
+              "ptxas-resource-report.txt": "71902733d728a54bfaccff1d8ccaf91fb3b4d3db6f3e6832b2f83454f5305ea2",
+              "resources.txt": "000d86bd6dd751aa0b74b728709a022aaa2d93357dd57bbf424c86569219c928",
+              "nvdisasm.txt": "19e4555190a4c604b24a70fd663a9fe0e4f428c0ae9fa147ff15448fc42f4689"
+            },
+            "inspection_reused": false,
+            "entries": {
+              "wave2_atomic": {
+                "non_nop_instructions": 20,
+                "scope": "entry_including_helpers"
+              },
+              "wave2_float": {
+                "non_nop_instructions": 21,
+                "scope": "entry_including_helpers"
+              },
+              "wave2_shared": {
+                "non_nop_instructions": 32,
+                "scope": "entry_including_helpers"
+              },
+              "wave2_shuffle": {
+                "non_nop_instructions": 33,
+                "scope": "entry_including_helpers"
+              }
+            }
+          },
+          "default": {
+            "llvm_ir_bytes": 37801,
+            "llvm_definitions": 18,
+            "ptx_bytes": 4701,
+            "cubin_bytes": 15640,
+            "hashes": {
+              "final-module.ll": "3b48ec13981163271f3c91219c088cb4f56748626a58071c4266d265221a9633",
+              "rust_kernels.ptx": "6c4fe4b9a3031fbe6138daf2fd6f1fe6130b2efd9e8ccc270d0b2f2728d3df46",
+              "rust_kernels.cubin": "14a76f1d0e29eb4fd7a379faeb48472ab433a0e3e1dcb51cbfc946d99c5148f3",
+              "ptxas-resource-report.txt": "71902733d728a54bfaccff1d8ccaf91fb3b4d3db6f3e6832b2f83454f5305ea2",
+              "resources.txt": "000d86bd6dd751aa0b74b728709a022aaa2d93357dd57bbf424c86569219c928",
+              "nvdisasm.txt": "19e4555190a4c604b24a70fd663a9fe0e4f428c0ae9fa147ff15448fc42f4689"
+            },
+            "inspection_reused": true,
+            "entries": {
+              "wave2_atomic": {
+                "non_nop_instructions": 20,
+                "scope": "entry_including_helpers"
+              },
+              "wave2_float": {
+                "non_nop_instructions": 21,
+                "scope": "entry_including_helpers"
+              },
+              "wave2_shared": {
+                "non_nop_instructions": 32,
+                "scope": "entry_including_helpers"
+              },
+              "wave2_shuffle": {
+                "non_nop_instructions": 33,
+                "scope": "entry_including_helpers"
+              }
+            }
+          },
+          "inline-scalar": {
+            "llvm_ir_bytes": 20947,
+            "llvm_definitions": 4,
+            "ptx_bytes": 4701,
+            "cubin_bytes": 15640,
+            "hashes": {
+              "final-module.ll": "a0b4a9813a0a46f62773cf16aee6c2482d3a10f12b110023beacece575f34895",
+              "rust_kernels.ptx": "aa05ea8cc449823d6e22b4cc332946afbf569a98a5856f489b9b7480cc0ffd0f",
+              "rust_kernels.cubin": "14a76f1d0e29eb4fd7a379faeb48472ab433a0e3e1dcb51cbfc946d99c5148f3",
+              "ptxas-resource-report.txt": "7aaa4c192df35428262c6ef3552e33e70b3fca42c596b5484a19af924769db9d",
+              "resources.txt": "000d86bd6dd751aa0b74b728709a022aaa2d93357dd57bbf424c86569219c928",
+              "nvdisasm.txt": "19e4555190a4c604b24a70fd663a9fe0e4f428c0ae9fa147ff15448fc42f4689"
+            },
+            "inspection_reused": false,
+            "entries": {
+              "wave2_atomic": {
+                "non_nop_instructions": 20,
+                "scope": "entry_including_helpers"
+              },
+              "wave2_float": {
+                "non_nop_instructions": 21,
+                "scope": "entry_including_helpers"
+              },
+              "wave2_shared": {
+                "non_nop_instructions": 32,
+                "scope": "entry_including_helpers"
+              },
+              "wave2_shuffle": {
+                "non_nop_instructions": 33,
+                "scope": "entry_including_helpers"
+              }
+            }
+          }
+        }
+      },
+      "solana": {
+        "source_commit": "d111f80dbfa2374fb50af5b6d49407ffab13bd1a",
+        "comparison": {
+          "workload": "solana",
+          "expected_entry_count": 1,
+          "default_matches_disabled_ptx": true,
+          "inline_scalar_matches_replay": true,
+          "nvidia_execution": false,
+          "ptx_sha256": {
+            "none": "59486d4378de80f787d247e5713918f39305aa8a2b94409b4299082f09db0891",
+            "default": "59486d4378de80f787d247e5713918f39305aa8a2b94409b4299082f09db0891",
+            "inline-scalar": "a57cc6320ccb23d9db1fc34a8f96721da84ebdc239e2d3b034935b5015d3557e"
+          }
+        },
+        "provenance": {
+          "workload": "solana",
+          "source_commit": "d111f80dbfa2374fb50af5b6d49407ffab13bd1a",
+          "mining_commit": "9791234249fc8cb762c296c4fda4503d2686ff77",
+          "expected_entries": [
+            "kernel_find_solana_vanity_private_key"
+          ]
+        },
+        "modes": {
+          "none": {
+            "llvm_ir_bytes": 16625309,
+            "llvm_definitions": 3883,
+            "ptx_bytes": 1481081,
+            "cubin_bytes": 739480,
+            "hashes": {
+              "final-module.ll": "38f5f5b41aeda143fcb53199b8d5ceddb0e4edad0c3b905e98628ab0a46785f1",
+              "rust_kernels.ptx": "59486d4378de80f787d247e5713918f39305aa8a2b94409b4299082f09db0891",
+              "rust_kernels.cubin": "f836fbfd7327b6e948d34c8f056ecccc68cc7501916caf2c50ef038da992b577",
+              "ptxas-resource-report.txt": "4ea8ce2481265c7742cd8e4b13129f2b3b4c40a4995f0c2632aa5d877f6d0acf",
+              "resources.txt": "bbedb060fe40bec5d76039b4e8d9ae7386577b1caebe061b37043cd7d208eff5",
+              "nvdisasm.txt": "28422785d869bbc7b515ce202b82dadea714bc4caf1b88d6ae5d4a34b015b203"
+            },
+            "inspection_reused": false,
+            "entries": {
+              "kernel_find_solana_vanity_private_key": {
+                "non_nop_instructions": 39738,
+                "scope": "entry_including_helpers"
+              }
+            }
+          },
+          "default": {
+            "llvm_ir_bytes": 1379569,
+            "llvm_definitions": 151,
+            "ptx_bytes": 1481081,
+            "cubin_bytes": 739480,
+            "hashes": {
+              "final-module.ll": "35d8df34173f8373264dc88e347de1302f5e7e1ef857c30e684fb724a84ea8e5",
+              "rust_kernels.ptx": "59486d4378de80f787d247e5713918f39305aa8a2b94409b4299082f09db0891",
+              "rust_kernels.cubin": "f836fbfd7327b6e948d34c8f056ecccc68cc7501916caf2c50ef038da992b577",
+              "ptxas-resource-report.txt": "4ea8ce2481265c7742cd8e4b13129f2b3b4c40a4995f0c2632aa5d877f6d0acf",
+              "resources.txt": "bbedb060fe40bec5d76039b4e8d9ae7386577b1caebe061b37043cd7d208eff5",
+              "nvdisasm.txt": "28422785d869bbc7b515ce202b82dadea714bc4caf1b88d6ae5d4a34b015b203"
+            },
+            "inspection_reused": true,
+            "entries": {
+              "kernel_find_solana_vanity_private_key": {
+                "non_nop_instructions": 39738,
+                "scope": "entry_including_helpers"
+              }
+            }
+          },
+          "inline-scalar": {
+            "llvm_ir_bytes": 655808,
+            "llvm_definitions": 7,
+            "ptx_bytes": 1301076,
+            "cubin_bytes": 716024,
+            "hashes": {
+              "final-module.ll": "781946a09c389dcf4f91329969b4ba667bff7a486fd02af656d77ab25d59a8e2",
+              "rust_kernels.ptx": "a57cc6320ccb23d9db1fc34a8f96721da84ebdc239e2d3b034935b5015d3557e",
+              "rust_kernels.cubin": "e2438014642756be6c4e80540269201aa819a935ac8c428d6ffbf8126c2b0b7f",
+              "ptxas-resource-report.txt": "e2e7889eea6dad832654d0589ce01e459713e6cb7a8e40a7df4ae1eba5e4c092",
+              "resources.txt": "226a5e54bdd785a3465d7545612dd891451b79ea0f2eda606d1ffa090bc34749",
+              "nvdisasm.txt": "9381da2b8a97c89e5ec08d9fc4e48c78cbbef1e4c8a752caf61a66a0fa0c13cc"
+            },
+            "inspection_reused": false,
+            "entries": {
+              "kernel_find_solana_vanity_private_key": {
+                "non_nop_instructions": 38428,
+                "scope": "entry_including_helpers"
+              }
+            }
+          }
+        }
+      },
+      "bitcoin": {
+        "source_commit": "d111f80dbfa2374fb50af5b6d49407ffab13bd1a",
+        "comparison": {
+          "workload": "bitcoin",
+          "expected_entry_count": 1,
+          "default_matches_disabled_ptx": true,
+          "inline_scalar_matches_replay": true,
+          "nvidia_execution": false,
+          "ptx_sha256": {
+            "none": "144b063c9178cc1be731b308250af97bfe525c3e22dd8ce3d42d2203d43e220f",
+            "default": "144b063c9178cc1be731b308250af97bfe525c3e22dd8ce3d42d2203d43e220f",
+            "inline-scalar": "05a0f601c2fbe31fa6060b665036f970ad5cd6f9a045cfc1a4a45cccffcfdabe"
+          }
+        },
+        "provenance": {
+          "workload": "bitcoin",
+          "source_commit": "d111f80dbfa2374fb50af5b6d49407ffab13bd1a",
+          "mining_commit": "9791234249fc8cb762c296c4fda4503d2686ff77",
+          "expected_entries": [
+            "kernel_find_bitcoin_vanity_private_key"
+          ]
+        },
+        "modes": {
+          "none": {
+            "llvm_ir_bytes": 22462770,
+            "llvm_definitions": 5424,
+            "ptx_bytes": 3067934,
+            "cubin_bytes": 1642824,
+            "hashes": {
+              "final-module.ll": "fed48dd479c8268b3e3f4bb902d1febecfcd52c989062d585d36a885216509b5",
+              "rust_kernels.ptx": "144b063c9178cc1be731b308250af97bfe525c3e22dd8ce3d42d2203d43e220f",
+              "rust_kernels.cubin": "d07e17c2c2c95fb10c1042a41da358984755f83fa6838c1ffb51010e9149e983",
+              "ptxas-resource-report.txt": "75b9468ab186fa40c53abd111a5de7878492a9083729f9901c3eaebd33393174",
+              "resources.txt": "efda95c415d66857ac27ead59a870e26317c8ff104d759ddd85c37a48433a99b",
+              "nvdisasm.txt": "f75f3a1b4c51db28eb5adabf8a8daa91c05848df338decb0a6443f6fce75a54e"
+            },
+            "inspection_reused": false,
+            "entries": {
+              "kernel_find_bitcoin_vanity_private_key": {
+                "non_nop_instructions": 90877,
+                "scope": "entry_including_helpers"
+              }
+            }
+          },
+          "default": {
+            "llvm_ir_bytes": 1575912,
+            "llvm_definitions": 204,
+            "ptx_bytes": 3067934,
+            "cubin_bytes": 1642824,
+            "hashes": {
+              "final-module.ll": "dea08d3de2c4410e81431a187f37fa22da07ad49f63bb040cf4708a85c1e4afc",
+              "rust_kernels.ptx": "144b063c9178cc1be731b308250af97bfe525c3e22dd8ce3d42d2203d43e220f",
+              "rust_kernels.cubin": "d07e17c2c2c95fb10c1042a41da358984755f83fa6838c1ffb51010e9149e983",
+              "ptxas-resource-report.txt": "75b9468ab186fa40c53abd111a5de7878492a9083729f9901c3eaebd33393174",
+              "resources.txt": "efda95c415d66857ac27ead59a870e26317c8ff104d759ddd85c37a48433a99b",
+              "nvdisasm.txt": "f75f3a1b4c51db28eb5adabf8a8daa91c05848df338decb0a6443f6fce75a54e"
+            },
+            "inspection_reused": true,
+            "entries": {
+              "kernel_find_bitcoin_vanity_private_key": {
+                "non_nop_instructions": 90877,
+                "scope": "entry_including_helpers"
+              }
+            }
+          },
+          "inline-scalar": {
+            "llvm_ir_bytes": 2649809,
+            "llvm_definitions": 14,
+            "ptx_bytes": 3047925,
+            "cubin_bytes": 1739672,
+            "hashes": {
+              "final-module.ll": "52f37daff21b97232ba6d4488fcfca12b3be0eaa357b008b45bd0449a84716ce",
+              "rust_kernels.ptx": "05a0f601c2fbe31fa6060b665036f970ad5cd6f9a045cfc1a4a45cccffcfdabe",
+              "rust_kernels.cubin": "1588d3c5a899c60791084c3603f3db9862c0d9b87b52fc2be1bda23c7d659f05",
+              "ptxas-resource-report.txt": "93c3003529538e5fb200b19a2a6f096b4cf326c95d2967a1e5107aab6d70442c",
+              "resources.txt": "57b8f9a908caa0478dfe73fb0f7c5527fde5371c35e18f6ff0d98bcf29b2ee66",
+              "nvdisasm.txt": "4780e744d17bc5e838363cf139572b2a6297306b8f60d58850dbe7bfc07ec7fc"
+            },
+            "inspection_reused": false,
+            "entries": {
+              "kernel_find_bitcoin_vanity_private_key": {
+                "non_nop_instructions": 96968,
+                "scope": "entry_including_helpers"
+              }
+            }
+          }
+        }
+      },
+      "ethereum": {
+        "source_commit": "d111f80dbfa2374fb50af5b6d49407ffab13bd1a",
+        "comparison": {
+          "workload": "ethereum",
+          "expected_entry_count": 1,
+          "default_matches_disabled_ptx": true,
+          "inline_scalar_matches_replay": true,
+          "nvidia_execution": false,
+          "ptx_sha256": {
+            "none": "c33d56979496ba6f3857d691131c246d1f983fd444b8091cf04e87d3c7ea7d82",
+            "default": "c33d56979496ba6f3857d691131c246d1f983fd444b8091cf04e87d3c7ea7d82",
+            "inline-scalar": "bcef0d7b386d5fa5319f125c8a437b6d78042d5830a59aaf945d2f551d12aa92"
+          }
+        },
+        "provenance": {
+          "workload": "ethereum",
+          "source_commit": "d111f80dbfa2374fb50af5b6d49407ffab13bd1a",
+          "mining_commit": "9791234249fc8cb762c296c4fda4503d2686ff77",
+          "expected_entries": [
+            "kernel_find_ethereum_vanity_private_key"
+          ]
+        },
+        "modes": {
+          "none": {
+            "llvm_ir_bytes": 21502902,
+            "llvm_definitions": 5423,
+            "ptx_bytes": 2904101,
+            "cubin_bytes": 1572464,
+            "hashes": {
+              "final-module.ll": "b13bce32b626326830290b1a92a9d1a45a9c2e71aae7362bf220832113f4b467",
+              "rust_kernels.ptx": "c33d56979496ba6f3857d691131c246d1f983fd444b8091cf04e87d3c7ea7d82",
+              "rust_kernels.cubin": "58aafbf4313113e3961f7fa9952e4eec5bacd320ddbdee2f402f5c57cfff294e",
+              "ptxas-resource-report.txt": "f769f63aa652f93caefbc7ea15a1b11a0782d83c03f69479b8fb365ebc0fed27",
+              "resources.txt": "117ab9861b521148e71a5a2566218bd27d4cef33058e7ca49de98c824df2fc3e",
+              "nvdisasm.txt": "a88c2356153148ca7f77dee94477271c3adb32618406c3b73169d7ba4e4f2286"
+            },
+            "inspection_reused": false,
+            "entries": {
+              "kernel_find_ethereum_vanity_private_key": {
+                "non_nop_instructions": 87009,
+                "scope": "entry_including_helpers"
+              }
+            }
+          },
+          "default": {
+            "llvm_ir_bytes": 1072723,
+            "llvm_definitions": 211,
+            "ptx_bytes": 2904101,
+            "cubin_bytes": 1572464,
+            "hashes": {
+              "final-module.ll": "ce42add7a6cedcf446d134473e5c1728528d83fb62cfea3561ed7db3bec86d22",
+              "rust_kernels.ptx": "c33d56979496ba6f3857d691131c246d1f983fd444b8091cf04e87d3c7ea7d82",
+              "rust_kernels.cubin": "58aafbf4313113e3961f7fa9952e4eec5bacd320ddbdee2f402f5c57cfff294e",
+              "ptxas-resource-report.txt": "f769f63aa652f93caefbc7ea15a1b11a0782d83c03f69479b8fb365ebc0fed27",
+              "resources.txt": "117ab9861b521148e71a5a2566218bd27d4cef33058e7ca49de98c824df2fc3e",
+              "nvdisasm.txt": "a88c2356153148ca7f77dee94477271c3adb32618406c3b73169d7ba4e4f2286"
+            },
+            "inspection_reused": true,
+            "entries": {
+              "kernel_find_ethereum_vanity_private_key": {
+                "non_nop_instructions": 87009,
+                "scope": "entry_including_helpers"
+              }
+            }
+          },
+          "inline-scalar": {
+            "llvm_ir_bytes": 2451022,
+            "llvm_definitions": 13,
+            "ptx_bytes": 2666896,
+            "cubin_bytes": 1521104,
+            "hashes": {
+              "final-module.ll": "0fbc925f0d604744c9c82ae8edbc89c570cee2e19a27b5a4853f408120bbc6bc",
+              "rust_kernels.ptx": "bcef0d7b386d5fa5319f125c8a437b6d78042d5830a59aaf945d2f551d12aa92",
+              "rust_kernels.cubin": "54939625da3458d01d680d2618b0689e5ef76eb523f5c7e1166428336462390c",
+              "ptxas-resource-report.txt": "5773f9533153cdc4d527a854498066ea70e98da6967fd0a1872186cd5e3b082e",
+              "resources.txt": "a183ea2bd1d0473a29b778b89b8e536d75daeaa427a6a63357fb4978bf941f20",
+              "nvdisasm.txt": "9b76c6fcdbe40310152546f7c235e738c75712d315d30c3757fd318ea8d0392f"
+            },
+            "inspection_reused": false,
+            "entries": {
+              "kernel_find_ethereum_vanity_private_key": {
+                "non_nop_instructions": 86774,
+                "scope": "entry_including_helpers"
+              }
+            }
+          }
+        }
+      },
+      "shallenge": {
+        "source_commit": "d111f80dbfa2374fb50af5b6d49407ffab13bd1a",
+        "comparison": {
+          "workload": "shallenge",
+          "expected_entry_count": 1,
+          "default_matches_disabled_ptx": true,
+          "inline_scalar_matches_replay": true,
+          "nvidia_execution": false,
+          "ptx_sha256": {
+            "none": "09366b96ef8d5848c68b6de6823cd3ae727405e40ba18fa8e3fd7208afd81658",
+            "default": "09366b96ef8d5848c68b6de6823cd3ae727405e40ba18fa8e3fd7208afd81658",
+            "inline-scalar": "c94ed049c87e2f816137eafe395aef29204cb01f5980d661799671033e9de576"
+          }
+        },
+        "provenance": {
+          "workload": "shallenge",
+          "source_commit": "d111f80dbfa2374fb50af5b6d49407ffab13bd1a",
+          "mining_commit": "9791234249fc8cb762c296c4fda4503d2686ff77",
+          "expected_entries": [
+            "kernel_find_better_shallenge_nonce"
+          ]
+        },
+        "modes": {
+          "none": {
+            "llvm_ir_bytes": 14801476,
+            "llvm_definitions": 3416,
+            "ptx_bytes": 97085,
+            "cubin_bytes": 58808,
+            "hashes": {
+              "final-module.ll": "5c4d316594d04fa77c1300153e78a764269ca6d1f3f200cea9bac0b8d1cdbbb7",
+              "rust_kernels.ptx": "09366b96ef8d5848c68b6de6823cd3ae727405e40ba18fa8e3fd7208afd81658",
+              "rust_kernels.cubin": "74477cb6760c5389cd35be58c8787a7d2cfb3e36946a40eab220c35b4cc0c07c",
+              "ptxas-resource-report.txt": "1ab0ae47b17d2a851fb062b62f44abb4059893b541ae71fe47ebc857e5adf304",
+              "resources.txt": "142755495610e8e258e3d9502614ca0b00e1b2b53c61bd832c2e0e5f4c38e71b",
+              "nvdisasm.txt": "658cc80d586177d989d998be88da4d9f45abc64dac5095b7965a5e129664f606"
+            },
+            "inspection_reused": false,
+            "entries": {
+              "kernel_find_better_shallenge_nonce": {
+                "non_nop_instructions": 2380,
+                "scope": "entry_including_helpers"
+              }
+            }
+          },
+          "default": {
+            "llvm_ir_bytes": 460504,
+            "llvm_definitions": 54,
+            "ptx_bytes": 97085,
+            "cubin_bytes": 58808,
+            "hashes": {
+              "final-module.ll": "fabad9211754fa12814ef402244759fabeb8271ad5ab5294591940f9ef5bce94",
+              "rust_kernels.ptx": "09366b96ef8d5848c68b6de6823cd3ae727405e40ba18fa8e3fd7208afd81658",
+              "rust_kernels.cubin": "74477cb6760c5389cd35be58c8787a7d2cfb3e36946a40eab220c35b4cc0c07c",
+              "ptxas-resource-report.txt": "1ab0ae47b17d2a851fb062b62f44abb4059893b541ae71fe47ebc857e5adf304",
+              "resources.txt": "142755495610e8e258e3d9502614ca0b00e1b2b53c61bd832c2e0e5f4c38e71b",
+              "nvdisasm.txt": "658cc80d586177d989d998be88da4d9f45abc64dac5095b7965a5e129664f606"
+            },
+            "inspection_reused": true,
+            "entries": {
+              "kernel_find_better_shallenge_nonce": {
+                "non_nop_instructions": 2380,
+                "scope": "entry_including_helpers"
+              }
+            }
+          },
+          "inline-scalar": {
+            "llvm_ir_bytes": 185980,
+            "llvm_definitions": 3,
+            "ptx_bytes": 97006,
+            "cubin_bytes": 75584,
+            "hashes": {
+              "final-module.ll": "6274646078321d1b58ce428a1230fbc247c02ac7225530456fd44f9e65ceadff",
+              "rust_kernels.ptx": "c94ed049c87e2f816137eafe395aef29204cb01f5980d661799671033e9de576",
+              "rust_kernels.cubin": "bffb425d473f26a89c01f97084c6594bf35af8fc7a3d07992f7a9b724e3c5b61",
+              "ptxas-resource-report.txt": "29fcaad21cd83e83c553f15279ed0cff5c94223aa1350993b1624e46b2a2b436",
+              "resources.txt": "9bafef7cd7e94f03baa06c7c9ad979f2674cbbb223de247aaab2ead5518a32f5",
+              "nvdisasm.txt": "0300152fa78fa19c55e3fe7e172c447ed7f7b0ad1d23f10a2ce2ffec3beafb0e"
+            },
+            "inspection_reused": false,
+            "entries": {
+              "kernel_find_better_shallenge_nonce": {
+                "non_nop_instructions": 2710,
+                "scope": "entry_including_helpers"
+              }
+            }
+          }
+        }
+      },
+      "self_test": {
+        "source_commit": "d111f80dbfa2374fb50af5b6d49407ffab13bd1a",
+        "comparison": {
+          "workload": "self_test",
+          "expected_entry_count": 119,
+          "default_matches_disabled_ptx": true,
+          "inline_scalar_matches_replay": true,
+          "nvidia_execution": false,
+          "ptx_sha256": {
+            "none": "b02e56a91ea3e2091f52e2f151581a9ce599380fe66a2b4b2fb7449cbd19b403",
+            "default": "b02e56a91ea3e2091f52e2f151581a9ce599380fe66a2b4b2fb7449cbd19b403",
+            "inline-scalar": "14043453362a644df13b454f9627ea7e179fc3c8f2905443dc7f4e08e8b6abf9"
+          }
+        },
+        "provenance": {
+          "workload": "self_test",
+          "source_commit": "d111f80dbfa2374fb50af5b6d49407ffab13bd1a",
+          "mining_commit": "9791234249fc8cb762c296c4fda4503d2686ff77",
+          "expected_entries": [
+            "kernel_self_test_arith_blackbox_identity_u32",
+            "kernel_self_test_arith_blackbox_identity_u64",
+            "kernel_self_test_arith_carry_chain_3limb",
+            "kernel_self_test_arith_divrem_by_58_pow_5",
+            "kernel_self_test_arith_i128_chain_add",
+            "kernel_self_test_arith_mad_hi_u64",
+            "kernel_self_test_arith_mad_lo_u64",
+            "kernel_self_test_arith_mask_blend_false",
+            "kernel_self_test_arith_mask_blend_true",
+            "kernel_self_test_arith_mul_wide_u32",
+            "kernel_self_test_arith_overflowing_add",
+            "kernel_self_test_arith_overflowing_sub",
+            "kernel_self_test_arith_u128_imm_shr_52",
+            "kernel_self_test_arith_u128_mul",
+            "kernel_self_test_arith_u32_div_const",
+            "kernel_self_test_arith_u32_div_var",
+            "kernel_self_test_arith_u32_mul_lo",
+            "kernel_self_test_arith_u32_rem_var",
+            "kernel_self_test_arith_u64_div_const",
+            "kernel_self_test_arith_u64_div_var",
+            "kernel_self_test_arith_u64_mul_hi",
+            "kernel_self_test_arith_u64_mul_lo",
+            "kernel_self_test_arith_u64_rem_var",
+            "kernel_self_test_arith_var_shl_u64",
+            "kernel_self_test_arith_var_shr_u64",
+            "kernel_self_test_arith_widening_mul_chain_3term",
+            "kernel_self_test_arith_widening_mul_pair",
+            "kernel_self_test_base58_all_zeros",
+            "kernel_self_test_base58_div_by_58",
+            "kernel_self_test_base58_handrolled_no_seq",
+            "kernel_self_test_base58_inner_mutate_phase",
+            "kernel_self_test_base58_limb_divrem",
+            "kernel_self_test_base58_min_nonzero",
+            "kernel_self_test_base58_var_len",
+            "kernel_self_test_base58_var_len_leading_zero",
+            "kernel_self_test_bech32_p2wpkh",
+            "kernel_self_test_bitcoin_encoded",
+            "kernel_self_test_bitcoin_matches",
+            "kernel_self_test_bitcoin_pkh",
+            "kernel_self_test_bitcoin_priv",
+            "kernel_self_test_bitcoin_pub",
+            "kernel_self_test_compare_hashes_eq",
+            "kernel_self_test_compare_hashes_gt",
+            "kernel_self_test_compare_hashes_lt",
+            "kernel_self_test_dalek_clamp_integer",
+            "kernel_self_test_dalek_from_canonical_zero",
+            "kernel_self_test_dalek_mul_base_scalar_one",
+            "kernel_self_test_dalek_reduce_pipeline_zero",
+            "kernel_self_test_dalek_scalar52_as_bytes_one",
+            "kernel_self_test_dalek_scalar52_as_bytes_zero",
+            "kernel_self_test_dalek_scalar52_from_bytes",
+            "kernel_self_test_dalek_scalar52_from_bytes_zero",
+            "kernel_self_test_dalek_scalar52_montgomery_reduce_r",
+            "kernel_self_test_dalek_scalar52_montgomery_reduce_with_sub",
+            "kernel_self_test_dalek_scalar52_montgomery_reduce_zero",
+            "kernel_self_test_dalek_scalar52_mul_internal_then_reduce_one_r",
+            "kernel_self_test_dalek_scalar52_mul_internal_zero",
+            "kernel_self_test_dalek_scalar52_sub_no_underflow",
+            "kernel_self_test_dalek_scalar52_sub_with_underflow",
+            "kernel_self_test_dalek_scalar_eq_zero",
+            "kernel_self_test_dalek_scalar_from_bytes_wide_zero",
+            "kernel_self_test_dalek_scalar_one_to_bytes_direct",
+            "kernel_self_test_dalek_scalar_round_trip_one",
+            "kernel_self_test_dalek_scalar_round_trip_zero",
+            "kernel_self_test_dalek_zero_eq_zero",
+            "kernel_self_test_dynamic_index_write",
+            "kernel_self_test_ethereum_address",
+            "kernel_self_test_ethereum_priv",
+            "kernel_self_test_ethereum_pub",
+            "kernel_self_test_field_bytes_into_conversion",
+            "kernel_self_test_from_affine_coords_replica",
+            "kernel_self_test_generic_array_as_slice_last",
+            "kernel_self_test_generic_array_basic_index",
+            "kernel_self_test_generic_array_copy_from_ga_source",
+            "kernel_self_test_generic_array_copy_from_slice",
+            "kernel_self_test_index_trait_const_indices",
+            "kernel_self_test_index_trait_dispatch",
+            "kernel_self_test_iter_mut_alphabet_lookup",
+            "kernel_self_test_iter_mut_slice_partial",
+            "kernel_self_test_iter_static_slice_lookup",
+            "kernel_self_test_iter_static_table_lookup",
+            "kernel_self_test_k256_affine_generator_encode",
+            "kernel_self_test_k256_derive_scalar_one",
+            "kernel_self_test_k256_derive_scalar_two",
+            "kernel_self_test_k256_double_generator",
+            "kernel_self_test_k256_encode_generator",
+            "kernel_self_test_k256_encoded_point_from_affine_coords",
+            "kernel_self_test_k256_scalar_one_round_trip",
+            "kernel_self_test_k256_secret_from_bytes_one",
+            "kernel_self_test_named_field_struct_return",
+            "kernel_self_test_primitive_base58",
+            "kernel_self_test_primitive_ed25519",
+            "kernel_self_test_primitive_keccak256",
+            "kernel_self_test_primitive_ripemd160",
+            "kernel_self_test_primitive_secp256k1_compressed",
+            "kernel_self_test_primitive_secp256k1_uncompressed",
+            "kernel_self_test_primitive_sha256_32",
+            "kernel_self_test_primitive_sha256_variable",
+            "kernel_self_test_primitive_sha512",
+            "kernel_self_test_primitive_xoroshiro",
+            "kernel_self_test_reverse_range_write",
+            "kernel_self_test_shallenge_hash",
+            "kernel_self_test_shallenge_is_better",
+            "kernel_self_test_shallenge_nonce_len",
+            "kernel_self_test_slice_reverse_partial",
+            "kernel_self_test_solana_encoded",
+            "kernel_self_test_solana_priv",
+            "kernel_self_test_solana_pub",
+            "kernel_self_test_static_depth4_newtype_nesting",
+            "kernel_self_test_static_struct_wrapped_u64_lookup",
+            "kernel_self_test_static_u64_array_lookup",
+            "kernel_self_test_stub",
+            "kernel_self_test_subtle_choice_u8_into_bool",
+            "kernel_self_test_subtle_conditional_select_u64",
+            "kernel_self_test_wif_compressed_mainnet",
+            "kernel_self_test_wif_compressed_testnet",
+            "kernel_self_test_wif_uncompressed_mainnet",
+            "kernel_self_test_wif_uncompressed_testnet",
+            "kernel_self_test_xoroshiro_base64_nonce"
+          ]
+        },
+        "modes": {
+          "none": {
+            "llvm_ir_bytes": 26340781,
+            "llvm_definitions": 6166,
+            "ptx_bytes": 21849956,
+            "cubin_bytes": 24220008,
+            "hashes": {
+              "final-module.ll": "9cf0e946726d58bc7bb69bd2f55f5740226f367ffd026dee61ac0d2d20a740e5",
+              "rust_kernels.ptx": "b02e56a91ea3e2091f52e2f151581a9ce599380fe66a2b4b2fb7449cbd19b403",
+              "rust_kernels.cubin": "14088431787bdfb05bd78ede3a8c810e2c5b07ebf6ffc4ae9259c5d1319ddf3e",
+              "ptxas-resource-report.txt": "cc0f3cc72863c72364770759fb5cbbb8f451422cc153096ff08b452af844b780",
+              "resources.txt": "3fda899d4ab0e79e3eb159b939a424de3c6104d90ce7cbf00fa69cfc01d6b6b2",
+              "nvdisasm.txt": "0a5136e3cfcaf694e12f62f58a471507e5c84c8d2fe4dd55d308e4207e6d511e"
+            },
+            "inspection_reused": false
+          },
+          "default": {
+            "llvm_ir_bytes": 4560285,
+            "llvm_definitions": 605,
+            "ptx_bytes": 21849956,
+            "cubin_bytes": 24220008,
+            "hashes": {
+              "final-module.ll": "86fef76c0be329f722be0a016d0d522a2179b24bfb1f82feeac6dd53aa84cdfc",
+              "rust_kernels.ptx": "b02e56a91ea3e2091f52e2f151581a9ce599380fe66a2b4b2fb7449cbd19b403",
+              "rust_kernels.cubin": "14088431787bdfb05bd78ede3a8c810e2c5b07ebf6ffc4ae9259c5d1319ddf3e",
+              "ptxas-resource-report.txt": "cc0f3cc72863c72364770759fb5cbbb8f451422cc153096ff08b452af844b780",
+              "resources.txt": "3fda899d4ab0e79e3eb159b939a424de3c6104d90ce7cbf00fa69cfc01d6b6b2",
+              "nvdisasm.txt": "0a5136e3cfcaf694e12f62f58a471507e5c84c8d2fe4dd55d308e4207e6d511e"
+            },
+            "inspection_reused": true
+          },
+          "inline-scalar": {
+            "llvm_ir_bytes": 4946377,
+            "llvm_definitions": 159,
+            "ptx_bytes": 39891407,
+            "cubin_bytes": 23053904,
+            "hashes": {
+              "final-module.ll": "5960f3aadd78f8bbc1adee86b461577d24aee0859a60fc4024b056a500e3cf2f",
+              "rust_kernels.ptx": "14043453362a644df13b454f9627ea7e179fc3c8f2905443dc7f4e08e8b6abf9",
+              "rust_kernels.cubin": "eaff864fe47d4786025ea3f1c56b1445e4850db86c81a2d7b5961345b44a4311",
+              "ptxas-resource-report.txt": "21c31d750eb600fb92e5782eace3d459768e6a9f08bbcbfc8dfce8ef71534664",
+              "resources.txt": "cb5a1ba75c949cdd743f1ab676d65f38622003dd5c4db971f0aff8b549a7d6c4",
+              "nvdisasm.txt": "9b9af1421e723073092f9e18a5903ee685cfa12e8fa2a04de3e1fdb1f0167e43"
+            },
+            "inspection_reused": false
+          }
+        }
+      }
+    },
+    "verified_manifest_files": 378
   }
 }
