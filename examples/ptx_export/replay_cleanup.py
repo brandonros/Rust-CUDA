@@ -10,7 +10,7 @@ import re
 import subprocess
 import sys
 import time
-from optimization_pipelines import experiments
+from optimization_pipelines import experiments, wave2_experiments
 from inspect_codegen import ptx_functions, ptx_summary
 
 
@@ -78,6 +78,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('artifacts', type=Path)
     parser.add_argument('--extended', action='store_true')
+    parser.add_argument('--wave2', action='store_true', help='Record inlining remarks and bounded loop experiments')
     parser.add_argument('--only', help='Comma-separated experiment names; baseline is always included')
     args = parser.parse_args()
     root = args.artifacts.resolve()
@@ -93,7 +94,7 @@ def main():
                 'libraries': [{'path': str(p), 'sha256': hashlib.sha256(p.read_bytes()).hexdigest()} for p in libraries],
                 'input_sha256': hashlib.sha256((root/'final-module.ll').read_bytes()).hexdigest(),
                 'results': []}
-    pipelines = experiments(args.extended)
+    pipelines = wave2_experiments() if args.wave2 else experiments(args.extended)
     if args.only:
         requested = set(args.only.split(',')) | {'baseline'}
         unknown = requested - pipelines.keys()
@@ -102,6 +103,9 @@ def main():
     baseline_matches = False
     for name, (passes, options) in pipelines.items():
         dest = out/name; dest.mkdir(exist_ok=True)
+        if args.wave2:
+            options = [*options, '-pass-remarks=inline|loop-unroll|sroa', '-pass-remarks-missed=inline|loop-unroll|sroa',
+                       '-pass-remarks-analysis=inline|loop-unroll|sroa', '-pass-remarks-output='+str(dest/'remarks.yaml')]
         command = ['opt-19', '-passes='+passes, '-verify-each', *options, str(root/'final-module.ll'), '-o', str(dest/'module.bc')]
         item = {'name': name, 'passes': passes, 'opt_options': options, 'opt_command': command}
         started = time.perf_counter()

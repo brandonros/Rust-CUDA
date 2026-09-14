@@ -29,3 +29,19 @@ def experiments(extended=False):
             'inline-threshold-450': (f'{INLINE},{CORRELATED},verify', ['-inline-threshold=450', '-inlinehint-threshold=450']),
         })
     return pipelines
+
+
+# Small constant-trip loops are a concrete source of residual RNG stack buffers.
+# Disable runtime/partial/peeling expansion and cap full unrolling at four trips.
+TINY_UNROLL = 'loop-unroll<O2;full-unroll-max=4;no-partial;no-peeling;no-profile-peeling;no-runtime;no-upperbound>'
+TINY_LOOPS = f'loop-simplify,lcssa,loop(indvars),{TINY_UNROLL},sroa,{IC},simplifycfg,adce'
+
+
+def wave2_experiments():
+    return {
+        'baseline': ('verify', []),
+        'dce-only': ('globaldce,verify', []),
+        'inline-only': (f'{INLINE},verify', []),
+        'tiny-loops': (f'{INLINE},function({TINY_LOOPS}),verify', []),
+        'correlated-tiny-loops': (f'{INLINE},{CORRELATED},function({TINY_LOOPS}),verify', []),
+    }
