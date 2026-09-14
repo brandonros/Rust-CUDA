@@ -2,6 +2,12 @@ name: LLVM 19 optimization wave 2
 
 on:
   workflow_dispatch:
+  push:
+    branches: [poc/portable-ptx-export]
+    paths:
+      - '.github/workflows/optimization_wave2.yml'
+      - 'examples/ptx_export/run_wave2.py'
+      - 'examples/ptx_export/representative-kernels/**'
 
 permissions:
   contents: read
