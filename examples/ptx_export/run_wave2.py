@@ -48,18 +48,31 @@ def main():
     provenance['expected_entries'] = sorted(expected)
     (root/'provenance.json').write_text(json.dumps(provenance,indent=2)+'\n')
     modules = {}
+    failures = {}
     for mode in ('none','default','inline-scalar'):
         out = root/mode; out.mkdir(parents=True,exist_ok=True)
         command = ['cargo','run','-vv','-p','ptx_export','--features','llvm19','--',str(out),mode,*extra]
         (out/'compiler-command.json').write_text(json.dumps(command,indent=2)+'\n')
         with (out/'build.log').open('w') as log:
-            subprocess.run(command,stdout=log,stderr=subprocess.STDOUT,check=True)
+            build = subprocess.run(command,stdout=log,stderr=subprocess.STDOUT)
+        if build.returncode:
+            failures[mode] = build.returncode
+            continue
         subprocess.run(['opt-19','-passes=verify','-disable-output',str(out/'final-module.ll')],check=True)
         subprocess.run([sys.executable,str(scripts/'inspect_codegen.py'),str(out)],check=True)
         source = (out/'rust_kernels.ptx').read_text()
         entries = set(re.findall(r'\.entry\s+(\w+)\s*\(',source))
         if entries != expected: raise RuntimeError(f'{mode}: unexpected kernel exports: missing={expected-entries}, extra={entries-expected}')
         modules[mode] = normalized_functions(source)
+    if failures:
+        (root/'build-failures.json').write_text(json.dumps(failures,indent=2)+'\n')
+        if args.workload == 'representative':
+            for mode in failures:
+                ir = root/mode/'final-module.ll'
+                if ir.exists():
+                    subprocess.run([sys.executable,str(scripts/'diagnose_wave2_nvvm.py'),str(ir),
+                                    '--out',str(root/mode/'isolated')],check=True)
+        raise RuntimeError(f'build failures (other modes were still checked): {failures}')
     if modules['default'] != modules['none']:
         raise RuntimeError('production default DCE changes baseline PTX function bodies; investigate before promotion')
     if args.workload not in ('representative','small'):
