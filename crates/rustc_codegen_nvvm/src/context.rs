@@ -680,21 +680,21 @@ impl CodegenArgs {
             } else if arg == "--use-constant-memory-space" {
                 cg_args.use_constant_memory_space = true;
             } else if arg == "--disable-llvm19-global-dce" {
-                if !cfg!(feature = "llvm19") {
+                if !cfg!(feature = "llvm21") {
                     sess.dcx()
-                        .fatal("--disable-llvm19-global-dce requires the llvm19 backend feature");
+                        .fatal("--disable-llvm19-global-dce requires the llvm21 backend feature");
                 }
                 cg_args.disable_llvm19_global_dce = true;
             } else if arg == "--llvm19-module-cleanup" {
-                if !cfg!(feature = "llvm19") {
+                if !cfg!(feature = "llvm21") {
                     sess.dcx()
-                        .fatal("--llvm19-module-cleanup requires the llvm19 backend feature");
+                        .fatal("--llvm19-module-cleanup requires the llvm21 backend feature");
                 }
                 cg_args.llvm19_module_cleanup = true;
             } else if let Some(mode) = arg.strip_prefix("--llvm19-cleanup=") {
-                if !cfg!(feature = "llvm19") {
+                if !cfg!(feature = "llvm21") {
                     sess.dcx()
-                        .fatal("--llvm19-cleanup requires the llvm19 backend feature");
+                        .fatal("--llvm19-cleanup requires the llvm21 backend feature");
                 }
                 cg_args.llvm19_cleanup = Some(match mode {
                     "scalar" => crate::llvm::NvvmCleanup::Scalar,

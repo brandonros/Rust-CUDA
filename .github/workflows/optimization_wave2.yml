@@ -1,4 +1,4 @@
-name: LLVM 19 optimization wave 2
+name: LLVM 21 optimization wave 2
 
 on:
   workflow_dispatch:
@@ -39,12 +39,12 @@ jobs:
             ~/.cargo/registry
             ~/.cargo/git
             target/
-          key: wave2-cargo-${{ runner.os }}-llvm19-${{ github.sha }}
+          key: wave2-cargo-${{ runner.os }}-llvm21-${{ github.sha }}
           restore-keys: |
-            ptx-cargo-v1-${{ runner.os }}-${{ runner.arch }}-llvm19-
+            ptx-cargo-v1-${{ runner.os }}-${{ runner.arch }}-llvm21-
       - name: Build the checked-out backend
         run: |
-          nix develop .#v19 --command cargo build -p rustc_codegen_nvvm --features llvm19 --target-dir target/cuda-builder-codegen
+          nix develop .#v21 --command cargo build -p rustc_codegen_nvvm --features llvm21 --target-dir target/cuda-builder-codegen
           rm -rf target/nvptx64-nvidia-cuda
       - name: Checkout pinned workload
         uses: actions/checkout@v4
@@ -57,9 +57,9 @@ jobs:
           mkdir -p artifacts
           git rev-parse HEAD > artifacts/source-commit.txt
           sha256sum target/cuda-builder-codegen/debug/librustc_codegen_nvvm.so > artifacts/backend-sha256.txt
-          nix develop .#v19 --command rustc -Vv > artifacts/rustc-version.txt
+          nix develop .#v21 --command rustc -Vv > artifacts/rustc-version.txt
           cp flake.lock Cargo.lock rust-toolchain.toml artifacts/
-          nix develop .#v19 --command python3 examples/ptx_export/run_wave2.py ${{ matrix.workload }} --out artifacts/${{ matrix.workload }} --miner workloads/vanity-miner
+          nix develop .#v21 --command python3 examples/ptx_export/run_wave2.py ${{ matrix.workload }} --out artifacts/${{ matrix.workload }} --miner workloads/vanity-miner
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:

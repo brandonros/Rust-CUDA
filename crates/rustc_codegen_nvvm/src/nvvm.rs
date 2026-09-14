@@ -95,7 +95,7 @@ pub fn codegen_bitcode_modules(
     unsafe {
         LLVMRustRestoreNvvmKernelAnnotations(module);
         internalize_pass(module, llcx);
-        #[cfg(not(feature = "llvm19"))]
+        #[cfg(not(feature = "llvm21"))]
         dce_pass(module);
 
         if sess.opts.debuginfo != DebugInfo::None {
@@ -119,7 +119,7 @@ pub fn codegen_bitcode_modules(
         // Inline pipelines already contain GlobalDCE; avoid running it twice.
         // Keep the default pass at the verified handoff, after debug/IR metadata
         // is finalized, exactly where the opt-in implementation was validated.
-        let run_default_dce = cfg!(feature = "llvm19")
+        let run_default_dce = cfg!(feature = "llvm21")
             && !args.disable_llvm19_global_dce
             && matches!(args.llvm19_cleanup, None | Some(NvvmCleanup::Scalar));
         if run_default_dce || args.llvm19_cleanup.is_some() {
@@ -389,7 +389,7 @@ unsafe fn internalize_pass(module: &Module, cx: &Context) {
     }
 }
 
-#[cfg(not(feature = "llvm19"))]
+#[cfg(not(feature = "llvm21"))]
 unsafe fn dce_pass(module: &Module) {
     unsafe {
         let pass_manager = LLVMCreatePassManager();

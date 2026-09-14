@@ -1,4 +1,4 @@
-"""Bounded LLVM 19 experiments. Explicit options are saved with each result."""
+"""Bounded LLVM 21 experiments. Explicit options are saved with each result."""
 IC = 'instcombine<max-iterations=2;no-verify-fixpoint>'
 SCALAR = f'function(sroa,{IC},simplifycfg,adce)'
 INLINE = f'globaldce,cgscc(inline),{SCALAR},globaldce'

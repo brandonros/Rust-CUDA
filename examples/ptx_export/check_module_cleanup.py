@@ -66,7 +66,7 @@ def main():
     results = []
     for mode in ('module-scalar', 'module-inline'):
         out = root/'module-cleanup'/mode; out.mkdir(parents=True, exist_ok=True)
-        command = ['cargo', 'run', '-vv', '-p', 'ptx_export', '--features', 'llvm19', '--', str(out), mode]
+        command = ['cargo', 'run', '-vv', '-p', 'ptx_export', '--features', 'llvm21', '--', str(out), mode]
         (out/'compiler-command.json').write_text(json.dumps(command, indent=2)+'\n')
         with (out/'build.log').open('w') as log:
             subprocess.run(command, stdout=log, stderr=subprocess.STDOUT, check=True)
@@ -77,8 +77,8 @@ def main():
             after = path.with_name(path.name.replace('.before.ll', '.after.ll'))
             replay = path.with_name(path.name.replace('.before.ll', '.replay.ll'))
             normalized = path.with_name(path.name.replace('.before.ll', '.normalized.ll'))
-            subprocess.run(['opt-19', '-passes='+SCALAR+',strip-nondebug,verify', '-verify-each', '-S', str(path), '-o', str(replay)], check=True)
-            subprocess.run(['opt-19', '-passes=strip-nondebug,verify', '-S', str(after), '-o', str(normalized)], check=True)
+            subprocess.run(['opt-21', '-passes='+SCALAR+',strip-nondebug,verify', '-verify-each', '-S', str(path), '-o', str(replay)], check=True)
+            subprocess.run(['opt-21', '-passes=strip-nondebug,verify', '-S', str(after), '-o', str(normalized)], check=True)
             if canonical(replay.read_text()) != canonical(normalized.read_text()):
                 raise RuntimeError(f'per-module replay mismatch: {path.name}')
             checked.append({'module':path.name.removesuffix('.before.ll'),
@@ -86,7 +86,7 @@ def main():
                             'after_sha256':hashlib.sha256(after.read_bytes()).hexdigest()})
         if not any(x['module'].startswith('core') for x in checked):
             raise RuntimeError('missing dependency module coverage')
-        subprocess.run(['opt-19', '-passes=verify', '-disable-output', str(out/'final-module.ll')], check=True)
+        subprocess.run(['opt-21', '-passes=verify', '-disable-output', str(out/'final-module.ll')], check=True)
         subprocess.run([sys.executable, str(Path(__file__).with_name('inspect_codegen.py')), str(out)], check=True)
         if mode == 'module-inline':
             subprocess.run([sys.executable, str(Path(__file__).with_name('check_cleanup_ir.py')),

@@ -53,11 +53,11 @@ def main():
         modules = {}
         for mode in ('none', 'default'):
             out = root/fixture/mode; out.mkdir(parents=True, exist_ok=True)
-            command = ['cargo', 'run', '-vv', '-p', 'ptx_export', '--features', 'llvm19', '--', str(out), mode, *extra]
+            command = ['cargo', 'run', '-vv', '-p', 'ptx_export', '--features', 'llvm21', '--', str(out), mode, *extra]
             (out/'compiler-command.json').write_text(json.dumps(command, indent=2)+'\n')
             with (out/'build.log').open('w') as log:
                 subprocess.run(command, stdout=log, stderr=subprocess.STDOUT, check=True)
-            subprocess.run(['opt-19', '-passes=verify', '-disable-output', str(out/'final-module.ll')], check=True)
+            subprocess.run(['opt-21', '-passes=verify', '-disable-output', str(out/'final-module.ll')], check=True)
             subprocess.run([sys.executable, str(scripts/'inspect_codegen.py'), str(out)], check=True)
             modules[mode] = out
         raw = (modules['none']/'final-module.ll').read_text()

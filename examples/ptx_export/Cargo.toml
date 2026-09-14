@@ -6,7 +6,7 @@ publish = false
 
 [features]
 default = []
-llvm19 = ["cuda_builder/llvm19"]
+llvm21 = ["cuda_builder/llvm21"]
 
 [dependencies]
 cuda_builder = { workspace = true }

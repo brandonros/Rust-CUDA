@@ -53,10 +53,10 @@ def compile_nvvm(bitcode, libraries, output):
         verification_log = log()
         (output / 'nvvm-verify.log').write_text(verification_log)
         if status:
-            # Match the existing LLVM 19 backend's narrowly recognized verifier
+            # Match the existing LLVM 21 backend's narrowly recognized verifier
             # false negative; retain the log and let compilation decide.
             known = all(x in verification_log for x in
-                        ("Producer: 'LLVM19", "Reader: 'LLVM 7.0.1'", 'parse Invalid value'))
+                        ("Producer: 'LLVM21", "Reader: 'LLVM 7.0.1'", 'parse Invalid value'))
             if not known: raise RuntimeError(f'NVVM verification failed: {status}')
         status = lib.nvvmCompileProgram(program, 1, options)
         (output / 'nvvm-compile.log').write_text(log())
@@ -84,9 +84,9 @@ def main():
     root = args.artifacts.resolve()
     out = root / 'cleanup-experiment'; out.mkdir(exist_ok=True)
     # Require unique content when build caches contain multiple backend hashes.
-    candidates = list(Path('target/cuda-builder-codegen').rglob('libintrinsics_v19.bc'))
+    candidates = list(Path('target/cuda-builder-codegen').rglob('libintrinsics_v21.bc'))
     unique = {hashlib.sha256(p.read_bytes()).hexdigest(): p for p in candidates}
-    if len(unique) != 1: raise RuntimeError(f'expected one distinct LLVM 19 intrinsic library, got {len(unique)}')
+    if len(unique) != 1: raise RuntimeError(f'expected one distinct LLVM 21 intrinsic library, got {len(unique)}')
     intrinsics = next(iter(unique.values())).resolve()
     libdevice = Path(os.environ['CUDA_HOME']) / 'nvvm/libdevice/libdevice.10.bc'
     libraries = [libdevice, intrinsics]
@@ -106,14 +106,14 @@ def main():
         if args.wave2:
             options = [*options, '-pass-remarks=inline|loop-unroll|sroa', '-pass-remarks-missed=inline|loop-unroll|sroa',
                        '-pass-remarks-analysis=inline|loop-unroll|sroa', '-pass-remarks-output='+str(dest/'remarks.yaml')]
-        command = ['opt-19', '-passes='+passes, '-verify-each', *options, str(root/'final-module.ll'), '-o', str(dest/'module.bc')]
+        command = ['opt-21', '-passes='+passes, '-verify-each', *options, str(root/'final-module.ll'), '-o', str(dest/'module.bc')]
         item = {'name': name, 'passes': passes, 'opt_options': options, 'opt_command': command}
         started = time.perf_counter()
         try:
             with (dest/'opt.log').open('w') as log:
                 subprocess.run(command, stdout=log, stderr=subprocess.STDOUT, check=True)
             item['opt_seconds'] = time.perf_counter() - started
-            subprocess.run(['llvm-dis-19', str(dest/'module.bc'), '-o', str(dest/'final-module.ll')], check=True)
+            subprocess.run(['llvm-dis-21', str(dest/'module.bc'), '-o', str(dest/'final-module.ll')], check=True)
             compile_nvvm(dest/'module.bc', libraries, dest)
             source = (dest/'rust_kernels.ptx').read_text()
             if name == 'baseline':

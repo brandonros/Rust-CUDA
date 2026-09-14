@@ -257,7 +257,8 @@ fn configure_libintrinsics(llvm_config: &Path, flavor: &LlvmFlavor) {
 
     build_helper::rerun_if_changed(Path::new("libintrinsics.ll"));
 
-    let shuffle = format!("libintrinsics_shuffle_v{}.ll", flavor.major);
+    let shuffle_version = if flavor.major >= 19 { 19 } else { 7 };
+    let shuffle = format!("libintrinsics_shuffle_v{shuffle_version}.ll");
     build_helper::rerun_if_changed(Path::new(&shuffle));
     let out_dir = PathBuf::from(env::var("OUT_DIR").expect("OUT_DIR was not set"));
     let input = out_dir.join(format!("libintrinsics_v{}.ll", flavor.major));
@@ -305,7 +306,7 @@ fn rustc_llvm_build(flavor: &LlvmFlavor) {
 
     configure_libintrinsics(&llvm_config, flavor);
 
-    let required_components: &[&str] = if flavor.major == 19 {
+    let required_components: &[&str] = if flavor.major >= 19 {
         &["ipo", "bitreader", "bitwriter", "lto", "nvptx", "passes"]
     } else {
         &["ipo", "bitreader", "bitwriter", "lto", "nvptx"]

@@ -21,15 +21,15 @@ def main():
     parser.add_argument('--out', type=Path, required=True)
     parser.add_argument('--worker', action='store_true')
     args = parser.parse_args()
-    candidates = list(Path('target/cuda-builder-codegen').rglob('libintrinsics_v19.bc'))
+    candidates = list(Path('target/cuda-builder-codegen').rglob('libintrinsics_v21.bc'))
     unique = {hashlib.sha256(p.read_bytes()).hexdigest():p for p in candidates}
-    if len(unique) != 1: raise RuntimeError('expected one distinct LLVM 19 intrinsic library')
+    if len(unique) != 1: raise RuntimeError('expected one distinct LLVM 21 intrinsic library')
     libraries = [Path(os.environ['CUDA_HOME'])/'nvvm/libdevice/libdevice.10.bc',next(iter(unique.values()))]
     if args.worker:
         compile_nvvm(args.ir,libraries,args.out)
         return
     args.out.mkdir(parents=True,exist_ok=True)
-    llvm_bin = Path(subprocess.check_output([os.environ['LLVM_CONFIG_19'],'--bindir'],text=True).strip())
+    llvm_bin = Path(subprocess.check_output([os.environ['LLVM_CONFIG_21'],'--bindir'],text=True).strip())
     report = {'input_sha256':hashlib.sha256(args.ir.read_bytes()).hexdigest(),
               'libraries':{str(p):hashlib.sha256(p.read_bytes()).hexdigest() for p in libraries},'kernels':{}}
     for kernel in ('wave2_float','wave2_shared','wave2_atomic','wave2_shuffle'):
@@ -45,7 +45,7 @@ def main():
             if not names: break
             if names <= globals_to_keep: raise RuntimeError(f'unresolved globals: {names}')
             globals_to_keep.update(names)
-        command = ['opt-19','-passes=verify',str(out/'extracted.ll'),'-o',str(out/'module.bc')]
+        command = ['opt-21','-passes=verify',str(out/'extracted.ll'),'-o',str(out/'module.bc')]
         commands.append(command);subprocess.run(command,check=True)
         command = [sys.executable,str(Path(__file__).resolve()),str(out/'module.bc'),'--out',str(out),'--worker']
         commands.append(command)

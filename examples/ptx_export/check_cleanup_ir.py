@@ -33,7 +33,7 @@ def main():
         return (out/filename).read_text()
 
     version = run([llvm/'llc', '--version'], 'llvm-version.txt')
-    if not re.search(r'LLVM version 19\.', version): raise RuntimeError('requires LLVM 19')
+    if not re.search(r'LLVM version 21\.', version): raise RuntimeError('requires LLVM 21')
     triple = re.search(r'Default target:\s*(\S+)', version)[1]
     run([args.cc, '--version'], 'cc-version.txt')
     source = args.ir.read_text()

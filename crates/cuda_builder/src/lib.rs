@@ -51,7 +51,8 @@ impl DebugInfo {
     }
 }
 
-/// Experimental pre-NVVM optimization. Requires the LLVM 19 backend.
+/// Experimental pre-NVVM optimization. Requires the LLVM 21 backend.
+/// The historical LLVM 19 API names are retained for caller compatibility.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Llvm19Cleanup {
     /// Remove unreachable internal definitions without rewriting live function bodies.
@@ -205,7 +206,7 @@ pub struct CudaBuilder {
     /// An optional path where to dump LLVM IR of the final output the codegen will feed to libnvvm. Usually
     /// used for debugging.
     pub final_module_path: Option<PathBuf>,
-    /// Whether LLVM 19 removes unreachable definitions at the merged handoff.
+    /// Whether the modern backend removes unreachable definitions at the merged handoff.
     pub llvm19_global_dce: bool,
     /// Additional opt-in modern LLVM cleanup; disabled by default.
     pub llvm19_cleanup: Option<Llvm19Cleanup>,
@@ -239,7 +240,7 @@ impl CudaBuilder {
         }
     }
 
-    /// Enable or disable the default LLVM 19 merged-module GlobalDCE pass.
+    /// Enable or disable the default modern LLVM merged-module GlobalDCE pass.
     /// Disabling is intended for compiler-output comparisons; LLVM 7 is unchanged.
     pub fn llvm19_global_dce(mut self, enabled: bool) -> Self {
         self.llvm19_global_dce = enabled;
@@ -253,7 +254,7 @@ impl CudaBuilder {
         self
     }
 
-    /// Enable a bounded LLVM 19 cleanup pipeline before NVVM compilation.
+    /// Enable a bounded modern LLVM cleanup pipeline before NVVM compilation.
     /// This is experimental; compare numerical results and generated code.
     pub fn llvm19_cleanup(mut self, cleanup: Llvm19Cleanup) -> Self {
         self.llvm19_cleanup = Some(cleanup);

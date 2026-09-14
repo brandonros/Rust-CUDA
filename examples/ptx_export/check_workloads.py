@@ -40,11 +40,11 @@ def main():
         builds = [(mode, root/'size-builds'/mode, []) for mode in ('size-s', 'size-z')]
     for mode, out, extra in builds:
         out.mkdir(parents=True, exist_ok=True)
-        command = ['cargo', 'run', '-vv', '-p', 'ptx_export', '--features', 'llvm19', '--', str(out), mode, *extra]
+        command = ['cargo', 'run', '-vv', '-p', 'ptx_export', '--features', 'llvm21', '--', str(out), mode, *extra]
         (out/'compiler-command.json').write_text(json.dumps(command, indent=2)+'\n')
         with (out/'build.log').open('w') as log:
             subprocess.run(command, stdout=log, stderr=subprocess.STDOUT, check=True)
-        subprocess.run(['opt-19', '-passes=verify', '-disable-output', str(out/'final-module.ll')], check=True)
+        subprocess.run(['opt-21', '-passes=verify', '-disable-output', str(out/'final-module.ll')], check=True)
         subprocess.run([sys.executable, str(scripts/'inspect_codegen.py'), str(out)], check=True)
         if not args.miner:
             subprocess.run([sys.executable, str(scripts/'check_cleanup_ir.py'), str(out/'final-module.ll'),
@@ -57,12 +57,12 @@ def main():
         for mode, replay in [('dce', 'dce-only'), ('inline-scalar', 'inline-only')]:
             dest = out/'integrated-cleanup'/mode
             dest.mkdir(parents=True, exist_ok=True)
-            command = ['cargo', 'run', '-vv', '-p', 'ptx_export', '--features', 'llvm19', '--',
+            command = ['cargo', 'run', '-vv', '-p', 'ptx_export', '--features', 'llvm21', '--',
                        str(dest), mode, str(miner/'kernels'), 'solana']
             (dest/'compiler-command.json').write_text(json.dumps(command, indent=2)+'\n')
             with (dest/'build.log').open('w') as log:
                 subprocess.run(command, stdout=log, stderr=subprocess.STDOUT, check=True)
-            subprocess.run(['opt-19', '-passes=verify', '-disable-output', str(dest/'final-module.ll')], check=True)
+            subprocess.run(['opt-21', '-passes=verify', '-disable-output', str(dest/'final-module.ll')], check=True)
             actual = normalized_functions((dest/'rust_kernels.ptx').read_text())
             expected = normalized_functions((out/'cleanup-experiment'/replay/'rust_kernels.ptx').read_text())
             if 'kernel_find_solana_vanity_private_key' not in actual or actual != expected:

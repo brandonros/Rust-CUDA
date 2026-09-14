@@ -5,12 +5,12 @@ application or launching an NVIDIA GPU. Compilation still requires the normal
 Rust-CUDA Linux toolchain, CUDA toolkit, and NVVM libraries.
 
 ```sh
-nix develop .#v19 --command cargo run -p ptx_export --features llvm19 -- artifacts/ptx
+nix develop .#v21 --command cargo run -p ptx_export --features llvm21 -- artifacts/ptx
 ```
 
 The exporter uses `CudaBuilder`'s feature-dependent target default: `compute_100`
-with `llvm19`, or `compute_75` without it. This keeps the target compatible with
-the selected NVVM IR dialect; overriding it to `compute_89` on the LLVM 19 path
+with `llvm21`, or `compute_75` without it. This keeps the target compatible with
+the selected NVVM IR dialect; overriding it to `compute_89` on the modern LLVM path
 selects NVVM's legacy reader and fails to parse the generated bitcode.
 
 The output `rust_kernels.ptx` contains:
@@ -31,30 +31,37 @@ export alone does not establish compatibility or numerical GPU correctness.
 
 The guarded-select experiment has a separate [test guide](guarded-select.md).
 
-## Experimental LLVM 19 cleanup
+This branch builds on `experiment/cuda13.3-llvm21` and uses the `llvm21` feature
+and `v21` shell. The linked experiment reports and checked-in result files record
+**historical LLVM 19 measurements**, not LLVM 21 validation. Re-run the workflows
+to establish results for this stack. The experimental `Llvm19Cleanup` and
+`llvm19_*` builder/option names are retained for caller compatibility; on this
+branch they require and control the LLVM 21 backend.
+
+## Experimental modern LLVM cleanup
 
 The exporter accepts `default` (the default), `none`, `dce`, `scalar`, `inline-scalar`, or `inline` after the output
 directory. For example:
 
 ```sh
-nix develop .#v19 --command cargo run -p ptx_export --features llvm19 -- artifacts/ptx-inline inline
+nix develop .#v21 --command cargo run -p ptx_export --features llvm21 -- artifacts/ptx-inline inline
 ```
 
 The builder API is `CudaBuilder::llvm19_cleanup(...)`, with
-`Llvm19Cleanup::{GlobalDce, Scalar, InlineScalar, Inline}`. These use verified, bounded LLVM 19 pass pipelines at
+`Llvm19Cleanup::{GlobalDce, Scalar, InlineScalar, Inline}`. These use bounded pass pipelines with verification at
 the merged-module handoff. GlobalDce removes unreachable internal definitions
 without scalar cleanup or inlining. InlineScalar combines target-aware inlining
 and scalar cleanup; Inline additionally runs branch-correlated cleanup. These modes are experimental and disabled by default.
 
 [Run 34786097065](https://github.com/brandonros/Rust-CUDA/actions/runs/34786097065)
-verifies both modes against standalone replay and packages IR, PTX, SASS,
+verified both modes on LLVM 19 against standalone replay and packages IR, PTX, SASS,
 resource reports and numerical IR checks. The filtered helper loses two SASS
 selects, but the combined filtered/stepped kernel grows in instruction count;
 this is not an established performance win. See the [measured results and
 correctness limits](guarded-select.md#validated-integration) before using either
 mode for a workload.
 
-Merged LLVM 19 GlobalDCE is now enabled by default. Use
+Merged-module GlobalDCE is enabled by default on the modern backend. Use
 `CudaBuilder::llvm19_global_dce(false)` or exporter mode `none` to disable it.
 The other transformations remain opt-in. The [wave-2 report](optimization-wave2.md)
 records retention checks, all four mining comparisons and the reasons not to

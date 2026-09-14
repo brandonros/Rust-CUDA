@@ -18,11 +18,11 @@ def main():
     for mode, replay in [('inline-scalar', 'inline-only'), ('dce', 'dce-only'), ('scalar', 'local-cleanup'), ('inline', 'inline-cleanup')]:
         dest = root/'integrated-cleanup'/mode
         dest.mkdir(parents=True, exist_ok=True)
-        command = ['cargo', 'run', '-vv', '-p', 'ptx_export', '--features', 'llvm19', '--', str(dest), mode]
+        command = ['cargo', 'run', '-vv', '-p', 'ptx_export', '--features', 'llvm21', '--', str(dest), mode]
         (dest/'compiler-command.json').write_text(json.dumps(command, indent=2)+'\n')
         with (dest/'build.log').open('w') as log:
             subprocess.run(command, stdout=log, stderr=subprocess.STDOUT, check=True)
-        subprocess.run(['opt-19', '-passes=verify', '-disable-output', str(dest/'final-module.ll')], check=True)
+        subprocess.run(['opt-21', '-passes=verify', '-disable-output', str(dest/'final-module.ll')], check=True)
         before = dest/'final-module.before-cleanup.ll'
         if not before.is_file(): raise RuntimeError('backend did not record the pre-cleanup IR')
         actual = normalized_functions((dest/'rust_kernels.ptx').read_text())
