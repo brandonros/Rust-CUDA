@@ -2,6 +2,12 @@ name: LLVM 19 optimization wave 2
 
 on:
   workflow_dispatch:
+    inputs:
+      workload:
+        description: Workload to repeat (all runs the complete matrix)
+        type: choice
+        default: all
+        options: [all, small, representative, solana, bitcoin, ethereum, shallenge, self_test]
   push:
     branches: [poc/portable-ptx-export]
     paths:
@@ -20,7 +26,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        workload: [small, representative, solana, bitcoin, ethereum, shallenge, self_test]
+        workload: ${{ fromJSON(inputs.workload != '' && inputs.workload != 'all' && format('["{0}"]', inputs.workload) || '["small","representative","solana","bitcoin","ethereum","shallenge","self_test"]') }}
     steps:
       - uses: actions/checkout@v4
       - uses: DeterminateSystems/nix-installer-action@main

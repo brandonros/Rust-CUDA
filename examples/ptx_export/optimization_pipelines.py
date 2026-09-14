@@ -44,4 +44,5 @@ def wave2_experiments():
         'inline-only': (f'{INLINE},verify', []),
         'tiny-loops': (f'{INLINE},function({TINY_LOOPS}),verify', []),
         'correlated-tiny-loops': (f'{INLINE},{CORRELATED},function({TINY_LOOPS}),verify', []),
+        'loop-idiom': (f'{INLINE},function(loop-simplify,lcssa,loop(loop-idiom),memcpyopt,sroa,{IC},simplifycfg,adce),verify', []),
     }
