@@ -76,7 +76,9 @@ def run_case(driver, kernel, name, count, repeats):
         driver.call('cuCtxSynchronize',[])
         driver.call('cuMemcpyDtoH',[PTR,U64,c.c_size_t],c.cast(host_output,PTR),allocations[-1],c.sizeof(host_output))
         if list(host_output)[:len(expected)] != expected:
-            raise RuntimeError(f'{name}/{count}: numerical mismatch')
+            index = next(i for i, value in enumerate(expected) if host_output[i] != value)
+            raise RuntimeError(f'{name}/{count}: output[{index}] = {host_output[index]:#010x}, '
+                               f'expected {expected[index]:#010x}')
         if list(host_output)[len(expected):] != [GUARD]*16:
             raise RuntimeError(f'{name}/{count}: output guard overwritten')
         result = {'kernel':name,'count':count,'numerical_pass':True,'guards_pass':True}

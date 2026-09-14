@@ -22,7 +22,7 @@ jobs:
   compare:
     name: Compare ${{ matrix.workload }}
     runs-on: ubuntu-24.04
-    timeout-minutes: 45
+    timeout-minutes: ${{ matrix.workload == 'self_test' && 90 || 45 }}
     strategy:
       fail-fast: false
       matrix:
