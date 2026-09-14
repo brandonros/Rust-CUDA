@@ -10,6 +10,42 @@ import shutil
 import subprocess
 
 
+INSPECTION_OUTPUTS = ('rust_kernels.cubin', 'ptxas-resource-report.txt', 'nvdisasm.txt',
+                      'sass.txt', 'resources.txt', 'codegen-summary.json', 'codegen-summary.md')
+
+
+def reuse_inspection(candidate, out):
+    """Reuse offline reports only for identical PTX, tools and inspector code."""
+    if candidate.resolve() == out.resolve():
+        return False
+    required = (*INSPECTION_OUTPUTS, 'inspection-producer-sha256.txt', 'inspection-tools-sha256.json', 'inspection-commands.json',
+                'ptxas-version.txt', 'nvdisasm-version.txt', 'cuobjdump-version.txt', 'rust_kernels.ptx')
+    if not all((candidate/name).is_file() for name in required):
+        return False
+    for name in ('rust_kernels.ptx', 'inspection-producer-sha256.txt', 'inspection-tools-sha256.json',
+                 'ptxas-version.txt', 'nvdisasm-version.txt', 'cuobjdump-version.txt'):
+        if (candidate/name).read_bytes() != (out/name).read_bytes():
+            return False
+    copied = {}
+    for name in INSPECTION_OUTPUTS:
+        shutil.copy2(candidate/name, out/name)
+        copied[name] = hashlib.sha256((out/name).read_bytes()).hexdigest()
+    (out/'reused-inspection.json').write_text(json.dumps({
+        'source':str(candidate.resolve()),
+        'ptx_sha256':hashlib.sha256((out/'rust_kernels.ptx').read_bytes()).hexdigest(),
+        'original_commands':json.loads((candidate/'inspection-commands.json').read_text()),
+        'copied_sha256':copied,
+        'note':'Identical PTX, inspector source and tool version outputs; assembly/disassembly not rerun.'
+    },indent=2)+'\n')
+    return True
+
+
+def write_hashes(out):
+    hashes = [f'{hashlib.sha256(p.read_bytes()).hexdigest()}  {p.relative_to(out)}'
+              for p in sorted(out.rglob('*')) if p.is_file() and p.name != 'SHA256SUMS']
+    (out/'SHA256SUMS').write_text('\n'.join(hashes)+'\n')
+
+
 def ptx_functions(source):
     # Only function definitions; prototypes end with ';' and are excluded.
     pattern = r'\.(?:entry|func)\s+(?:\([^)]*\)\s*)?([\w.$]+)\s*\([^;{}]*\)[^;{}]*\{'
@@ -72,8 +108,10 @@ def sass_symbols(source):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('artifacts', type=Path)
+    parser.add_argument('--reuse-from', type=Path, action='append', default=[])
     args = parser.parse_args()
     out = args.artifacts.resolve()
+    (out/'inspection-producer-sha256.txt').write_text(hashlib.sha256(Path(__file__).read_bytes()).hexdigest()+'\n')
     source = (out / 'rust_kernels.ptx').read_text()
     target = re.search(r'^\s*\.target\s+(sm_\d+[af]?)\b', source, re.M)
     if not target:
@@ -86,11 +124,19 @@ def main():
         with (out / filename).open('w') as log:
             subprocess.run(argv, stdout=log, stderr=subprocess.STDOUT, check=True)
 
+    tool_hashes = {}
     for tool in ('ptxas', 'nvdisasm', 'cuobjdump'):
         path = shutil.which(tool)
         if path is None:
             raise RuntimeError(f'{tool} is unavailable')
         run([path, '--version'], f'{tool}-version.txt')
+        tool_hashes[tool] = hashlib.sha256(Path(path).read_bytes()).hexdigest()
+    (out/'inspection-tools-sha256.json').write_text(json.dumps(tool_hashes,sort_keys=True)+'\n')
+    for candidate in args.reuse_from:
+        if reuse_inspection(candidate.resolve(), out):
+            write_hashes(out)
+            print(f'reused identical PTX inspection from {candidate}',flush=True)
+            return
     run(['ptxas', '-arch=' + target[1], '-O3', '--verbose', '--warn-on-spills',
          '--preserve-relocs', str(out / 'rust_kernels.ptx'), '-o', str(out / 'rust_kernels.cubin')],
         'ptxas-resource-report.txt')
@@ -114,9 +160,7 @@ def main():
               'and `ptxas-resource-report.txt` for registers, stack and spill reports.',
               'Matching histograms do not establish equivalent machine code.', '']
     (out / 'codegen-summary.md').write_text('\n'.join(lines))
-    hashes = [f'{hashlib.sha256(p.read_bytes()).hexdigest()}  {p.relative_to(out)}'
-              for p in sorted(out.rglob('*')) if p.is_file() and p.name != 'SHA256SUMS']
-    (out / 'SHA256SUMS').write_text('\n'.join(hashes) + '\n')
+    write_hashes(out)
 
 
 if __name__ == '__main__':

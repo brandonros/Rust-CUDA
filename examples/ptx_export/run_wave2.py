@@ -50,6 +50,7 @@ def main():
     modules = {}
     failures = {}
     for mode in ('none','default','inline-scalar'):
+        print(f'{args.workload}: building {mode}',flush=True)
         out = root/mode; out.mkdir(parents=True,exist_ok=True)
         command = ['cargo','run','-vv','-p','ptx_export','--features','llvm19','--',str(out),mode,*extra]
         (out/'compiler-command.json').write_text(json.dumps(command,indent=2)+'\n')
@@ -59,7 +60,9 @@ def main():
             failures[mode] = build.returncode
             continue
         subprocess.run(['opt-19','-passes=verify','-disable-output',str(out/'final-module.ll')],check=True)
-        subprocess.run([sys.executable,str(scripts/'inspect_codegen.py'),str(out)],check=True)
+        print(f'{args.workload}: inspecting {mode}',flush=True)
+        subprocess.run([sys.executable,str(scripts/'inspect_codegen.py'),str(out),
+                        '--reuse-from',str(root/'none')],check=True)
         source = (out/'rust_kernels.ptx').read_text()
         if args.workload == 'representative':
             for direction in ('idx','up','down','bfly'):

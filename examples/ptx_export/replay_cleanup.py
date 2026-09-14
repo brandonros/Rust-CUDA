@@ -120,7 +120,8 @@ def main():
                 baseline_matches = normalized_functions(source) == normalized_functions((root/'rust_kernels.ptx').read_text())
                 item['matches_original_function_bodies'] = baseline_matches
                 if not baseline_matches: raise RuntimeError('baseline replay differs; do not attribute differences to cleanup')
-            subprocess.run([sys.executable, str(Path(__file__).with_name('inspect_codegen.py')), str(dest)], check=True)
+            subprocess.run([sys.executable, str(Path(__file__).with_name('inspect_codegen.py')), str(dest),
+                            '--reuse-from',str(root),'--reuse-from',str(root.parent/'inline-scalar')], check=True)
             item['ptx_helpers'] = {n:v for n,v in ptx_summary(source).items() if 'guarded_select' in n}
             item['status'] = 'compiled_and_assembled'
         except (RuntimeError, subprocess.CalledProcessError) as error:
