@@ -1,7 +1,7 @@
 # LLVM 19 optimization: broader validation
 
-Status: six workloads pass in [the final matrix](https://github.com/brandonros/Rust-CUDA/actions/runs/34794484421);
-the 119-entry self-test/probe job is still running. Native NVIDIA measurements
+Status: all seven workloads pass in [the final matrix](https://github.com/brandonros/Rust-CUDA/actions/runs/34794484421),
+including the 119-entry self-test/probe module. Native NVIDIA measurements
 remain unavailable. This report separates offline, host and Apple-GPU evidence.
 
 GlobalDCE is now enabled by default at the merged LLVM 19 handoff. Scalar,
@@ -46,6 +46,37 @@ assembler reports, not measured occupancy or bandwidth.
 These mixed results reject promotion of InlineScalar as a general default.
 Ethereum's stack reduction is worth a hardware measurement, while Bitcoin and
 Shallenge demonstrate why PTX size alone is insufficient.
+
+## Final matrix and self-test module
+
+The final matrix uses backend commit `d111f80dbfa2374fb50af5b6d49407ffab13bd1a`.
+All seven workloads pass baseline, default-DCE and InlineScalar compilation,
+LLVM/NVVM verification, NVIDIA assembly/disassembly and independent replay.
+Default DCE produces identical PTX and cubins to the disabled control in every
+workload. The evidence ledger records the final artifacts separately from the
+earlier experiments; all 378 files listed in the 21 inspection manifests were
+checked against their SHA-256 hashes after download.
+
+The large module contains 118 numerical self-test entry points and one plumbing
+probe. These are 119 compiled entries, not 119 executed numerical tests.
+
+| Mode | LLVM definitions | LLVM IR bytes | PTX bytes | Cubin bytes |
+| --- | ---: | ---: | ---: | ---: |
+| Disabled | 6,166 | 26,340,781 | 21,849,956 | 24,220,008 |
+| Default DCE | 605 | 4,560,285 | 21,849,956 | 24,220,008 |
+| InlineScalar | 159 | 4,946,377 | 39,891,407 | 23,053,904 |
+
+Inlining grows this module's PTX while shrinking its cubin. Neither file size
+establishes a runtime improvement; the mixed mining results still argue for
+keeping it opt-in.
+
+Subsequent changes fix lint diagnostics and keep the exporter's explicit `none`
+control usable on LLVM 7. [Linux CI on that code](https://github.com/brandonros/Rust-CUDA/actions/runs/34795701436)
+passes all six Ubuntu/Rocky, x86/ARM, CUDA 12/13 jobs and compile tests.
+[Export/retention checks](https://github.com/brandonros/Rust-CUDA/actions/runs/34795912080)
+also pass. Windows validation remains pending: an earlier job failed downloading
+prebuilt LLVM 7 with an SSL connection reset, and subsequent runs are still
+in progress. This does not establish Windows compatibility or a compiler failure.
 
 ## Inlining and local memory
 
