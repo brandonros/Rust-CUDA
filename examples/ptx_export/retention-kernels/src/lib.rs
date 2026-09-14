@@ -37,7 +37,7 @@ pub extern "C" fn retention_external(x: u32) -> u32 {
 pub static RETENTION_TABLE: [Callback; 1] = [retention_table_target];
 
 // Never read by a kernel. Its initializer must nevertheless retain its target.
-#[used]
+#[used(compiler)]
 #[no_mangle]
 pub static RETENTION_USED: [Callback; 1] = [retention_used_target];
 
