@@ -28,6 +28,16 @@ use std::ptr::{self};
 use crate::{builder::unnamed, common::AsCCharPtr};
 pub use debuginfo::*;
 
+// Keep discriminants in sync with LLVMRustNvvmCleanup in PassWrapper.cpp.
+#[repr(u32)]
+#[derive(Clone, Copy)]
+pub enum NvvmCleanup {
+    Scalar = 0,
+    Inline = 1,
+    GlobalDce = 2,
+    InlineScalar = 3,
+}
+
 impl PartialEq for Value {
     fn eq(&self, other: &Self) -> bool {
         ptr::eq(self, other)
@@ -1331,6 +1341,7 @@ unsafe extern "C" {
     ) -> Option<&'a DILocation>;
 
     pub(crate) fn LLVMRustRunFunctionPassManager(PM: &PassManager, M: &Module);
+    pub(crate) fn LLVMRustRunNvvmCleanup(M: &Module, mode: NvvmCleanup) -> LLVMRustResult;
     pub(crate) fn LLVMRustAddAlwaysInlinePass(P: &PassManagerBuilder, AddLifetimes: bool);
 
     pub(crate) fn LLVMRustAddBuilderLibraryInfo(

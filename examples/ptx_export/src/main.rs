@@ -1,4 +1,4 @@
-use cuda_builder::CudaBuilder;
+use cuda_builder::{CudaBuilder, Llvm19Cleanup};
 use std::{env, fs, path::PathBuf};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -9,8 +9,50 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     );
     fs::create_dir_all(&output)?;
     let output = output.canonicalize()?;
-    let kernels = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("kernels");
-    let ptx = CudaBuilder::new(kernels)
+    let kernels = env::args_os()
+        .nth(3)
+        .map(PathBuf::from)
+        .unwrap_or_else(|| PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("kernels"));
+    let mut builder = CudaBuilder::new(kernels);
+    if let Some(features) = env::args().nth(4) {
+        builder = builder.build_args(&["--no-default-features", "--features", &features]);
+    }
+    let mode = env::args().nth(2).unwrap_or_else(|| "default".into());
+    // Historical wave-1 experiments explicitly isolate their selected pipeline.
+    // The default mode exercises the production default without overrides.
+    if cfg!(feature = "llvm21") && mode != "default" {
+        builder = builder.llvm19_global_dce(false);
+    }
+    match mode.as_str() {
+        "default" => {}
+        "none" => {}
+        "size-s" => {
+            builder = builder
+                .llvm19_cleanup(Llvm19Cleanup::Inline)
+                .build_args(&["--config", "profile.release.opt-level=\"s\""])
+        }
+        "size-z" => {
+            builder = builder
+                .llvm19_cleanup(Llvm19Cleanup::Inline)
+                .build_args(&["--config", "profile.release.opt-level=\"z\""])
+        }
+        "module-scalar" => builder = builder.llvm19_module_cleanup(true),
+        "module-inline" => {
+            builder = builder
+                .llvm19_module_cleanup(true)
+                .llvm19_cleanup(Llvm19Cleanup::Inline)
+        }
+        "inline-scalar" => builder = builder.llvm19_cleanup(Llvm19Cleanup::InlineScalar),
+        "dce" => builder = builder.llvm19_cleanup(Llvm19Cleanup::GlobalDce),
+        "scalar" => builder = builder.llvm19_cleanup(Llvm19Cleanup::Scalar),
+        "inline" => builder = builder.llvm19_cleanup(Llvm19Cleanup::Inline),
+        _ => {
+            return Err(
+                "cleanup mode must be default, none, dce, scalar, inline, inline-scalar, module-scalar, module-inline, size-s, or size-z".into(),
+            );
+        }
+    }
+    let ptx = builder
         .copy_to(output.join("rust_kernels.ptx"))
         .final_module_path(output.join("final-module.ll"))
         .emit_llvm_ir(true)

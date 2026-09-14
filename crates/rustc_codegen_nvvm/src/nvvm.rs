@@ -95,6 +95,7 @@ pub fn codegen_bitcode_modules(
     unsafe {
         LLVMRustRestoreNvvmKernelAnnotations(module);
         internalize_pass(module, llcx);
+        #[cfg(not(feature = "llvm21"))]
         dce_pass(module);
 
         if sess.opts.debuginfo != DebugInfo::None {
@@ -114,6 +115,39 @@ pub fn codegen_bitcode_modules(
         let node = LLVMMDNodeInContext(llcx, vals.as_ptr(), vals.len() as u32);
 
         LLVMAddNamedMetadataOperand(module, c"nvvmir.version".as_ptr().cast(), node);
+
+        // Inline pipelines already contain GlobalDCE; avoid running it twice.
+        // Keep the default pass at the verified handoff, after debug/IR metadata
+        // is finalized, exactly where the opt-in implementation was validated.
+        let run_default_dce = cfg!(feature = "llvm21")
+            && !args.disable_llvm19_global_dce
+            && matches!(args.llvm19_cleanup, None | Some(NvvmCleanup::Scalar));
+        if run_default_dce || args.llvm19_cleanup.is_some() {
+            if let Some(path) = &args.final_module_path {
+                let before = path.with_extension("before-cleanup.ll");
+                let before = before.to_str().unwrap();
+                LLVMRustPrintModule(
+                    module,
+                    before.as_c_char_ptr(),
+                    before.len(),
+                    demangle_callback,
+                )
+                .into_result()
+                .expect("failed to write pre-cleanup LLVM IR");
+            }
+            let modes = run_default_dce
+                .then_some(NvvmCleanup::GlobalDce)
+                .into_iter()
+                .chain(args.llvm19_cleanup);
+            for mode in modes {
+                if LLVMRustRunNvvmCleanup(module, mode).into_result().is_err() {
+                    sess.dcx().fatal(format!(
+                        "LLVM 19 cleanup failed: {}",
+                        crate::llvm::last_error().unwrap_or_else(|| "unknown LLVM error".into())
+                    ));
+                }
+            }
+        }
 
         if let Some(path) = &args.final_module_path {
             let out = path.to_str().unwrap();
@@ -355,18 +389,8 @@ unsafe fn internalize_pass(module: &Module, cx: &Context) {
     }
 }
 
+#[cfg(not(feature = "llvm21"))]
 unsafe fn dce_pass(module: &Module) {
-    #[cfg(feature = "llvm21")]
-    {
-        // The legacy C API entrypoint used below (`LLVMAddGlobalDCEPass`) is not
-        // available on our current LLVM 21 runtime path. Keep the backend loadable
-        // by skipping this cleanup for now; revisit if LLVM 21 smoke tests show we
-        // need an explicit replacement pass.
-        let _ = module;
-        return;
-    }
-
-    #[cfg(not(feature = "llvm21"))]
     unsafe {
         let pass_manager = LLVMCreatePassManager();
 
