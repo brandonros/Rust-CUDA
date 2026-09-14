@@ -1,0 +1,31 @@
+name: Export portable PTX
+
+on:
+  pull_request:
+    branches: [experiment/cuda13.3-llvm21, "stack/**"]
+  workflow_dispatch:
+  push:
+    branches: [poc/portable-ptx-export]
+
+permissions:
+  contents: read
+
+jobs:
+  export:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@main
+      - name: Compile Rust kernels without a GPU
+        run: nix develop .#v21 --command cargo run -p ptx_export --features llvm21 -- artifacts/ptx
+      - name: Record provenance
+        run: |
+          git rev-parse HEAD > artifacts/ptx/source-commit.txt
+          nix develop .#v21 --command rustc -Vv > artifacts/ptx/rustc-version.txt
+          sha256sum artifacts/ptx/rust_kernels.ptx > artifacts/ptx/SHA256SUMS
+      - uses: actions/upload-artifact@v4
+        with:
+          name: rust-ptx
+          path: artifacts/ptx/
+          if-no-files-found: error

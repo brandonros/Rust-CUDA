@@ -51,6 +51,8 @@ members = [
   "examples/sha2_crates_io/kernels",
   "examples/vecadd",
   "examples/vecadd/kernels",
+  "examples/ptx_export",
+  "examples/ptx_export/kernels",
 
   "samples/introduction/async_api",
   "samples/introduction/async_api/kernels",
