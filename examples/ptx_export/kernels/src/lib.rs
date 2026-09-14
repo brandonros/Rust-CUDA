@@ -27,3 +27,59 @@ pub unsafe fn rust_sha256_32(input: *const u8, out: *mut u8, count: u32) {
         unsafe { core::ptr::copy_nonoverlapping(digest.as_ptr(), out.add(offset), 32) };
     }
 }
+
+mod guarded_select;
+
+/// Compare guarded loop forms with runtime inputs; write three u64s per case:
+/// preserved, direct, and the observable-false-arm negative control.
+///
+/// # Safety
+/// `table` addresses 64 readable u64s, `limits` and `initials` address `count`
+/// readable elements, and `out` addresses `count * 3` writable u64s.
+/// Output must not overlap any input. The loop limit is capped at 64.
+#[kernel]
+pub unsafe fn rust_guarded_select(
+    table: *const u64,
+    limits: *const u32,
+    initials: *const u64,
+    out: *mut u64,
+    count: u32,
+) {
+    let i = thread::index_1d();
+    if i < count {
+        let i = i as usize;
+        let table = unsafe { &*table.cast::<[u64; 64]>() };
+        let limit = unsafe { *limits.add(i) };
+        let initial = unsafe { *initials.add(i) };
+        unsafe {
+            *out.add(i * 3) = guarded_select::preserved(table, limit, initial);
+            *out.add(i * 3 + 1) = guarded_select::direct(table, limit);
+            *out.add(i * 3 + 2) = guarded_select::observed(table, limit, initial);
+        }
+    }
+}
+
+/// Compare the filtered iterator in Dalek's basepoint multiplication with a
+/// stepped iterator, using runtime table contents and loop limits.
+///
+/// # Safety
+/// `table` addresses 64 readable u64s, `limits` addresses `count` readable u32s,
+/// and `out` addresses `count * 2` writable u64s. Output must not overlap inputs.
+#[kernel]
+pub unsafe fn rust_filtered_select(
+    table: *const u64,
+    limits: *const u32,
+    out: *mut u64,
+    count: u32,
+) {
+    let i = thread::index_1d();
+    if i < count {
+        let i = i as usize;
+        let table = unsafe { &*table.cast::<[u64; 64]>() };
+        let limit = unsafe { *limits.add(i) };
+        unsafe {
+            *out.add(i * 2) = guarded_select::filtered(table, limit);
+            *out.add(i * 2 + 1) = guarded_select::stepped(table, limit);
+        }
+    }
+}

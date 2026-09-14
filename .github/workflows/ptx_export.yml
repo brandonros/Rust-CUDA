@@ -24,6 +24,14 @@ jobs:
           git rev-parse HEAD > artifacts/ptx/source-commit.txt
           nix develop .#v21 --command rustc -Vv > artifacts/ptx/rustc-version.txt
           sha256sum artifacts/ptx/rust_kernels.ptx > artifacts/ptx/SHA256SUMS
+      - name: Check Python regressions
+        run: python3 -B -m unittest discover -s examples/ptx_export -p 'test_*.py'
+      - name: Check guarded-select semantics
+        run: |
+          nix develop .#v21 --command rustc --edition=2024 --test examples/ptx_export/kernels/src/guarded_select.rs -o /tmp/guarded-select
+          /tmp/guarded-select
+      - name: Check default DCE retention
+        run: nix develop .#v21 --command python3 examples/ptx_export/check_default_dce.py artifacts/ptx
       - uses: actions/upload-artifact@v4
         with:
           name: rust-ptx

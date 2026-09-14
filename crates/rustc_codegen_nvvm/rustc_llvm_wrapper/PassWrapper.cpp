@@ -13,6 +13,7 @@
 #include <vector>
 #include <set>
 #include <optional>
+#include <memory>
 #include <string>
 
 #include "rustllvm.h"
@@ -25,6 +26,9 @@
 #include "llvm/Support/FileSystem.h"
 #if LLVM_VERSION_MAJOR >= 19
 #include "llvm/Transforms/IPO/Internalize.h"
+#include "llvm/Passes/PassBuilder.h"
+#include "llvm/IR/Verifier.h"
+#include "llvm/Support/Error.h"
 #endif
 #if LLVM_VERSION_MAJOR >= 19
 #include "llvm/TargetParser/Host.h"
@@ -165,6 +169,75 @@ extern "C" void LLVMPassManagerBuilderPopulateLTOPassManager(
 {
 }
 #endif
+
+// Explicit, bounded modern-PM cleanup at the final NVVM handoff. This is
+// separate from the legacy compatibility builder and remains opt-in.
+// Keep discriminants in sync with llvm::NvvmCleanup on the Rust side.
+enum class LLVMRustNvvmCleanup : uint32_t { Scalar = 0, Inline = 1, GlobalDce = 2, InlineScalar = 3 };
+
+extern "C" LLVMRustResult LLVMRustRunNvvmCleanup(LLVMModuleRef M, LLVMRustNvvmCleanup Mode)
+{
+#if LLVM_VERSION_MAJOR >= 19
+  Module &Mod = *unwrap(M);
+  std::string Diagnostics;
+  raw_string_ostream OS(Diagnostics);
+  if (verifyModule(Mod, &OS)) {
+    LLVMRustSetLastError(OS.str().c_str());
+    return LLVMRustResult::Failure;
+  }
+  LoopAnalysisManager LAM;
+  FunctionAnalysisManager FAM;
+  CGSCCAnalysisManager CGAM;
+  ModuleAnalysisManager MAM;
+  // Match opt's target-aware analyses. Without a TargetMachine the inliner
+  // uses generic costs and can disagree with replay even on identical IR.
+  // Use the module's NVPTX triple and generic CPU, as the existing backend
+  // does; NVVM remains responsible for the selected compute architecture.
+  std::string TargetError;
+  const Target *T = TargetRegistry::lookupTarget(Mod.getTargetTriple(), TargetError);
+  if (!T) {
+    LLVMRustSetLastError(TargetError.c_str());
+    return LLVMRustResult::Failure;
+  }
+  std::unique_ptr<TargetMachine> TM(T->createTargetMachine(
+      Mod.getTargetTriple(), "", "", TargetOptions(), std::nullopt));
+  if (!TM) {
+    LLVMRustSetLastError("Could not create cleanup TargetMachine");
+    return LLVMRustResult::Failure;
+  }
+  PassBuilder PB(TM.get());
+  PB.registerModuleAnalyses(MAM);
+  PB.registerCGSCCAnalyses(CGAM);
+  PB.registerFunctionAnalyses(FAM);
+  PB.registerLoopAnalyses(LAM);
+  PB.crossRegisterProxies(LAM, FAM, CGAM, MAM);
+  ModulePassManager PM;
+  // Prune unreachable functions before inlining, then expose and simplify
+  // branch-correlated iterator values. Keep this identical to offline replay.
+  const char *Pipeline = Mode == LLVMRustNvvmCleanup::GlobalDce
+      ? "globaldce,verify"
+      : Mode == LLVMRustNvvmCleanup::InlineScalar
+      ? "globaldce,cgscc(inline),function(sroa,instcombine<max-iterations=2;no-verify-fixpoint>,simplifycfg,adce),globaldce,verify"
+      : Mode == LLVMRustNvvmCleanup::Inline
+      ? "globaldce,cgscc(inline),function(sroa,instcombine<max-iterations=2;no-verify-fixpoint>,simplifycfg,adce),"
+        "globaldce,function(correlated-propagation,instcombine<max-iterations=2;no-verify-fixpoint>,simplifycfg,adce),verify"
+      : "function(sroa,instcombine<max-iterations=2;no-verify-fixpoint>,simplifycfg,adce),verify";
+  if (auto Error = PB.parsePassPipeline(PM, Pipeline)) {
+    LLVMRustSetLastError(toString(std::move(Error)).c_str());
+    return LLVMRustResult::Failure;
+  }
+  PM.run(Mod, MAM);
+  Diagnostics.clear();
+  if (verifyModule(Mod, &OS)) {
+    LLVMRustSetLastError(OS.str().c_str());
+    return LLVMRustResult::Failure;
+  }
+  return LLVMRustResult::Success;
+#else
+  LLVMRustSetLastError("NVVM cleanup requires LLVM 19");
+  return LLVMRustResult::Failure;
+#endif
+}
 
 extern "C" void LLVMInitializePasses()
 {

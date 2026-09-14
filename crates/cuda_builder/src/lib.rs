@@ -51,6 +51,18 @@ impl DebugInfo {
     }
 }
 
+/// Experimental pre-NVVM optimization. Requires the LLVM 21 backend.
+/// The historical LLVM 19 API names are retained for caller compatibility.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Llvm19Cleanup {
+    /// Remove unreachable internal definitions without rewriting live function bodies.
+    GlobalDce,
+    /// Inline internal calls, then run scalar cleanup without correlated propagation.
+    InlineScalar,
+    Scalar,
+    Inline,
+}
+
 pub enum EmitOption {
     LlvmIr,
     Bitcode,
@@ -194,6 +206,12 @@ pub struct CudaBuilder {
     /// An optional path where to dump LLVM IR of the final output the codegen will feed to libnvvm. Usually
     /// used for debugging.
     pub final_module_path: Option<PathBuf>,
+    /// Whether the modern backend removes unreachable definitions at the merged handoff.
+    pub llvm19_global_dce: bool,
+    /// Additional opt-in modern LLVM cleanup; disabled by default.
+    pub llvm19_cleanup: Option<Llvm19Cleanup>,
+    /// Experimental scalar cleanup of each codegen unit before serialization.
+    pub llvm19_module_cleanup: bool,
 }
 
 impl CudaBuilder {
@@ -216,7 +234,31 @@ impl CudaBuilder {
             debug: DebugInfo::None,
             build_args: vec![],
             final_module_path: None,
+            llvm19_global_dce: true,
+            llvm19_cleanup: None,
+            llvm19_module_cleanup: false,
         }
+    }
+
+    /// Enable or disable the default modern LLVM merged-module GlobalDCE pass.
+    /// Disabling is intended for compiler-output comparisons; LLVM 7 is unchanged.
+    pub fn llvm19_global_dce(mut self, enabled: bool) -> Self {
+        self.llvm19_global_dce = enabled;
+        self
+    }
+
+    /// Enable verified scalar cleanup before each codegen unit is serialized.
+    /// Disabled by default; independent of merged-module cleanup.
+    pub fn llvm19_module_cleanup(mut self, enabled: bool) -> Self {
+        self.llvm19_module_cleanup = enabled;
+        self
+    }
+
+    /// Enable a bounded modern LLVM cleanup pipeline before NVVM compilation.
+    /// This is experimental; compare numerical results and generated code.
+    pub fn llvm19_cleanup(mut self, cleanup: Llvm19Cleanup) -> Self {
+        self.llvm19_cleanup = Some(cleanup);
+        self
     }
 
     /// Additional arguments passed to cargo during `cargo build`.
@@ -723,6 +765,21 @@ fn invoke_rustc(builder: &CudaBuilder) -> Result<PathBuf, CudaBuilderError> {
     }
 
     let mut llvm_args = vec![NvvmOption::Arch(builder.arch).to_string()];
+    if !builder.llvm19_global_dce {
+        llvm_args.push("--disable-llvm19-global-dce".to_string());
+    }
+    if builder.llvm19_module_cleanup {
+        llvm_args.push("--llvm19-module-cleanup".to_string());
+    }
+    if let Some(mode) = builder.llvm19_cleanup {
+        let mode = match mode {
+            Llvm19Cleanup::GlobalDce => "dce",
+            Llvm19Cleanup::InlineScalar => "inline-scalar",
+            Llvm19Cleanup::Scalar => "scalar",
+            Llvm19Cleanup::Inline => "inline",
+        };
+        llvm_args.push(format!("--llvm19-cleanup={mode}"));
+    }
 
     if !builder.nvvm_opts {
         llvm_args.push("-opt=0".to_string());
