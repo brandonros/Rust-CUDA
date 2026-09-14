@@ -61,6 +61,10 @@ def main():
         subprocess.run(['opt-19','-passes=verify','-disable-output',str(out/'final-module.ll')],check=True)
         subprocess.run([sys.executable,str(scripts/'inspect_codegen.py'),str(out)],check=True)
         source = (out/'rust_kernels.ptx').read_text()
+        if args.workload == 'representative':
+            for direction in ('idx','up','down','bfly'):
+                if 'shfl.sync.'+direction not in source:
+                    raise RuntimeError(f'{mode}: missing {direction} shuffle regression coverage')
         entries = set(re.findall(r'\.entry\s+(\w+)\s*\(',source))
         if entries != expected: raise RuntimeError(f'{mode}: unexpected kernel exports: missing={expected-entries}, extra={entries-expected}')
         modules[mode] = normalized_functions(source)

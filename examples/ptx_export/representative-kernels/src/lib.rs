@@ -39,14 +39,22 @@ pub unsafe fn wave2_atomic(counter: *mut u32, count: u32) {
 }
 
 /// # Safety
-/// Launch exactly 32 threads per block. Buffers address `count` u32s and do not overlap.
+/// Launch exactly 32 threads per block. Input addresses `count` u32s; output
+/// addresses `4 * count` u32s. Buffers do not overlap.
 /// All lanes, including tail padding, participate in the shuffle.
 #[kernel]
 pub unsafe fn wave2_shuffle(input: *const u32, out: *mut u32, count: u32) {
     let i = thread::index_1d();
     let value = if i < count { *input.add(i as usize) } else { 0 };
-    let (other, valid) = warp::warp_shuffle_xor(u32::MAX, value, 1, 32);
+    let results = [
+        warp::warp_shuffle_idx(u32::MAX, value, 31, 32),
+        warp::warp_shuffle_up(u32::MAX, value, 1, 32),
+        warp::warp_shuffle_down(u32::MAX, value, 1, 32),
+        warp::warp_shuffle_xor(u32::MAX, value, 1, 32),
+    ];
     if i < count {
-        *out.add(i as usize) = if valid { other } else { u32::MAX };
+        for (direction, (other, valid)) in results.into_iter().enumerate() {
+            *out.add(i as usize * 4 + direction) = if valid { other } else { u32::MAX };
+        }
     }
 }
