@@ -29,6 +29,7 @@ def main():
         compile_nvvm(args.ir,libraries,args.out)
         return
     args.out.mkdir(parents=True,exist_ok=True)
+    llvm_bin = Path(subprocess.check_output([os.environ['LLVM_CONFIG_19'],'--bindir'],text=True).strip())
     report = {'input_sha256':hashlib.sha256(args.ir.read_bytes()).hexdigest(),
               'libraries':{str(p):hashlib.sha256(p.read_bytes()).hexdigest() for p in libraries},'kernels':{}}
     for kernel in ('wave2_float','wave2_shared','wave2_atomic','wave2_shuffle'):
@@ -36,7 +37,7 @@ def main():
         globals_to_keep = set()
         commands = []
         while True:
-            command = ['llvm-extract-19','--recursive','--func='+kernel,
+            command = [str(llvm_bin/'llvm-extract'),'--recursive','--func='+kernel,
                        *['--glob='+s for s in sorted(globals_to_keep)],'-S',str(args.ir),'-o',str(out/'extracted.ll')]
             commands.append(command);subprocess.run(command,check=True)
             source = (out/'extracted.ll').read_text()
