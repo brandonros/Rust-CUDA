@@ -1,0 +1,84 @@
+{
+  "artifact_run": 34785534228,
+  "stage": "standalone LLVM replay followed by NVVM and ptxas",
+  "integrated_backend_status": "scalar matches; inline SHA-256 mismatch under investigation",
+  "gpu_performance_measured": false,
+  "nvidia_execution": false,
+  "variants": {
+    "baseline": {
+      "ptx_sha256": "b325305f1d43b314bf0c794f099a4412b6ae038b17b841670d011d94d21e0702",
+      "sass_sha256": "8d474156fc6f2ce503ebff55efd5dc86520ff66ed222674e6e553ddea02c43d4",
+      "filtered_kernel": {
+        "non_nop_instructions": 103,
+        "selects": 4,
+        "global_load_sites": 3,
+        "registers": 17
+      },
+      "resources": "Resource usage:\n Common:\n  GLOBAL:0\n Function rust_vecadd:\n  REG:12 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:924 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function rust_sha256_32:\n  REG:40 STACK:112 SHARED:0 LOCAL:0 CONSTANT[0]:916 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function rust_guarded_select:\n  REG:32 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:932 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function rust_filtered_select:\n  REG:17 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:924 TEXTURE:0 SURFACE:0 SAMPLER:0"
+    },
+    "local-cleanup": {
+      "ptx_sha256": "e1cde840b57a32b9f37201af0512cf0d59d1f4da292dbab2e63a250efb75a6a7",
+      "sass_sha256": "1dc72e0571108773ead3aa2a8b1f8ba454c5f2b44c731a3abd9a2f9241b25dfa",
+      "filtered_kernel": {
+        "non_nop_instructions": 115,
+        "selects": 4,
+        "global_load_sites": 3,
+        "registers": 16
+      },
+      "resources": "Resource usage:\n Common:\n  GLOBAL:0\n Function rust_vecadd:\n  REG:12 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:924 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function rust_sha256_32:\n  REG:40 STACK:112 SHARED:0 LOCAL:0 CONSTANT[0]:916 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function rust_guarded_select:\n  REG:32 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:932 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function rust_filtered_select:\n  REG:16 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:924 TEXTURE:0 SURFACE:0 SAMPLER:0"
+    },
+    "inline-only": {
+      "ptx_sha256": "732df2f175dcf0841f273645e79164dd23a1e2b3bea808f455633ec248377821",
+      "sass_sha256": "87a834a7c16f59ec1ac494a66178740f1ceb3c9388a917b848c3de4e846bbcbc",
+      "filtered_kernel": {
+        "non_nop_instructions": 114,
+        "selects": 4,
+        "global_load_sites": 3,
+        "registers": 19
+      },
+      "resources": "Resource usage:\n Common:\n  GLOBAL:0\n Function rust_vecadd:\n  REG:12 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:924 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function rust_sha256_32:\n  REG:40 STACK:112 SHARED:0 LOCAL:0 CONSTANT[0]:916 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function rust_guarded_select:\n  REG:32 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:932 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function rust_filtered_select:\n  REG:19 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:924 TEXTURE:0 SURFACE:0 SAMPLER:0"
+    },
+    "inline-cleanup": {
+      "ptx_sha256": "2fbc7b811189da47260c4da524292697f363d9df33adfaea37701ca2d7b3a7bf",
+      "sass_sha256": "22e8f042fed139d291765a67ed36fbb474000dd63c9582dd4c7a62531765c625",
+      "filtered_kernel": {
+        "non_nop_instructions": 124,
+        "selects": 2,
+        "global_load_sites": 3,
+        "registers": 18
+      },
+      "resources": "Resource usage:\n Common:\n  GLOBAL:0\n Function rust_vecadd:\n  REG:12 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:924 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function rust_sha256_32:\n  REG:40 STACK:112 SHARED:0 LOCAL:0 CONSTANT[0]:916 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function rust_guarded_select:\n  REG:32 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:932 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function rust_filtered_select:\n  REG:18 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:924 TEXTURE:0 SURFACE:0 SAMPLER:0"
+    }
+  },
+  "correlated_apple_numerical": {
+    "device": "Apple M5",
+    "consumer": "CuMetal generic lowering, workload specializations disabled",
+    "tool_sha256": {
+      "cumetalc": "a78ec2cc6d4825f6a1fad41e785de60fb4f7c50915c2d6cd93253ea95335c7ad",
+      "libcumetal": "eae463ca27f839d1a514249e5b34f571376aad99fa2d7cdc9a3cbc8dab3f6e62",
+      "vector_sha_runner": "bd62e6f8e55770f677697eb546569479a637796afc3bfa5e23e3821b57204992",
+      "vector_sha_harness": "623f9230f26b9dbc5c4241b32b37c8831a0fb36e80970161d6aac72efd368448",
+      "guarded_runner": "165cad8e45b1fdc9f9c41ed2a69ae4fe3fc9d0d940b876aedd821c8ef87d8286"
+    },
+    "results": {
+      "vector_add": [
+        "NUMERICAL_PASS kernel=rust_vecadd count=1",
+        "NUMERICAL_PASS kernel=rust_vecadd count=31",
+        "NUMERICAL_PASS kernel=rust_vecadd count=32",
+        "NUMERICAL_PASS kernel=rust_vecadd count=33",
+        "NUMERICAL_PASS kernel=rust_vecadd count=257"
+      ],
+      "sha256": [
+        "NUMERICAL_PASS kernel=rust_sha256_32 count=1",
+        "NUMERICAL_PASS kernel=rust_sha256_32 count=31",
+        "NUMERICAL_PASS kernel=rust_sha256_32 count=32",
+        "NUMERICAL_PASS kernel=rust_sha256_32 count=33",
+        "NUMERICAL_PASS kernel=rust_sha256_32 count=257"
+      ],
+      "guarded_select": [
+        "NUMERICAL_PASS rust_guarded_select: 1608 cases, independent oracle and guards; device=Apple M5 driver=/Users/brandon/Desktop/gpu/cuda-metal/build-rust-ptx-apple/libcumetal.dylib"
+      ]
+    },
+    "filtered_select": "Not executed: CuMetal rejects trap in stepped helper"
+  }
+}

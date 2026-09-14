@@ -1,28 +1,77 @@
 # Export PTX without a GPU host application
 
-Compile vector-addition and SHA-256 kernels without linking a CUDA host
-application or launching a GPU. Compilation requires the Linux Rust-CUDA
-toolchain, CUDA toolkit, and NVVM libraries.
+This example compiles four Rust kernels to PTX without linking a CUDA host
+application or launching an NVIDIA GPU. Compilation still requires the normal
+Rust-CUDA Linux toolchain, CUDA toolkit, and NVVM libraries.
 
 ```sh
 nix develop .#v21 --command cargo run -p ptx_export --features llvm21 -- artifacts/ptx
 ```
 
-The output is `rust_kernels.ptx`; `final-module.ll` records the NVVM input.
-The builder selects `compute_100` with LLVM 21 and `compute_75` with LLVM 7.
-The kernels accept explicit pointer/count arguments. SHA-256 reads and writes
-32 bytes per work item. Input and output buffers must not overlap.
+The exporter uses `CudaBuilder`'s feature-dependent target default: `compute_100`
+with `llvm21`, or `compute_75` without it. This keeps the target compatible with
+the selected NVVM IR dialect; overriding it to `compute_89` on the modern LLVM path
+selects NVVM's legacy reader and fails to parse the generated bitcode.
 
-Export success does not establish another PTX consumer's numerical correctness.
+The output `rust_kernels.ptx` contains:
 
-The exporter also includes guarded-select regression kernels. Modern LLVM
-GlobalDCE runs by default; use the second argument `none` to disable it.
-Experimental modes are `dce`, `scalar`, `inline-scalar`, `inline`,
-`module-scalar`, `module-inline`, `size-s`, and `size-z`. Optional third and
-fourth arguments select a kernel crate and its features.
+- `rust_vecadd(a: pointer, b: pointer, out: pointer, count: u32)`
+- `rust_sha256_32(input: pointer, out: pointer, count: u32)`
+- `rust_filtered_select(table: pointer, limits: pointer, out: pointer, count: u32)`
+- `rust_guarded_select(table: pointer, limits: pointer, initials: pointer, out: pointer, count: u32)`
 
-Historical `llvm19_*` builder settings control the LLVM 21 backend on this
-stack. These names and pipelines are preserved from the original branch.
-The DCE retention check covers used globals, external functions, initialized
-data, and unreachable negative controls. Replay checks compare integrated
-cleanup with standalone LLVM processing. GPU runtime validation is separate.
+Pointers are 64-bit PTX addresses. Each SHA-256 work item reads exactly 32 bytes
+and writes the corresponding 32-byte digest. All kernels bounds-check the
+thread index so callers can round their dispatch size up. Inputs and outputs
+must not overlap. These explicit pointer/count interfaces avoid requiring a
+consumer to infer Rust slice or aggregate layouts.
+
+Keep the generated PTX unchanged when testing another PTX consumer. Successful
+export alone does not establish compatibility or numerical GPU correctness.
+
+The guarded-select experiment has a separate [test guide](guarded-select.md).
+
+This branch builds on `experiment/cuda13.3-llvm21` and uses the `llvm21` feature
+and `v21` shell. The linked experiment reports and checked-in result files record
+**historical LLVM 19 measurements**, not LLVM 21 validation. Re-run the workflows
+to establish results for this stack. The experimental `Llvm19Cleanup` and
+`llvm19_*` builder/option names are retained for caller compatibility; on this
+branch they require and control the LLVM 21 backend.
+
+## Experimental modern LLVM cleanup
+
+The exporter accepts `default` (the default), `none`, `dce`, `scalar`, `inline-scalar`, or `inline` after the output
+directory. For example:
+
+```sh
+nix develop .#v21 --command cargo run -p ptx_export --features llvm21 -- artifacts/ptx-inline inline
+```
+
+The builder API is `CudaBuilder::llvm19_cleanup(...)`, with
+`Llvm19Cleanup::{GlobalDce, Scalar, InlineScalar, Inline}`. These use bounded pass pipelines with verification at
+the merged-module handoff. GlobalDce removes unreachable internal definitions
+without scalar cleanup or inlining. InlineScalar combines target-aware inlining
+and scalar cleanup; Inline additionally runs branch-correlated cleanup. These modes are experimental and disabled by default.
+
+[Run 34786097065](https://github.com/brandonros/Rust-CUDA/actions/runs/34786097065)
+verified both modes on LLVM 19 against standalone replay and packages IR, PTX, SASS,
+resource reports and numerical IR checks. The filtered helper loses two SASS
+selects, but the combined filtered/stepped kernel grows in instruction count;
+this is not an established performance win. See the [measured results and
+correctness limits](guarded-select.md#validated-integration) before using either
+mode for a workload.
+
+Merged-module GlobalDCE is enabled by default on the modern backend. Use
+`CudaBuilder::llvm19_global_dce(false)` or exporter mode `none` to disable it.
+The other transformations remain opt-in. The [wave-2 report](optimization-wave2.md)
+records retention checks, all four mining comparisons and the reasons not to
+promote inlining as a general default.
+
+The [five-area investigation](optimization-roadmap.md) includes default-off
+per-module cleanup, inlining policy and size-oriented builds, memory cleanup,
+and a pinned Solana mining workload. Static Solana results favor inlining plus
+scalar cleanup; additional memory passes have not shown an advantage. Runtime
+performance on NVIDIA remains unmeasured.
+
+The consolidated [optimization results](optimization-results.md) record which
+passes helped, which did not, and the remaining runtime-validation limits.
