@@ -1,6 +1,9 @@
 # LLVM 19 optimization investigation
 
-Completed: the full [validation matrix](https://github.com/brandonros/Rust-CUDA/actions/runs/34789945556) passes.
+Wave 1 completed: the full [validation matrix](https://github.com/brandonros/Rust-CUDA/actions/runs/34789945556) passes.
+
+Wave 2 is tracked in [optimization-wave2.md](optimization-wave2.md). It promotes
+GlobalDCE with explicit disable and retention tests, while keeping instruction-transforming cleanup opt-in pending broader evidence.
 
 The evaluated outcomes are consolidated in [optimization-results.md](optimization-results.md).
 The chronological notes below retain the intermediate failures and their fixes.

@@ -33,7 +33,7 @@ The guarded-select experiment has a separate [test guide](guarded-select.md).
 
 ## Experimental LLVM 19 cleanup
 
-The exporter accepts `none` (default), `dce`, `scalar`, `inline-scalar`, or `inline` after the output
+The exporter accepts `default` (the default), `none`, `dce`, `scalar`, `inline-scalar`, or `inline` after the output
 directory. For example:
 
 ```sh
@@ -53,6 +53,12 @@ selects, but the combined filtered/stepped kernel grows in instruction count;
 this is not an established performance win. See the [measured results and
 correctness limits](guarded-select.md#validated-integration) before using either
 mode for a workload.
+
+Merged LLVM 19 GlobalDCE is now enabled by default. Use
+`CudaBuilder::llvm19_global_dce(false)` or exporter mode `none` to disable it.
+The other transformations remain opt-in. The [wave-2 report](optimization-wave2.md)
+records retention checks, all four mining comparisons and the reasons not to
+promote inlining as a general default.
 
 The [five-area investigation](optimization-roadmap.md) includes default-off
 per-module cleanup, inlining policy and size-oriented builds, memory cleanup,

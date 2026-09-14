@@ -1,0 +1,2429 @@
+{
+  "run": 34792081315,
+  "backend_commit": "6cefd7d3f92a71a3e19f5363441c5a7fbd2e7f62",
+  "nvidia_execution": false,
+  "runtime_performance_measured": false,
+  "workloads": {
+    "small": {
+      "comparison": {
+        "workload": "small",
+        "expected_entry_count": 4,
+        "default_matches_disabled_ptx": true,
+        "inline_scalar_matches_replay": true,
+        "nvidia_execution": false,
+        "ptx_sha256": {
+          "none": "b325305f1d43b314bf0c794f099a4412b6ae038b17b841670d011d94d21e0702",
+          "default": "b325305f1d43b314bf0c794f099a4412b6ae038b17b841670d011d94d21e0702",
+          "inline-scalar": "732df2f175dcf0841f273645e79164dd23a1e2b3bea808f455633ec248377821"
+        }
+      },
+      "modes": {
+        "none": {
+          "ptx_bytes": 106204,
+          "cubin_bytes": 57984,
+          "hashes": {
+            "final-module.ll": "04a2316664236dfdc9842c38c76b7c40ffd4ec9fa507f9a33ff7ca93c75c16cc",
+            "rust_kernels.ptx": "b325305f1d43b314bf0c794f099a4412b6ae038b17b841670d011d94d21e0702",
+            "rust_kernels.cubin": "d4d4bad56fe1566f987d6dc906d86a7917466def28952491c2b65b22ab4640bb",
+            "nvdisasm.txt": "03989129d419e2b1d0ac697157557202cc19ce1675406edeb00c5edeb774cfaf",
+            "ptxas-resource-report.txt": "44729b45e81904eeff210befde6bd9715a37b3d74b6406644b48a803722ac5b3"
+          },
+          "llvm_definitions": 3299,
+          "sass_symbols": {
+            "rust_vecadd": {
+              "scope": "entry_including_helpers",
+              "non_nop_instructions": 21
+            },
+            "rust_sha256_32": {
+              "scope": "entry_including_helpers",
+              "non_nop_instructions": 1623
+            },
+            "rust_guarded_select": {
+              "scope": "entry_including_helpers",
+              "non_nop_instructions": 614
+            },
+            "$rust_guarded_select$_RNvNtCsh77cIZBgDVk_18ptx_export_kernels14guarded_select6direct": {
+              "scope": "helper",
+              "non_nop_instructions": 174
+            },
+            "$rust_guarded_select$_RNvNtCsh77cIZBgDVk_18ptx_export_kernels14guarded_select8observed": {
+              "scope": "helper",
+              "non_nop_instructions": 238
+            },
+            "$rust_guarded_select$_RNvNtCsh77cIZBgDVk_18ptx_export_kernels14guarded_select9preserved": {
+              "scope": "helper",
+              "non_nop_instructions": 173
+            },
+            "rust_filtered_select": {
+              "scope": "entry_including_helpers",
+              "non_nop_instructions": 103
+            },
+            "$rust_filtered_select$_RNvNtCsh77cIZBgDVk_18ptx_export_kernels14guarded_select7stepped": {
+              "scope": "helper",
+              "non_nop_instructions": 46
+            },
+            "$rust_filtered_select$_RNvNtCsh77cIZBgDVk_18ptx_export_kernels14guarded_select8filtered": {
+              "scope": "helper",
+              "non_nop_instructions": 28
+            }
+          },
+          "ptxas_resource_report": "ptxas warning : '--preserve-relocs' option is not fully implemented for 'sm_100' and may not work as expected\nptxas info    : 0 bytes gmem\nptxas info    : Compiling entry function 'rust_vecadd' for 'sm_100'\nptxas info    : Function properties for rust_vecadd\n    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 12 registers, used 0 barriers\nptxas info    : Compile time = 1.763 ms\nptxas info    : Compiling entry function 'rust_sha256_32' for 'sm_100'\nptxas info    : Function properties for rust_sha256_32\n    112 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 40 registers, used 0 barriers, 112 bytes cumulative stack size\nptxas info    : Compile time = 49.757 ms\nptxas info    : Compiling entry function 'rust_guarded_select' for 'sm_100'\nptxas info    : Function properties for rust_guarded_select\n    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 32 registers, used 0 barriers\nptxas info    : Compile time = 16.356 ms\nptxas info    : Function properties for _RNvNtCsh77cIZBgDVk_18ptx_export_kernels14guarded_select6direct\n    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Function properties for _RNvNtCsh77cIZBgDVk_18ptx_export_kernels14guarded_select8observed\n    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Function properties for _RNvNtCsh77cIZBgDVk_18ptx_export_kernels14guarded_select9preserved\n    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Compiling entry function 'rust_filtered_select' for 'sm_100'\nptxas info    : Function properties for rust_filtered_select\n    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 17 registers, used 0 barriers\nptxas info    : Compile time = 3.932 ms\nptxas info    : Function properties for _RNvNtCsh77cIZBgDVk_18ptx_export_kernels14guarded_select7stepped\n    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Function properties for _RNvNtCsh77cIZBgDVk_18ptx_export_kernels14guarded_select8filtered\n    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\n"
+        },
+        "default": {
+          "ptx_bytes": 106204,
+          "cubin_bytes": 57984,
+          "hashes": {
+            "final-module.ll": "4a947cf8666c618e979c337081cd6fa16820f4e09d7d922d7dcf131ba174d963",
+            "rust_kernels.ptx": "b325305f1d43b314bf0c794f099a4412b6ae038b17b841670d011d94d21e0702",
+            "rust_kernels.cubin": "d4d4bad56fe1566f987d6dc906d86a7917466def28952491c2b65b22ab4640bb",
+            "nvdisasm.txt": "03989129d419e2b1d0ac697157557202cc19ce1675406edeb00c5edeb774cfaf",
+            "ptxas-resource-report.txt": "33f31d723f751b5a7d0a04d4f470f629a8196126aba388dd079ee714df6c2d91"
+          },
+          "llvm_definitions": 93,
+          "sass_symbols": {
+            "rust_vecadd": {
+              "scope": "entry_including_helpers",
+              "non_nop_instructions": 21
+            },
+            "rust_sha256_32": {
+              "scope": "entry_including_helpers",
+              "non_nop_instructions": 1623
+            },
+            "rust_guarded_select": {
+              "scope": "entry_including_helpers",
+              "non_nop_instructions": 614
+            },
+            "$rust_guarded_select$_RNvNtCsh77cIZBgDVk_18ptx_export_kernels14guarded_select6direct": {
+              "scope": "helper",
+              "non_nop_instructions": 174
+            },
+            "$rust_guarded_select$_RNvNtCsh77cIZBgDVk_18ptx_export_kernels14guarded_select8observed": {
+              "scope": "helper",
+              "non_nop_instructions": 238
+            },
+            "$rust_guarded_select$_RNvNtCsh77cIZBgDVk_18ptx_export_kernels14guarded_select9preserved": {
+              "scope": "helper",
+              "non_nop_instructions": 173
+            },
+            "rust_filtered_select": {
+              "scope": "entry_including_helpers",
+              "non_nop_instructions": 103
+            },
+            "$rust_filtered_select$_RNvNtCsh77cIZBgDVk_18ptx_export_kernels14guarded_select7stepped": {
+              "scope": "helper",
+              "non_nop_instructions": 46
+            },
+            "$rust_filtered_select$_RNvNtCsh77cIZBgDVk_18ptx_export_kernels14guarded_select8filtered": {
+              "scope": "helper",
+              "non_nop_instructions": 28
+            }
+          },
+          "ptxas_resource_report": "ptxas warning : '--preserve-relocs' option is not fully implemented for 'sm_100' and may not work as expected\nptxas info    : 0 bytes gmem\nptxas info    : Compiling entry function 'rust_vecadd' for 'sm_100'\nptxas info    : Function properties for rust_vecadd\n    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 12 registers, used 0 barriers\nptxas info    : Compile time = 54.088 ms\nptxas info    : Compiling entry function 'rust_sha256_32' for 'sm_100'\nptxas info    : Function properties for rust_sha256_32\n    112 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 40 registers, used 0 barriers, 112 bytes cumulative stack size\nptxas info    : Compile time = 51.910 ms\nptxas info    : Compiling entry function 'rust_guarded_select' for 'sm_100'\nptxas info    : Function properties for rust_guarded_select\n    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 32 registers, used 0 barriers\nptxas info    : Compile time = 17.952 ms\nptxas info    : Function properties for _RNvNtCsh77cIZBgDVk_18ptx_export_kernels14guarded_select6direct\n    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Function properties for _RNvNtCsh77cIZBgDVk_18ptx_export_kernels14guarded_select8observed\n    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Function properties for _RNvNtCsh77cIZBgDVk_18ptx_export_kernels14guarded_select9preserved\n    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Compiling entry function 'rust_filtered_select' for 'sm_100'\nptxas info    : Function properties for rust_filtered_select\n    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 17 registers, used 0 barriers\nptxas info    : Compile time = 3.988 ms\nptxas info    : Function properties for _RNvNtCsh77cIZBgDVk_18ptx_export_kernels14guarded_select7stepped\n    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Function properties for _RNvNtCsh77cIZBgDVk_18ptx_export_kernels14guarded_select8filtered\n    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\n"
+        },
+        "inline-scalar": {
+          "ptx_bytes": 106100,
+          "cubin_bytes": 58232,
+          "hashes": {
+            "final-module.ll": "58e0a29aab3abb75208927615183eaa7c15c75baa092b5d164406ecce1c0d7b3",
+            "rust_kernels.ptx": "732df2f175dcf0841f273645e79164dd23a1e2b3bea808f455633ec248377821",
+            "rust_kernels.cubin": "0e5da5af1d382319fd96c59e36eedc58f3693f995ef8dfdefb7a94a2e18dafc7",
+            "nvdisasm.txt": "6239b420e6ac0932a954510a24643e9ab5d22cc99aca332740b3a3fadaed1a05",
+            "ptxas-resource-report.txt": "c43415cfc7617a37e75b8aeec845dae34fa2b5a731f8f22153919ff15a9bd85e"
+          },
+          "llvm_definitions": 10,
+          "sass_symbols": {
+            "rust_vecadd": {
+              "scope": "entry_including_helpers",
+              "non_nop_instructions": 21
+            },
+            "rust_sha256_32": {
+              "scope": "entry_including_helpers",
+              "non_nop_instructions": 1623
+            },
+            "rust_guarded_select": {
+              "scope": "entry_including_helpers",
+              "non_nop_instructions": 614
+            },
+            "$rust_guarded_select$_RNvNtCsh77cIZBgDVk_18ptx_export_kernels14guarded_select6direct": {
+              "scope": "helper",
+              "non_nop_instructions": 174
+            },
+            "$rust_guarded_select$_RNvNtCsh77cIZBgDVk_18ptx_export_kernels14guarded_select8observed": {
+              "scope": "helper",
+              "non_nop_instructions": 238
+            },
+            "$rust_guarded_select$_RNvNtCsh77cIZBgDVk_18ptx_export_kernels14guarded_select9preserved": {
+              "scope": "helper",
+              "non_nop_instructions": 173
+            },
+            "rust_filtered_select": {
+              "scope": "entry_including_helpers",
+              "non_nop_instructions": 114
+            },
+            "$rust_filtered_select$_RNvNtCsh77cIZBgDVk_18ptx_export_kernels14guarded_select7stepped": {
+              "scope": "helper",
+              "non_nop_instructions": 46
+            },
+            "$rust_filtered_select$_RNvNtCsh77cIZBgDVk_18ptx_export_kernels14guarded_select8filtered": {
+              "scope": "helper",
+              "non_nop_instructions": 40
+            }
+          },
+          "ptxas_resource_report": "ptxas warning : '--preserve-relocs' option is not fully implemented for 'sm_100' and may not work as expected\nptxas info    : 0 bytes gmem\nptxas info    : Compiling entry function 'rust_vecadd' for 'sm_100'\nptxas info    : Function properties for rust_vecadd\n    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 12 registers, used 0 barriers\nptxas info    : Compile time = 2.489 ms\nptxas info    : Compiling entry function 'rust_sha256_32' for 'sm_100'\nptxas info    : Function properties for rust_sha256_32\n    112 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 40 registers, used 0 barriers, 112 bytes cumulative stack size\nptxas info    : Compile time = 51.047 ms\nptxas info    : Compiling entry function 'rust_guarded_select' for 'sm_100'\nptxas info    : Function properties for rust_guarded_select\n    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 32 registers, used 0 barriers\nptxas info    : Compile time = 16.341 ms\nptxas info    : Function properties for _RNvNtCsh77cIZBgDVk_18ptx_export_kernels14guarded_select6direct\n    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Function properties for _RNvNtCsh77cIZBgDVk_18ptx_export_kernels14guarded_select8observed\n    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Function properties for _RNvNtCsh77cIZBgDVk_18ptx_export_kernels14guarded_select9preserved\n    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Compiling entry function 'rust_filtered_select' for 'sm_100'\nptxas info    : Function properties for rust_filtered_select\n    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 19 registers, used 0 barriers\nptxas info    : Compile time = 4.069 ms\nptxas info    : Function properties for _RNvNtCsh77cIZBgDVk_18ptx_export_kernels14guarded_select7stepped\n    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Function properties for _RNvNtCsh77cIZBgDVk_18ptx_export_kernels14guarded_select8filtered\n    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\n"
+        }
+      },
+      "experiments": {
+        "inline-only": {
+          "ptx_bytes": 106100,
+          "cubin_bytes": 58232,
+          "hashes": {
+            "final-module.ll": "73a5b2c33058f948a43a0e9d3f381c2d625dd3b29e9215bae50885bb8da3f549",
+            "rust_kernels.ptx": "732df2f175dcf0841f273645e79164dd23a1e2b3bea808f455633ec248377821",
+            "rust_kernels.cubin": "0e5da5af1d382319fd96c59e36eedc58f3693f995ef8dfdefb7a94a2e18dafc7",
+            "nvdisasm.txt": "6239b420e6ac0932a954510a24643e9ab5d22cc99aca332740b3a3fadaed1a05",
+            "ptxas-resource-report.txt": "745301fa8865efc3afbe2e4bbd3639ac07e991c1d88b88c8a32765b56b5c2ab5"
+          },
+          "llvm_definitions": 10,
+          "sass_symbols": {
+            "rust_vecadd": {
+              "scope": "entry_including_helpers",
+              "non_nop_instructions": 21
+            },
+            "rust_sha256_32": {
+              "scope": "entry_including_helpers",
+              "non_nop_instructions": 1623
+            },
+            "rust_guarded_select": {
+              "scope": "entry_including_helpers",
+              "non_nop_instructions": 614
+            },
+            "$rust_guarded_select$_RNvNtCsh77cIZBgDVk_18ptx_export_kernels14guarded_select6direct": {
+              "scope": "helper",
+              "non_nop_instructions": 174
+            },
+            "$rust_guarded_select$_RNvNtCsh77cIZBgDVk_18ptx_export_kernels14guarded_select8observed": {
+              "scope": "helper",
+              "non_nop_instructions": 238
+            },
+            "$rust_guarded_select$_RNvNtCsh77cIZBgDVk_18ptx_export_kernels14guarded_select9preserved": {
+              "scope": "helper",
+              "non_nop_instructions": 173
+            },
+            "rust_filtered_select": {
+              "scope": "entry_including_helpers",
+              "non_nop_instructions": 114
+            },
+            "$rust_filtered_select$_RNvNtCsh77cIZBgDVk_18ptx_export_kernels14guarded_select7stepped": {
+              "scope": "helper",
+              "non_nop_instructions": 46
+            },
+            "$rust_filtered_select$_RNvNtCsh77cIZBgDVk_18ptx_export_kernels14guarded_select8filtered": {
+              "scope": "helper",
+              "non_nop_instructions": 40
+            }
+          },
+          "ptxas_resource_report": "ptxas warning : '--preserve-relocs' option is not fully implemented for 'sm_100' and may not work as expected\nptxas info    : 0 bytes gmem\nptxas info    : Compiling entry function 'rust_vecadd' for 'sm_100'\nptxas info    : Function properties for rust_vecadd\n    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 12 registers, used 0 barriers\nptxas info    : Compile time = 2.192 ms\nptxas info    : Compiling entry function 'rust_sha256_32' for 'sm_100'\nptxas info    : Function properties for rust_sha256_32\n    112 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 40 registers, used 0 barriers, 112 bytes cumulative stack size\nptxas info    : Compile time = 49.208 ms\nptxas info    : Compiling entry function 'rust_guarded_select' for 'sm_100'\nptxas info    : Function properties for rust_guarded_select\n    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 32 registers, used 0 barriers\nptxas info    : Compile time = 16.457 ms\nptxas info    : Function properties for _RNvNtCsh77cIZBgDVk_18ptx_export_kernels14guarded_select6direct\n    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Function properties for _RNvNtCsh77cIZBgDVk_18ptx_export_kernels14guarded_select8observed\n    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Function properties for _RNvNtCsh77cIZBgDVk_18ptx_export_kernels14guarded_select9preserved\n    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Compiling entry function 'rust_filtered_select' for 'sm_100'\nptxas info    : Function properties for rust_filtered_select\n    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 19 registers, used 0 barriers\nptxas info    : Compile time = 4.076 ms\nptxas info    : Function properties for _RNvNtCsh77cIZBgDVk_18ptx_export_kernels14guarded_select7stepped\n    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Function properties for _RNvNtCsh77cIZBgDVk_18ptx_export_kernels14guarded_select8filtered\n    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\n"
+        },
+        "tiny-loops": {
+          "ptx_bytes": 106029,
+          "cubin_bytes": 58232,
+          "hashes": {
+            "final-module.ll": "a0fbe965a15f8084452a0bbabd7bb57dc5be78ee0537b9945c94b27861e06db7",
+            "rust_kernels.ptx": "551de2b1b8a10c5d8dabd10bcf808123b45a2bed220d54b256ad4ebcb608da78",
+            "rust_kernels.cubin": "f8c3e6ba3f2f82dcdec719df0c2dde3cb2b64972b7b9015ada9548201370e154",
+            "nvdisasm.txt": "2394c4d6484ad96163491241baf531b1e751d51ee05b91e5c8498680fc0efe4b",
+            "ptxas-resource-report.txt": "9a45c729c4c3cc4041524dacdb239eb7300ad032cea093bd02b40d51d2b2b345"
+          },
+          "llvm_definitions": 10,
+          "sass_symbols": {
+            "rust_vecadd": {
+              "scope": "entry_including_helpers",
+              "non_nop_instructions": 21
+            },
+            "rust_sha256_32": {
+              "scope": "entry_including_helpers",
+              "non_nop_instructions": 1623
+            },
+            "rust_guarded_select": {
+              "scope": "entry_including_helpers",
+              "non_nop_instructions": 614
+            },
+            "$rust_guarded_select$_RNvNtCsh77cIZBgDVk_18ptx_export_kernels14guarded_select6direct": {
+              "scope": "helper",
+              "non_nop_instructions": 174
+            },
+            "$rust_guarded_select$_RNvNtCsh77cIZBgDVk_18ptx_export_kernels14guarded_select8observed": {
+              "scope": "helper",
+              "non_nop_instructions": 238
+            },
+            "$rust_guarded_select$_RNvNtCsh77cIZBgDVk_18ptx_export_kernels14guarded_select9preserved": {
+              "scope": "helper",
+              "non_nop_instructions": 173
+            },
+            "rust_filtered_select": {
+              "scope": "entry_including_helpers",
+              "non_nop_instructions": 114
+            },
+            "$rust_filtered_select$_RNvNtCsh77cIZBgDVk_18ptx_export_kernels14guarded_select7stepped": {
+              "scope": "helper",
+              "non_nop_instructions": 46
+            },
+            "$rust_filtered_select$_RNvNtCsh77cIZBgDVk_18ptx_export_kernels14guarded_select8filtered": {
+              "scope": "helper",
+              "non_nop_instructions": 40
+            }
+          },
+          "ptxas_resource_report": "ptxas warning : '--preserve-relocs' option is not fully implemented for 'sm_100' and may not work as expected\nptxas info    : 0 bytes gmem\nptxas info    : Compiling entry function 'rust_vecadd' for 'sm_100'\nptxas info    : Function properties for rust_vecadd\n    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 12 registers, used 0 barriers\nptxas info    : Compile time = 2.192 ms\nptxas info    : Compiling entry function 'rust_sha256_32' for 'sm_100'\nptxas info    : Function properties for rust_sha256_32\n    112 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 40 registers, used 0 barriers, 112 bytes cumulative stack size\nptxas info    : Compile time = 52.508 ms\nptxas info    : Compiling entry function 'rust_guarded_select' for 'sm_100'\nptxas info    : Function properties for rust_guarded_select\n    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 32 registers, used 0 barriers\nptxas info    : Compile time = 18.437 ms\nptxas info    : Function properties for _RNvNtCsh77cIZBgDVk_18ptx_export_kernels14guarded_select6direct\n    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Function properties for _RNvNtCsh77cIZBgDVk_18ptx_export_kernels14guarded_select8observed\n    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Function properties for _RNvNtCsh77cIZBgDVk_18ptx_export_kernels14guarded_select9preserved\n    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Compiling entry function 'rust_filtered_select' for 'sm_100'\nptxas info    : Function properties for rust_filtered_select\n    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 19 registers, used 0 barriers\nptxas info    : Compile time = 4.580 ms\nptxas info    : Function properties for _RNvNtCsh77cIZBgDVk_18ptx_export_kernels14guarded_select7stepped\n    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Function properties for _RNvNtCsh77cIZBgDVk_18ptx_export_kernels14guarded_select8filtered\n    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\n"
+        },
+        "correlated-tiny-loops": {
+          "ptx_bytes": 106020,
+          "cubin_bytes": 58376,
+          "hashes": {
+            "final-module.ll": "d6196a85219f613042bb989f50a273ca6b8e636a7ad8ce7614b15a1d4a438c78",
+            "rust_kernels.ptx": "2e3be232386a22e74e7629c497defd9a0419dbe0b87d310803f189d66332f7f4",
+            "rust_kernels.cubin": "a7e054a1d749ddf23434943b333008f96ca0f05c7ad5e76baf6c147c7cc20a79",
+            "nvdisasm.txt": "2a60eebeb459e4160251493e49c7a207fe70a13f86c72c4292f2b45f7d00045a",
+            "ptxas-resource-report.txt": "fb3bfb8f47e4903a1b623abbe62dde8b607394c12563c2a83ab8b1d98b2e52d5"
+          },
+          "llvm_definitions": 10,
+          "sass_symbols": {
+            "rust_vecadd": {
+              "scope": "entry_including_helpers",
+              "non_nop_instructions": 21
+            },
+            "rust_sha256_32": {
+              "scope": "entry_including_helpers",
+              "non_nop_instructions": 1623
+            },
+            "rust_guarded_select": {
+              "scope": "entry_including_helpers",
+              "non_nop_instructions": 614
+            },
+            "$rust_guarded_select$_RNvNtCsh77cIZBgDVk_18ptx_export_kernels14guarded_select6direct": {
+              "scope": "helper",
+              "non_nop_instructions": 174
+            },
+            "$rust_guarded_select$_RNvNtCsh77cIZBgDVk_18ptx_export_kernels14guarded_select8observed": {
+              "scope": "helper",
+              "non_nop_instructions": 238
+            },
+            "$rust_guarded_select$_RNvNtCsh77cIZBgDVk_18ptx_export_kernels14guarded_select9preserved": {
+              "scope": "helper",
+              "non_nop_instructions": 173
+            },
+            "rust_filtered_select": {
+              "scope": "entry_including_helpers",
+              "non_nop_instructions": 124
+            },
+            "$rust_filtered_select$_RNvNtCsh77cIZBgDVk_18ptx_export_kernels14guarded_select7stepped": {
+              "scope": "helper",
+              "non_nop_instructions": 46
+            },
+            "$rust_filtered_select$_RNvNtCsh77cIZBgDVk_18ptx_export_kernels14guarded_select8filtered": {
+              "scope": "helper",
+              "non_nop_instructions": 49
+            }
+          },
+          "ptxas_resource_report": "ptxas warning : '--preserve-relocs' option is not fully implemented for 'sm_100' and may not work as expected\nptxas info    : 0 bytes gmem\nptxas info    : Compiling entry function 'rust_vecadd' for 'sm_100'\nptxas info    : Function properties for rust_vecadd\n    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 12 registers, used 0 barriers\nptxas info    : Compile time = 2.215 ms\nptxas info    : Compiling entry function 'rust_sha256_32' for 'sm_100'\nptxas info    : Function properties for rust_sha256_32\n    112 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 40 registers, used 0 barriers, 112 bytes cumulative stack size\nptxas info    : Compile time = 49.821 ms\nptxas info    : Compiling entry function 'rust_guarded_select' for 'sm_100'\nptxas info    : Function properties for rust_guarded_select\n    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 32 registers, used 0 barriers\nptxas info    : Compile time = 16.666 ms\nptxas info    : Function properties for _RNvNtCsh77cIZBgDVk_18ptx_export_kernels14guarded_select6direct\n    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Function properties for _RNvNtCsh77cIZBgDVk_18ptx_export_kernels14guarded_select8observed\n    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Function properties for _RNvNtCsh77cIZBgDVk_18ptx_export_kernels14guarded_select9preserved\n    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Compiling entry function 'rust_filtered_select' for 'sm_100'\nptxas info    : Function properties for rust_filtered_select\n    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 18 registers, used 0 barriers\nptxas info    : Compile time = 4.717 ms\nptxas info    : Function properties for _RNvNtCsh77cIZBgDVk_18ptx_export_kernels14guarded_select7stepped\n    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Function properties for _RNvNtCsh77cIZBgDVk_18ptx_export_kernels14guarded_select8filtered\n    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\n"
+        }
+      }
+    },
+    "solana": {
+      "comparison": {
+        "workload": "solana",
+        "expected_entry_count": 1,
+        "default_matches_disabled_ptx": true,
+        "inline_scalar_matches_replay": true,
+        "nvidia_execution": false,
+        "ptx_sha256": {
+          "none": "59486d4378de80f787d247e5713918f39305aa8a2b94409b4299082f09db0891",
+          "default": "59486d4378de80f787d247e5713918f39305aa8a2b94409b4299082f09db0891",
+          "inline-scalar": "a57cc6320ccb23d9db1fc34a8f96721da84ebdc239e2d3b034935b5015d3557e"
+        }
+      },
+      "modes": {
+        "none": {
+          "ptx_bytes": 1481081,
+          "cubin_bytes": 739480,
+          "hashes": {
+            "final-module.ll": "77e448e3b4fcae0030b948c656b32cb6be0ab0aede6424890c42b86456b2820d",
+            "rust_kernels.ptx": "59486d4378de80f787d247e5713918f39305aa8a2b94409b4299082f09db0891",
+            "rust_kernels.cubin": "f836fbfd7327b6e948d34c8f056ecccc68cc7501916caf2c50ef038da992b577",
+            "nvdisasm.txt": "28422785d869bbc7b515ce202b82dadea714bc4caf1b88d6ae5d4a34b015b203",
+            "ptxas-resource-report.txt": "fede9250b19b64fe028f63a0befbb0f736c687469a6d123aba87d0cde7df5f78"
+          },
+          "llvm_definitions": 3883,
+          "sass_symbols": {
+            "kernel_find_solana_vanity_private_key": {
+              "scope": "entry_including_helpers",
+              "non_nop_instructions": 39738
+            },
+            "$kernel_find_solana_vanity_private_key$_RINvCs55dNBJaGPlB_6subtle9black_boxhECs6Dk9HfbCoLE_16curve25519_dalek": {
+              "scope": "helper",
+              "non_nop_instructions": 5
+            },
+            "$kernel_find_solana_vanity_private_key$_RNvXs0_NtCslhAn9NXnFmt_12rand_xoshiro20xoroshiro128starstarNtB5_20Xoroshiro128StarStarNtCsjpL00qHfNVI_9rand_core11SeedableRng9from_seed": {
+              "scope": "helper",
+              "non_nop_instructions": 79
+            }
+          },
+          "ptxas_resource_report": "ptxas warning : '--preserve-relocs' option is not fully implemented for 'sm_100' and may not work as expected\nptxas warning : Registers are spilled to local memory in function '_RNvXs0_NtCslhAn9NXnFmt_12rand_xoshiro20xoroshiro128starstarNtB5_20Xoroshiro128StarStarNtCsjpL00qHfNVI_9rand_core11SeedableRng9from_seed', 32 bytes spill stores, 32 bytes spill loads\nptxas info    : 30786 bytes gmem\nptxas info    : Compiling entry function 'kernel_find_solana_vanity_private_key' for 'sm_100'\nptxas info    : Function properties for kernel_find_solana_vanity_private_key\n    208 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 216 registers, used 0 barriers, 208 bytes cumulative stack size\nptxas info    : Compile time = 4031.641 ms\nptxas info    : Function properties for _RNvXs0_NtCslhAn9NXnFmt_12rand_xoshiro20xoroshiro128starstarNtB5_20Xoroshiro128StarStarNtCsjpL00qHfNVI_9rand_core11SeedableRng9from_seed\n    56 bytes stack frame, 32 bytes spill stores, 32 bytes spill loads\nptxas info    : Function properties for _RINvCs55dNBJaGPlB_6subtle9black_boxhECs6Dk9HfbCoLE_16curve25519_dalek\n    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\n"
+        },
+        "default": {
+          "ptx_bytes": 1481081,
+          "cubin_bytes": 739480,
+          "hashes": {
+            "final-module.ll": "35d8df34173f8373264dc88e347de1302f5e7e1ef857c30e684fb724a84ea8e5",
+            "rust_kernels.ptx": "59486d4378de80f787d247e5713918f39305aa8a2b94409b4299082f09db0891",
+            "rust_kernels.cubin": "f836fbfd7327b6e948d34c8f056ecccc68cc7501916caf2c50ef038da992b577",
+            "nvdisasm.txt": "28422785d869bbc7b515ce202b82dadea714bc4caf1b88d6ae5d4a34b015b203",
+            "ptxas-resource-report.txt": "807c0ac8205e570ea2165b4e34633cfc660fc866c6d429807f7270055e887b1c"
+          },
+          "llvm_definitions": 151,
+          "sass_symbols": {
+            "kernel_find_solana_vanity_private_key": {
+              "scope": "entry_including_helpers",
+              "non_nop_instructions": 39738
+            },
+            "$kernel_find_solana_vanity_private_key$_RINvCs55dNBJaGPlB_6subtle9black_boxhECs6Dk9HfbCoLE_16curve25519_dalek": {
+              "scope": "helper",
+              "non_nop_instructions": 5
+            },
+            "$kernel_find_solana_vanity_private_key$_RNvXs0_NtCslhAn9NXnFmt_12rand_xoshiro20xoroshiro128starstarNtB5_20Xoroshiro128StarStarNtCsjpL00qHfNVI_9rand_core11SeedableRng9from_seed": {
+              "scope": "helper",
+              "non_nop_instructions": 79
+            }
+          },
+          "ptxas_resource_report": "ptxas warning : '--preserve-relocs' option is not fully implemented for 'sm_100' and may not work as expected\nptxas warning : Registers are spilled to local memory in function '_RNvXs0_NtCslhAn9NXnFmt_12rand_xoshiro20xoroshiro128starstarNtB5_20Xoroshiro128StarStarNtCsjpL00qHfNVI_9rand_core11SeedableRng9from_seed', 32 bytes spill stores, 32 bytes spill loads\nptxas info    : 30786 bytes gmem\nptxas info    : Compiling entry function 'kernel_find_solana_vanity_private_key' for 'sm_100'\nptxas info    : Function properties for kernel_find_solana_vanity_private_key\n    208 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 216 registers, used 0 barriers, 208 bytes cumulative stack size\nptxas info    : Compile time = 4185.445 ms\nptxas info    : Function properties for _RNvXs0_NtCslhAn9NXnFmt_12rand_xoshiro20xoroshiro128starstarNtB5_20Xoroshiro128StarStarNtCsjpL00qHfNVI_9rand_core11SeedableRng9from_seed\n    56 bytes stack frame, 32 bytes spill stores, 32 bytes spill loads\nptxas info    : Function properties for _RINvCs55dNBJaGPlB_6subtle9black_boxhECs6Dk9HfbCoLE_16curve25519_dalek\n    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\n"
+        },
+        "inline-scalar": {
+          "ptx_bytes": 1301076,
+          "cubin_bytes": 716024,
+          "hashes": {
+            "final-module.ll": "781946a09c389dcf4f91329969b4ba667bff7a486fd02af656d77ab25d59a8e2",
+            "rust_kernels.ptx": "a57cc6320ccb23d9db1fc34a8f96721da84ebdc239e2d3b034935b5015d3557e",
+            "rust_kernels.cubin": "e2438014642756be6c4e80540269201aa819a935ac8c428d6ffbf8126c2b0b7f",
+            "nvdisasm.txt": "9381da2b8a97c89e5ec08d9fc4e48c78cbbef1e4c8a752caf61a66a0fa0c13cc",
+            "ptxas-resource-report.txt": "3bd727feca2c5f3002a5c9bd83d5193d533a676aecae7e386914e6761214a413"
+          },
+          "llvm_definitions": 7,
+          "sass_symbols": {
+            "kernel_find_solana_vanity_private_key": {
+              "scope": "entry_including_helpers",
+              "non_nop_instructions": 38428
+            },
+            "$kernel_find_solana_vanity_private_key$_RINvCs55dNBJaGPlB_6subtle9black_boxhECs6Dk9HfbCoLE_16curve25519_dalek": {
+              "scope": "helper",
+              "non_nop_instructions": 5
+            },
+            "$kernel_find_solana_vanity_private_key$_RNvXs0_NtCslhAn9NXnFmt_12rand_xoshiro20xoroshiro128starstarNtB5_20Xoroshiro128StarStarNtCsjpL00qHfNVI_9rand_core11SeedableRng9from_seed": {
+              "scope": "helper",
+              "non_nop_instructions": 79
+            }
+          },
+          "ptxas_resource_report": "ptxas warning : '--preserve-relocs' option is not fully implemented for 'sm_100' and may not work as expected\nptxas warning : Registers are spilled to local memory in function '_RNvXs0_NtCslhAn9NXnFmt_12rand_xoshiro20xoroshiro128starstarNtB5_20Xoroshiro128StarStarNtCsjpL00qHfNVI_9rand_core11SeedableRng9from_seed', 32 bytes spill stores, 32 bytes spill loads\nptxas info    : 30786 bytes gmem\nptxas info    : Compiling entry function 'kernel_find_solana_vanity_private_key' for 'sm_100'\nptxas info    : Function properties for kernel_find_solana_vanity_private_key\n    208 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 178 registers, used 0 barriers, 208 bytes cumulative stack size\nptxas info    : Compile time = 3617.380 ms\nptxas info    : Function properties for _RNvXs0_NtCslhAn9NXnFmt_12rand_xoshiro20xoroshiro128starstarNtB5_20Xoroshiro128StarStarNtCsjpL00qHfNVI_9rand_core11SeedableRng9from_seed\n    56 bytes stack frame, 32 bytes spill stores, 32 bytes spill loads\nptxas info    : Function properties for _RINvCs55dNBJaGPlB_6subtle9black_boxhECs6Dk9HfbCoLE_16curve25519_dalek\n    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\n"
+        }
+      },
+      "experiments": {
+        "inline-only": {
+          "ptx_bytes": 1301076,
+          "cubin_bytes": 716024,
+          "hashes": {
+            "final-module.ll": "979d7bf5223730d66bf8c1920227ab8260dc3383ca5f3562a7d7f6c163e24cbb",
+            "rust_kernels.ptx": "a57cc6320ccb23d9db1fc34a8f96721da84ebdc239e2d3b034935b5015d3557e",
+            "rust_kernels.cubin": "e2438014642756be6c4e80540269201aa819a935ac8c428d6ffbf8126c2b0b7f",
+            "nvdisasm.txt": "9381da2b8a97c89e5ec08d9fc4e48c78cbbef1e4c8a752caf61a66a0fa0c13cc",
+            "ptxas-resource-report.txt": "7074427a72d147fc6c8274469fed144543dc6b99295b48dc6c1e3970d52ebf9e"
+          },
+          "llvm_definitions": 7,
+          "sass_symbols": {
+            "kernel_find_solana_vanity_private_key": {
+              "scope": "entry_including_helpers",
+              "non_nop_instructions": 38428
+            },
+            "$kernel_find_solana_vanity_private_key$_RINvCs55dNBJaGPlB_6subtle9black_boxhECs6Dk9HfbCoLE_16curve25519_dalek": {
+              "scope": "helper",
+              "non_nop_instructions": 5
+            },
+            "$kernel_find_solana_vanity_private_key$_RNvXs0_NtCslhAn9NXnFmt_12rand_xoshiro20xoroshiro128starstarNtB5_20Xoroshiro128StarStarNtCsjpL00qHfNVI_9rand_core11SeedableRng9from_seed": {
+              "scope": "helper",
+              "non_nop_instructions": 79
+            }
+          },
+          "ptxas_resource_report": "ptxas warning : '--preserve-relocs' option is not fully implemented for 'sm_100' and may not work as expected\nptxas warning : Registers are spilled to local memory in function '_RNvXs0_NtCslhAn9NXnFmt_12rand_xoshiro20xoroshiro128starstarNtB5_20Xoroshiro128StarStarNtCsjpL00qHfNVI_9rand_core11SeedableRng9from_seed', 32 bytes spill stores, 32 bytes spill loads\nptxas info    : 30786 bytes gmem\nptxas info    : Compiling entry function 'kernel_find_solana_vanity_private_key' for 'sm_100'\nptxas info    : Function properties for kernel_find_solana_vanity_private_key\n    208 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 178 registers, used 0 barriers, 208 bytes cumulative stack size\nptxas info    : Compile time = 5027.588 ms\nptxas info    : Function properties for _RNvXs0_NtCslhAn9NXnFmt_12rand_xoshiro20xoroshiro128starstarNtB5_20Xoroshiro128StarStarNtCsjpL00qHfNVI_9rand_core11SeedableRng9from_seed\n    56 bytes stack frame, 32 bytes spill stores, 32 bytes spill loads\nptxas info    : Function properties for _RINvCs55dNBJaGPlB_6subtle9black_boxhECs6Dk9HfbCoLE_16curve25519_dalek\n    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\n"
+        },
+        "tiny-loops": {
+          "ptx_bytes": 1276656,
+          "cubin_bytes": 669584,
+          "hashes": {
+            "final-module.ll": "9493afd974edebc320e5d4076e2c29016c302e9f2bfedef90b1cb0e38ff2553b",
+            "rust_kernels.ptx": "1edd4823937fca41c56cabd8b13ba702bfb5642f65fed69f0ca916f717322a97",
+            "rust_kernels.cubin": "026253781c1362cddc8d9545bee4adfe0c685f8a0d5d2f093bf2d0021a8b0790",
+            "nvdisasm.txt": "261597c29b3e04cfa670143edd9e57e5bf1e2febeb4c9a0b42df5b9fd55d237c",
+            "ptxas-resource-report.txt": "e259fe477eb7e4ce06c4d52ecbbc6c6ebeaf4e865e67a27dbde010f46cc827d5"
+          },
+          "llvm_definitions": 7,
+          "sass_symbols": {
+            "kernel_find_solana_vanity_private_key": {
+              "scope": "entry_including_helpers",
+              "non_nop_instructions": 36480
+            },
+            "$kernel_find_solana_vanity_private_key$_RINvCs55dNBJaGPlB_6subtle9black_boxhECs6Dk9HfbCoLE_16curve25519_dalek": {
+              "scope": "helper",
+              "non_nop_instructions": 5
+            },
+            "$kernel_find_solana_vanity_private_key$_RNvXs0_NtCslhAn9NXnFmt_12rand_xoshiro20xoroshiro128starstarNtB5_20Xoroshiro128StarStarNtCsjpL00qHfNVI_9rand_core11SeedableRng9from_seed": {
+              "scope": "helper",
+              "non_nop_instructions": 79
+            }
+          },
+          "ptxas_resource_report": "ptxas warning : '--preserve-relocs' option is not fully implemented for 'sm_100' and may not work as expected\nptxas warning : Registers are spilled to local memory in function '_RNvXs0_NtCslhAn9NXnFmt_12rand_xoshiro20xoroshiro128starstarNtB5_20Xoroshiro128StarStarNtCsjpL00qHfNVI_9rand_core11SeedableRng9from_seed', 32 bytes spill stores, 32 bytes spill loads\nptxas info    : 30786 bytes gmem\nptxas info    : Compiling entry function 'kernel_find_solana_vanity_private_key' for 'sm_100'\nptxas info    : Function properties for kernel_find_solana_vanity_private_key\n    192 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 200 registers, used 0 barriers, 192 bytes cumulative stack size\nptxas info    : Compile time = 4537.528 ms\nptxas info    : Function properties for _RNvXs0_NtCslhAn9NXnFmt_12rand_xoshiro20xoroshiro128starstarNtB5_20Xoroshiro128StarStarNtCsjpL00qHfNVI_9rand_core11SeedableRng9from_seed\n    56 bytes stack frame, 32 bytes spill stores, 32 bytes spill loads\nptxas info    : Function properties for _RINvCs55dNBJaGPlB_6subtle9black_boxhECs6Dk9HfbCoLE_16curve25519_dalek\n    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\n"
+        },
+        "correlated-tiny-loops": {
+          "ptx_bytes": 1276499,
+          "cubin_bytes": 661232,
+          "hashes": {
+            "final-module.ll": "78d61b234443f790399343ab1b2ba925e1cddce5d91122f5f1e139c84bd95873",
+            "rust_kernels.ptx": "ecb8c1ff4162256db5c68f2aa0efc698226c1d7b423f6013e1f8a3892c4349af",
+            "rust_kernels.cubin": "c6e812b30b8c721d041495b23b64920fa7aeaa122d2fc7e1594523c9477a886b",
+            "nvdisasm.txt": "1616f3d79310cea720ecdb6e6e218e51b231d0d7fb5630349d8808e988d0c5d5",
+            "ptxas-resource-report.txt": "2a653423d4fa31ec41564f213a9f6caf93ec684e253fbd301a68e99a0d4405f6"
+          },
+          "llvm_definitions": 7,
+          "sass_symbols": {
+            "kernel_find_solana_vanity_private_key": {
+              "scope": "entry_including_helpers",
+              "non_nop_instructions": 35971
+            },
+            "$kernel_find_solana_vanity_private_key$_RINvCs55dNBJaGPlB_6subtle9black_boxhECs6Dk9HfbCoLE_16curve25519_dalek": {
+              "scope": "helper",
+              "non_nop_instructions": 5
+            },
+            "$kernel_find_solana_vanity_private_key$_RNvXs0_NtCslhAn9NXnFmt_12rand_xoshiro20xoroshiro128starstarNtB5_20Xoroshiro128StarStarNtCsjpL00qHfNVI_9rand_core11SeedableRng9from_seed": {
+              "scope": "helper",
+              "non_nop_instructions": 79
+            }
+          },
+          "ptxas_resource_report": "ptxas warning : '--preserve-relocs' option is not fully implemented for 'sm_100' and may not work as expected\nptxas warning : Registers are spilled to local memory in function '_RNvXs0_NtCslhAn9NXnFmt_12rand_xoshiro20xoroshiro128starstarNtB5_20Xoroshiro128StarStarNtCsjpL00qHfNVI_9rand_core11SeedableRng9from_seed', 32 bytes spill stores, 32 bytes spill loads\nptxas info    : 30786 bytes gmem\nptxas info    : Compiling entry function 'kernel_find_solana_vanity_private_key' for 'sm_100'\nptxas info    : Function properties for kernel_find_solana_vanity_private_key\n    192 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 179 registers, used 0 barriers, 192 bytes cumulative stack size\nptxas info    : Compile time = 4179.746 ms\nptxas info    : Function properties for _RNvXs0_NtCslhAn9NXnFmt_12rand_xoshiro20xoroshiro128starstarNtB5_20Xoroshiro128StarStarNtCsjpL00qHfNVI_9rand_core11SeedableRng9from_seed\n    56 bytes stack frame, 32 bytes spill stores, 32 bytes spill loads\nptxas info    : Function properties for _RINvCs55dNBJaGPlB_6subtle9black_boxhECs6Dk9HfbCoLE_16curve25519_dalek\n    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\n"
+        }
+      }
+    },
+    "bitcoin": {
+      "comparison": {
+        "workload": "bitcoin",
+        "expected_entry_count": 1,
+        "default_matches_disabled_ptx": true,
+        "inline_scalar_matches_replay": true,
+        "nvidia_execution": false,
+        "ptx_sha256": {
+          "none": "144b063c9178cc1be731b308250af97bfe525c3e22dd8ce3d42d2203d43e220f",
+          "default": "144b063c9178cc1be731b308250af97bfe525c3e22dd8ce3d42d2203d43e220f",
+          "inline-scalar": "05a0f601c2fbe31fa6060b665036f970ad5cd6f9a045cfc1a4a45cccffcfdabe"
+        }
+      },
+      "modes": {
+        "none": {
+          "ptx_bytes": 3067934,
+          "cubin_bytes": 1642824,
+          "hashes": {
+            "final-module.ll": "8eed32b5f9faf486a202881ae59769eb402bf839c5706dc71c85a4a2cabb7453",
+            "rust_kernels.ptx": "144b063c9178cc1be731b308250af97bfe525c3e22dd8ce3d42d2203d43e220f",
+            "rust_kernels.cubin": "d07e17c2c2c95fb10c1042a41da358984755f83fa6838c1ffb51010e9149e983",
+            "nvdisasm.txt": "f75f3a1b4c51db28eb5adabf8a8daa91c05848df338decb0a6443f6fce75a54e",
+            "ptxas-resource-report.txt": "3753cf85cad26db57be759bee0cdf24acc1b42f3f4d0cb61f19bd4e46f6281ee"
+          },
+          "llvm_definitions": 5424,
+          "sass_symbols": {
+            "kernel_find_bitcoin_vanity_private_key": {
+              "scope": "entry_including_helpers",
+              "non_nop_instructions": 90877
+            },
+            "$kernel_find_bitcoin_vanity_private_key$_RINvCs9EmaDtgp80K_6subtle9black_boxhECs2tFHjrzC0d5_13crypto_bigint": {
+              "scope": "helper",
+              "non_nop_instructions": 6
+            },
+            "$kernel_find_bitcoin_vanity_private_key$_RNvMNtNtCs8DUvt1RrTNm_4k25610arithmetic10projectiveNtB2_15ProjectivePoint3add": {
+              "scope": "helper",
+              "non_nop_instructions": 10693
+            },
+            "$kernel_find_bitcoin_vanity_private_key$_RNvNtNtCs8DUvt1RrTNm_4k25610arithmetic3mul7lincomb": {
+              "scope": "helper",
+              "non_nop_instructions": 51522
+            },
+            "$kernel_find_bitcoin_vanity_private_key$_RNvXs0_NtCslhAn9NXnFmt_12rand_xoshiro20xoroshiro128starstarNtB5_20Xoroshiro128StarStarNtCsjpL00qHfNVI_9rand_core11SeedableRng9from_seed": {
+              "scope": "helper",
+              "non_nop_instructions": 79
+            }
+          },
+          "ptxas_resource_report": "ptxas warning : '--preserve-relocs' option is not fully implemented for 'sm_100' and may not work as expected\nptxas warning : Registers are spilled to local memory in function 'kernel_find_bitcoin_vanity_private_key', 56 bytes spill stores, 52 bytes spill loads\nptxas warning : Registers are spilled to local memory in function '_RNvXs0_NtCslhAn9NXnFmt_12rand_xoshiro20xoroshiro128starstarNtB5_20Xoroshiro128StarStarNtCsjpL00qHfNVI_9rand_core11SeedableRng9from_seed', 32 bytes spill stores, 32 bytes spill loads\nptxas warning : Registers are spilled to local memory in function '_RNvNtNtCs8DUvt1RrTNm_4k25610arithmetic3mul7lincomb', 2660 bytes spill stores, 2672 bytes spill loads\nptxas info    : 64 bytes gmem\nptxas info    : Compiling entry function 'kernel_find_bitcoin_vanity_private_key' for 'sm_100'\nptxas info    : Function properties for kernel_find_bitcoin_vanity_private_key\n    11120 bytes stack frame, 56 bytes spill stores, 52 bytes spill loads\nptxas info    : Used 255 registers, used 0 barriers, 11120 bytes cumulative stack size\nptxas info    : Compile time = 12799.872 ms\nptxas info    : Function properties for _RNvXs0_NtCslhAn9NXnFmt_12rand_xoshiro20xoroshiro128starstarNtB5_20Xoroshiro128StarStarNtCsjpL00qHfNVI_9rand_core11SeedableRng9from_seed\n    56 bytes stack frame, 32 bytes spill stores, 32 bytes spill loads\nptxas info    : Function properties for _RINvCs9EmaDtgp80K_6subtle9black_boxhECs2tFHjrzC0d5_13crypto_bigint\n    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Function properties for _RNvMNtNtCs8DUvt1RrTNm_4k25610arithmetic10projectiveNtB2_15ProjectivePoint3add\n    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Function properties for _RNvNtNtCs8DUvt1RrTNm_4k25610arithmetic3mul7lincomb\n    0 bytes stack frame, 2660 bytes spill stores, 2672 bytes spill loads\n"
+        },
+        "default": {
+          "ptx_bytes": 3067934,
+          "cubin_bytes": 1642824,
+          "hashes": {
+            "final-module.ll": "dea08d3de2c4410e81431a187f37fa22da07ad49f63bb040cf4708a85c1e4afc",
+            "rust_kernels.ptx": "144b063c9178cc1be731b308250af97bfe525c3e22dd8ce3d42d2203d43e220f",
+            "rust_kernels.cubin": "d07e17c2c2c95fb10c1042a41da358984755f83fa6838c1ffb51010e9149e983",
+            "nvdisasm.txt": "f75f3a1b4c51db28eb5adabf8a8daa91c05848df338decb0a6443f6fce75a54e",
+            "ptxas-resource-report.txt": "d670d4e8dc60dc57dca39debc80fec816841a1076c2ee3962ac6056e279c3ef0"
+          },
+          "llvm_definitions": 204,
+          "sass_symbols": {
+            "kernel_find_bitcoin_vanity_private_key": {
+              "scope": "entry_including_helpers",
+              "non_nop_instructions": 90877
+            },
+            "$kernel_find_bitcoin_vanity_private_key$_RINvCs9EmaDtgp80K_6subtle9black_boxhECs2tFHjrzC0d5_13crypto_bigint": {
+              "scope": "helper",
+              "non_nop_instructions": 6
+            },
+            "$kernel_find_bitcoin_vanity_private_key$_RNvMNtNtCs8DUvt1RrTNm_4k25610arithmetic10projectiveNtB2_15ProjectivePoint3add": {
+              "scope": "helper",
+              "non_nop_instructions": 10693
+            },
+            "$kernel_find_bitcoin_vanity_private_key$_RNvNtNtCs8DUvt1RrTNm_4k25610arithmetic3mul7lincomb": {
+              "scope": "helper",
+              "non_nop_instructions": 51522
+            },
+            "$kernel_find_bitcoin_vanity_private_key$_RNvXs0_NtCslhAn9NXnFmt_12rand_xoshiro20xoroshiro128starstarNtB5_20Xoroshiro128StarStarNtCsjpL00qHfNVI_9rand_core11SeedableRng9from_seed": {
+              "scope": "helper",
+              "non_nop_instructions": 79
+            }
+          },
+          "ptxas_resource_report": "ptxas warning : '--preserve-relocs' option is not fully implemented for 'sm_100' and may not work as expected\nptxas warning : Registers are spilled to local memory in function 'kernel_find_bitcoin_vanity_private_key', 56 bytes spill stores, 52 bytes spill loads\nptxas warning : Registers are spilled to local memory in function '_RNvXs0_NtCslhAn9NXnFmt_12rand_xoshiro20xoroshiro128starstarNtB5_20Xoroshiro128StarStarNtCsjpL00qHfNVI_9rand_core11SeedableRng9from_seed', 32 bytes spill stores, 32 bytes spill loads\nptxas warning : Registers are spilled to local memory in function '_RNvNtNtCs8DUvt1RrTNm_4k25610arithmetic3mul7lincomb', 2660 bytes spill stores, 2672 bytes spill loads\nptxas info    : 64 bytes gmem\nptxas info    : Compiling entry function 'kernel_find_bitcoin_vanity_private_key' for 'sm_100'\nptxas info    : Function properties for kernel_find_bitcoin_vanity_private_key\n    11120 bytes stack frame, 56 bytes spill stores, 52 bytes spill loads\nptxas info    : Used 255 registers, used 0 barriers, 11120 bytes cumulative stack size\nptxas info    : Compile time = 12683.765 ms\nptxas info    : Function properties for _RNvXs0_NtCslhAn9NXnFmt_12rand_xoshiro20xoroshiro128starstarNtB5_20Xoroshiro128StarStarNtCsjpL00qHfNVI_9rand_core11SeedableRng9from_seed\n    56 bytes stack frame, 32 bytes spill stores, 32 bytes spill loads\nptxas info    : Function properties for _RINvCs9EmaDtgp80K_6subtle9black_boxhECs2tFHjrzC0d5_13crypto_bigint\n    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Function properties for _RNvMNtNtCs8DUvt1RrTNm_4k25610arithmetic10projectiveNtB2_15ProjectivePoint3add\n    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Function properties for _RNvNtNtCs8DUvt1RrTNm_4k25610arithmetic3mul7lincomb\n    0 bytes stack frame, 2660 bytes spill stores, 2672 bytes spill loads\n"
+        },
+        "inline-scalar": {
+          "ptx_bytes": 3047925,
+          "cubin_bytes": 1739672,
+          "hashes": {
+            "final-module.ll": "52f37daff21b97232ba6d4488fcfca12b3be0eaa357b008b45bd0449a84716ce",
+            "rust_kernels.ptx": "05a0f601c2fbe31fa6060b665036f970ad5cd6f9a045cfc1a4a45cccffcfdabe",
+            "rust_kernels.cubin": "1588d3c5a899c60791084c3603f3db9862c0d9b87b52fc2be1bda23c7d659f05",
+            "nvdisasm.txt": "4780e744d17bc5e838363cf139572b2a6297306b8f60d58850dbe7bfc07ec7fc",
+            "ptxas-resource-report.txt": "59558c351e94f106a56b6e3a9889326acb3a5b99a5f46c8c66e0cba2821ae9b8"
+          },
+          "llvm_definitions": 14,
+          "sass_symbols": {
+            "kernel_find_bitcoin_vanity_private_key": {
+              "scope": "entry_including_helpers",
+              "non_nop_instructions": 96968
+            },
+            "$kernel_find_bitcoin_vanity_private_key$_RINvCs9EmaDtgp80K_6subtle9black_boxhECs2tFHjrzC0d5_13crypto_bigint": {
+              "scope": "helper",
+              "non_nop_instructions": 6
+            },
+            "$kernel_find_bitcoin_vanity_private_key$_RNCNvNtNtCs8DUvt1RrTNm_4k25610arithmetic3mul7lincomb0B7_": {
+              "scope": "helper",
+              "non_nop_instructions": 24703
+            },
+            "$kernel_find_bitcoin_vanity_private_key$_RNvMNtNtCs8DUvt1RrTNm_4k25610arithmetic5fieldNtB2_12FieldElement6invert": {
+              "scope": "helper",
+              "non_nop_instructions": 20461
+            },
+            "$kernel_find_bitcoin_vanity_private_key$_RNvNtCse5XVbuGB8qY_5logic14bitcoin_vanity37generate_and_check_bitcoin_vanity_key": {
+              "scope": "helper",
+              "non_nop_instructions": 51410
+            },
+            "$kernel_find_bitcoin_vanity_private_key$_RNvXs0_NtCslhAn9NXnFmt_12rand_xoshiro20xoroshiro128starstarNtB5_20Xoroshiro128StarStarNtCsjpL00qHfNVI_9rand_core11SeedableRng9from_seed": {
+              "scope": "helper",
+              "non_nop_instructions": 79
+            }
+          },
+          "ptxas_resource_report": "ptxas warning : '--preserve-relocs' option is not fully implemented for 'sm_100' and may not work as expected\nptxas warning : Registers are spilled to local memory in function 'kernel_find_bitcoin_vanity_private_key', 4 bytes spill stores, 4 bytes spill loads\nptxas warning : Registers are spilled to local memory in function '_RNvXs0_NtCslhAn9NXnFmt_12rand_xoshiro20xoroshiro128starstarNtB5_20Xoroshiro128StarStarNtCsjpL00qHfNVI_9rand_core11SeedableRng9from_seed', 32 bytes spill stores, 32 bytes spill loads\nptxas warning : Registers are spilled to local memory in function '_RNvNtCse5XVbuGB8qY_5logic14bitcoin_vanity37generate_and_check_bitcoin_vanity_key', 2400 bytes spill stores, 2540 bytes spill loads\nptxas info    : 96 bytes gmem\nptxas info    : Compiling entry function 'kernel_find_bitcoin_vanity_private_key' for 'sm_100'\nptxas info    : Function properties for kernel_find_bitcoin_vanity_private_key\n    11024 bytes stack frame, 4 bytes spill stores, 4 bytes spill loads\nptxas info    : Used 255 registers, used 0 barriers, 11024 bytes cumulative stack size\nptxas info    : Compile time = 15609.791 ms\nptxas info    : Function properties for _RNvXs0_NtCslhAn9NXnFmt_12rand_xoshiro20xoroshiro128starstarNtB5_20Xoroshiro128StarStarNtCsjpL00qHfNVI_9rand_core11SeedableRng9from_seed\n    56 bytes stack frame, 32 bytes spill stores, 32 bytes spill loads\nptxas info    : Function properties for _RINvCs9EmaDtgp80K_6subtle9black_boxhECs2tFHjrzC0d5_13crypto_bigint\n    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Function properties for _RNCNvNtNtCs8DUvt1RrTNm_4k25610arithmetic3mul7lincomb0B7_\n    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Function properties for _RNvMNtNtCs8DUvt1RrTNm_4k25610arithmetic5fieldNtB2_12FieldElement6invert\n    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Function properties for _RNvNtCse5XVbuGB8qY_5logic14bitcoin_vanity37generate_and_check_bitcoin_vanity_key\n    0 bytes stack frame, 2400 bytes spill stores, 2540 bytes spill loads\n"
+        }
+      }
+    },
+    "ethereum": {
+      "comparison": {
+        "workload": "ethereum",
+        "expected_entry_count": 1,
+        "default_matches_disabled_ptx": true,
+        "inline_scalar_matches_replay": true,
+        "nvidia_execution": false,
+        "ptx_sha256": {
+          "none": "c33d56979496ba6f3857d691131c246d1f983fd444b8091cf04e87d3c7ea7d82",
+          "default": "c33d56979496ba6f3857d691131c246d1f983fd444b8091cf04e87d3c7ea7d82",
+          "inline-scalar": "bcef0d7b386d5fa5319f125c8a437b6d78042d5830a59aaf945d2f551d12aa92"
+        }
+      },
+      "modes": {
+        "none": {
+          "ptx_bytes": 2904101,
+          "cubin_bytes": 1572464,
+          "hashes": {
+            "final-module.ll": "01934c1f4f9bfbaf087e8b0d8aeeff0433951219e3814281c72659a00b7e014c",
+            "rust_kernels.ptx": "c33d56979496ba6f3857d691131c246d1f983fd444b8091cf04e87d3c7ea7d82",
+            "rust_kernels.cubin": "58aafbf4313113e3961f7fa9952e4eec5bacd320ddbdee2f402f5c57cfff294e",
+            "nvdisasm.txt": "a88c2356153148ca7f77dee94477271c3adb32618406c3b73169d7ba4e4f2286",
+            "ptxas-resource-report.txt": "9ddb4f21753e395ac132f4ea60440afffda73967c848588d4bb8ef839dff9ee8"
+          },
+          "llvm_definitions": 5423,
+          "sass_symbols": {
+            "kernel_find_ethereum_vanity_private_key": {
+              "scope": "entry_including_helpers",
+              "non_nop_instructions": 87009
+            },
+            "$kernel_find_ethereum_vanity_private_key$_RINvCs9EmaDtgp80K_6subtle9black_boxhECs2tFHjrzC0d5_13crypto_bigint": {
+              "scope": "helper",
+              "non_nop_instructions": 6
+            },
+            "$kernel_find_ethereum_vanity_private_key$_RNvMNtNtCs8DUvt1RrTNm_4k25610arithmetic10projectiveNtB2_15ProjectivePoint3add": {
+              "scope": "helper",
+              "non_nop_instructions": 10693
+            },
+            "$kernel_find_ethereum_vanity_private_key$_RNvNtNtCs8DUvt1RrTNm_4k25610arithmetic3mul7lincomb": {
+              "scope": "helper",
+              "non_nop_instructions": 51522
+            },
+            "$kernel_find_ethereum_vanity_private_key$_RNvXs0_NtCslhAn9NXnFmt_12rand_xoshiro20xoroshiro128starstarNtB5_20Xoroshiro128StarStarNtCsjpL00qHfNVI_9rand_core11SeedableRng9from_seed": {
+              "scope": "helper",
+              "non_nop_instructions": 79
+            }
+          },
+          "ptxas_resource_report": "ptxas warning : '--preserve-relocs' option is not fully implemented for 'sm_100' and may not work as expected\nptxas warning : Registers are spilled to local memory in function 'kernel_find_ethereum_vanity_private_key', 56 bytes spill stores, 52 bytes spill loads\nptxas warning : Registers are spilled to local memory in function '_RNvXs0_NtCslhAn9NXnFmt_12rand_xoshiro20xoroshiro128starstarNtB5_20Xoroshiro128StarStarNtCsjpL00qHfNVI_9rand_core11SeedableRng9from_seed', 32 bytes spill stores, 32 bytes spill loads\nptxas warning : Registers are spilled to local memory in function '_RNvNtNtCs8DUvt1RrTNm_4k25610arithmetic3mul7lincomb', 2660 bytes spill stores, 2672 bytes spill loads\nptxas info    : 192 bytes gmem\nptxas info    : Compiling entry function 'kernel_find_ethereum_vanity_private_key' for 'sm_100'\nptxas info    : Function properties for kernel_find_ethereum_vanity_private_key\n    10928 bytes stack frame, 56 bytes spill stores, 52 bytes spill loads\nptxas info    : Used 255 registers, used 0 barriers, 10928 bytes cumulative stack size\nptxas info    : Compile time = 16493.826 ms\nptxas info    : Function properties for _RNvXs0_NtCslhAn9NXnFmt_12rand_xoshiro20xoroshiro128starstarNtB5_20Xoroshiro128StarStarNtCsjpL00qHfNVI_9rand_core11SeedableRng9from_seed\n    56 bytes stack frame, 32 bytes spill stores, 32 bytes spill loads\nptxas info    : Function properties for _RINvCs9EmaDtgp80K_6subtle9black_boxhECs2tFHjrzC0d5_13crypto_bigint\n    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Function properties for _RNvMNtNtCs8DUvt1RrTNm_4k25610arithmetic10projectiveNtB2_15ProjectivePoint3add\n    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Function properties for _RNvNtNtCs8DUvt1RrTNm_4k25610arithmetic3mul7lincomb\n    0 bytes stack frame, 2660 bytes spill stores, 2672 bytes spill loads\n"
+        },
+        "default": {
+          "ptx_bytes": 2904101,
+          "cubin_bytes": 1572464,
+          "hashes": {
+            "final-module.ll": "ce42add7a6cedcf446d134473e5c1728528d83fb62cfea3561ed7db3bec86d22",
+            "rust_kernels.ptx": "c33d56979496ba6f3857d691131c246d1f983fd444b8091cf04e87d3c7ea7d82",
+            "rust_kernels.cubin": "58aafbf4313113e3961f7fa9952e4eec5bacd320ddbdee2f402f5c57cfff294e",
+            "nvdisasm.txt": "a88c2356153148ca7f77dee94477271c3adb32618406c3b73169d7ba4e4f2286",
+            "ptxas-resource-report.txt": "7c7440043f4eef7d20b707ff66dcff9473ef2224105d415b60ae27232f17508f"
+          },
+          "llvm_definitions": 211,
+          "sass_symbols": {
+            "kernel_find_ethereum_vanity_private_key": {
+              "scope": "entry_including_helpers",
+              "non_nop_instructions": 87009
+            },
+            "$kernel_find_ethereum_vanity_private_key$_RINvCs9EmaDtgp80K_6subtle9black_boxhECs2tFHjrzC0d5_13crypto_bigint": {
+              "scope": "helper",
+              "non_nop_instructions": 6
+            },
+            "$kernel_find_ethereum_vanity_private_key$_RNvMNtNtCs8DUvt1RrTNm_4k25610arithmetic10projectiveNtB2_15ProjectivePoint3add": {
+              "scope": "helper",
+              "non_nop_instructions": 10693
+            },
+            "$kernel_find_ethereum_vanity_private_key$_RNvNtNtCs8DUvt1RrTNm_4k25610arithmetic3mul7lincomb": {
+              "scope": "helper",
+              "non_nop_instructions": 51522
+            },
+            "$kernel_find_ethereum_vanity_private_key$_RNvXs0_NtCslhAn9NXnFmt_12rand_xoshiro20xoroshiro128starstarNtB5_20Xoroshiro128StarStarNtCsjpL00qHfNVI_9rand_core11SeedableRng9from_seed": {
+              "scope": "helper",
+              "non_nop_instructions": 79
+            }
+          },
+          "ptxas_resource_report": "ptxas warning : '--preserve-relocs' option is not fully implemented for 'sm_100' and may not work as expected\nptxas warning : Registers are spilled to local memory in function 'kernel_find_ethereum_vanity_private_key', 56 bytes spill stores, 52 bytes spill loads\nptxas warning : Registers are spilled to local memory in function '_RNvXs0_NtCslhAn9NXnFmt_12rand_xoshiro20xoroshiro128starstarNtB5_20Xoroshiro128StarStarNtCsjpL00qHfNVI_9rand_core11SeedableRng9from_seed', 32 bytes spill stores, 32 bytes spill loads\nptxas warning : Registers are spilled to local memory in function '_RNvNtNtCs8DUvt1RrTNm_4k25610arithmetic3mul7lincomb', 2660 bytes spill stores, 2672 bytes spill loads\nptxas info    : 192 bytes gmem\nptxas info    : Compiling entry function 'kernel_find_ethereum_vanity_private_key' for 'sm_100'\nptxas info    : Function properties for kernel_find_ethereum_vanity_private_key\n    10928 bytes stack frame, 56 bytes spill stores, 52 bytes spill loads\nptxas info    : Used 255 registers, used 0 barriers, 10928 bytes cumulative stack size\nptxas info    : Compile time = 15544.205 ms\nptxas info    : Function properties for _RNvXs0_NtCslhAn9NXnFmt_12rand_xoshiro20xoroshiro128starstarNtB5_20Xoroshiro128StarStarNtCsjpL00qHfNVI_9rand_core11SeedableRng9from_seed\n    56 bytes stack frame, 32 bytes spill stores, 32 bytes spill loads\nptxas info    : Function properties for _RINvCs9EmaDtgp80K_6subtle9black_boxhECs2tFHjrzC0d5_13crypto_bigint\n    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Function properties for _RNvMNtNtCs8DUvt1RrTNm_4k25610arithmetic10projectiveNtB2_15ProjectivePoint3add\n    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Function properties for _RNvNtNtCs8DUvt1RrTNm_4k25610arithmetic3mul7lincomb\n    0 bytes stack frame, 2660 bytes spill stores, 2672 bytes spill loads\n"
+        },
+        "inline-scalar": {
+          "ptx_bytes": 2666896,
+          "cubin_bytes": 1521104,
+          "hashes": {
+            "final-module.ll": "0fbc925f0d604744c9c82ae8edbc89c570cee2e19a27b5a4853f408120bbc6bc",
+            "rust_kernels.ptx": "bcef0d7b386d5fa5319f125c8a437b6d78042d5830a59aaf945d2f551d12aa92",
+            "rust_kernels.cubin": "54939625da3458d01d680d2618b0689e5ef76eb523f5c7e1166428336462390c",
+            "nvdisasm.txt": "9b76c6fcdbe40310152546f7c235e738c75712d315d30c3757fd318ea8d0392f",
+            "ptxas-resource-report.txt": "368642df0ec38223f4e1209cb79b9ac28b7f84b2bb8c49fdbbeac749c2154aa1"
+          },
+          "llvm_definitions": 13,
+          "sass_symbols": {
+            "kernel_find_ethereum_vanity_private_key": {
+              "scope": "entry_including_helpers",
+              "non_nop_instructions": 86774
+            },
+            "$kernel_find_ethereum_vanity_private_key$_RINvCs9EmaDtgp80K_6subtle9black_boxhECs2tFHjrzC0d5_13crypto_bigint": {
+              "scope": "helper",
+              "non_nop_instructions": 7
+            },
+            "$kernel_find_ethereum_vanity_private_key$_RNvXs0_NtCslhAn9NXnFmt_12rand_xoshiro20xoroshiro128starstarNtB5_20Xoroshiro128StarStarNtCsjpL00qHfNVI_9rand_core11SeedableRng9from_seed": {
+              "scope": "helper",
+              "non_nop_instructions": 79
+            }
+          },
+          "ptxas_resource_report": "ptxas warning : '--preserve-relocs' option is not fully implemented for 'sm_100' and may not work as expected\nptxas warning : Registers are spilled to local memory in function 'kernel_find_ethereum_vanity_private_key', 1672 bytes spill stores, 3036 bytes spill loads\nptxas warning : Registers are spilled to local memory in function '_RNvXs0_NtCslhAn9NXnFmt_12rand_xoshiro20xoroshiro128starstarNtB5_20Xoroshiro128StarStarNtCsjpL00qHfNVI_9rand_core11SeedableRng9from_seed', 32 bytes spill stores, 32 bytes spill loads\nptxas info    : 224 bytes gmem\nptxas info    : Compiling entry function 'kernel_find_ethereum_vanity_private_key' for 'sm_100'\nptxas info    : Function properties for kernel_find_ethereum_vanity_private_key\n    3984 bytes stack frame, 1672 bytes spill stores, 3036 bytes spill loads\nptxas info    : Used 255 registers, used 0 barriers, 3984 bytes cumulative stack size\nptxas info    : Compile time = 17466.508 ms\nptxas info    : Function properties for _RNvXs0_NtCslhAn9NXnFmt_12rand_xoshiro20xoroshiro128starstarNtB5_20Xoroshiro128StarStarNtCsjpL00qHfNVI_9rand_core11SeedableRng9from_seed\n    56 bytes stack frame, 32 bytes spill stores, 32 bytes spill loads\nptxas info    : Function properties for _RINvCs9EmaDtgp80K_6subtle9black_boxhECs2tFHjrzC0d5_13crypto_bigint\n    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\n"
+        }
+      }
+    },
+    "shallenge": {
+      "comparison": {
+        "workload": "shallenge",
+        "expected_entry_count": 1,
+        "default_matches_disabled_ptx": true,
+        "inline_scalar_matches_replay": true,
+        "nvidia_execution": false,
+        "ptx_sha256": {
+          "none": "09366b96ef8d5848c68b6de6823cd3ae727405e40ba18fa8e3fd7208afd81658",
+          "default": "09366b96ef8d5848c68b6de6823cd3ae727405e40ba18fa8e3fd7208afd81658",
+          "inline-scalar": "c94ed049c87e2f816137eafe395aef29204cb01f5980d661799671033e9de576"
+        }
+      },
+      "modes": {
+        "none": {
+          "ptx_bytes": 97085,
+          "cubin_bytes": 58808,
+          "hashes": {
+            "final-module.ll": "7fea852544fa3bb9d5e2cd68823ca745282455e65f8cce0d7dc5a50bc03d608f",
+            "rust_kernels.ptx": "09366b96ef8d5848c68b6de6823cd3ae727405e40ba18fa8e3fd7208afd81658",
+            "rust_kernels.cubin": "74477cb6760c5389cd35be58c8787a7d2cfb3e36946a40eab220c35b4cc0c07c",
+            "nvdisasm.txt": "658cc80d586177d989d998be88da4d9f45abc64dac5095b7965a5e129664f606",
+            "ptxas-resource-report.txt": "99651bcdb4cfb8afade4e0d2b31d3a5d62a8fb1bc28b74da15a4ccf2cb333b09"
+          },
+          "llvm_definitions": 3416,
+          "sass_symbols": {
+            "kernel_find_better_shallenge_nonce": {
+              "scope": "entry_including_helpers",
+              "non_nop_instructions": 2380
+            },
+            "$kernel_find_better_shallenge_nonce$_RNvXs0_NtCslhAn9NXnFmt_12rand_xoshiro20xoroshiro128starstarNtB5_20Xoroshiro128StarStarNtCsjpL00qHfNVI_9rand_core11SeedableRng9from_seed": {
+              "scope": "helper",
+              "non_nop_instructions": 77
+            }
+          },
+          "ptxas_resource_report": "ptxas warning : '--preserve-relocs' option is not fully implemented for 'sm_100' and may not work as expected\nptxas warning : Registers are spilled to local memory in function '_RNvXs0_NtCslhAn9NXnFmt_12rand_xoshiro20xoroshiro128starstarNtB5_20Xoroshiro128StarStarNtCsjpL00qHfNVI_9rand_core11SeedableRng9from_seed', 28 bytes spill stores, 28 bytes spill loads\nptxas info    : 64 bytes gmem\nptxas info    : Compiling entry function 'kernel_find_better_shallenge_nonce' for 'sm_100'\nptxas info    : Function properties for kernel_find_better_shallenge_nonce\n    144 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 96 registers, used 0 barriers, 144 bytes cumulative stack size\nptxas info    : Compile time = 127.603 ms\nptxas info    : Function properties for _RNvXs0_NtCslhAn9NXnFmt_12rand_xoshiro20xoroshiro128starstarNtB5_20Xoroshiro128StarStarNtCsjpL00qHfNVI_9rand_core11SeedableRng9from_seed\n    56 bytes stack frame, 28 bytes spill stores, 28 bytes spill loads\n"
+        },
+        "default": {
+          "ptx_bytes": 97085,
+          "cubin_bytes": 58808,
+          "hashes": {
+            "final-module.ll": "fabad9211754fa12814ef402244759fabeb8271ad5ab5294591940f9ef5bce94",
+            "rust_kernels.ptx": "09366b96ef8d5848c68b6de6823cd3ae727405e40ba18fa8e3fd7208afd81658",
+            "rust_kernels.cubin": "74477cb6760c5389cd35be58c8787a7d2cfb3e36946a40eab220c35b4cc0c07c",
+            "nvdisasm.txt": "658cc80d586177d989d998be88da4d9f45abc64dac5095b7965a5e129664f606",
+            "ptxas-resource-report.txt": "e0ec083382c2566f6222ca293ff0c14cc556a5d65ac536a6ab6f9cc71128ba3f"
+          },
+          "llvm_definitions": 54,
+          "sass_symbols": {
+            "kernel_find_better_shallenge_nonce": {
+              "scope": "entry_including_helpers",
+              "non_nop_instructions": 2380
+            },
+            "$kernel_find_better_shallenge_nonce$_RNvXs0_NtCslhAn9NXnFmt_12rand_xoshiro20xoroshiro128starstarNtB5_20Xoroshiro128StarStarNtCsjpL00qHfNVI_9rand_core11SeedableRng9from_seed": {
+              "scope": "helper",
+              "non_nop_instructions": 77
+            }
+          },
+          "ptxas_resource_report": "ptxas warning : '--preserve-relocs' option is not fully implemented for 'sm_100' and may not work as expected\nptxas warning : Registers are spilled to local memory in function '_RNvXs0_NtCslhAn9NXnFmt_12rand_xoshiro20xoroshiro128starstarNtB5_20Xoroshiro128StarStarNtCsjpL00qHfNVI_9rand_core11SeedableRng9from_seed', 28 bytes spill stores, 28 bytes spill loads\nptxas info    : 64 bytes gmem\nptxas info    : Compiling entry function 'kernel_find_better_shallenge_nonce' for 'sm_100'\nptxas info    : Function properties for kernel_find_better_shallenge_nonce\n    144 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 96 registers, used 0 barriers, 144 bytes cumulative stack size\nptxas info    : Compile time = 128.137 ms\nptxas info    : Function properties for _RNvXs0_NtCslhAn9NXnFmt_12rand_xoshiro20xoroshiro128starstarNtB5_20Xoroshiro128StarStarNtCsjpL00qHfNVI_9rand_core11SeedableRng9from_seed\n    56 bytes stack frame, 28 bytes spill stores, 28 bytes spill loads\n"
+        },
+        "inline-scalar": {
+          "ptx_bytes": 97006,
+          "cubin_bytes": 75584,
+          "hashes": {
+            "final-module.ll": "6274646078321d1b58ce428a1230fbc247c02ac7225530456fd44f9e65ceadff",
+            "rust_kernels.ptx": "c94ed049c87e2f816137eafe395aef29204cb01f5980d661799671033e9de576",
+            "rust_kernels.cubin": "bffb425d473f26a89c01f97084c6594bf35af8fc7a3d07992f7a9b724e3c5b61",
+            "nvdisasm.txt": "0300152fa78fa19c55e3fe7e172c447ed7f7b0ad1d23f10a2ce2ffec3beafb0e",
+            "ptxas-resource-report.txt": "740629b99c03390c077a6440d9987d397c7388a94f93963e71ffaf9930d4cbb4"
+          },
+          "llvm_definitions": 3,
+          "sass_symbols": {
+            "kernel_find_better_shallenge_nonce": {
+              "scope": "entry_including_helpers",
+              "non_nop_instructions": 2710
+            },
+            "$kernel_find_better_shallenge_nonce$_RNvXs0_NtCslhAn9NXnFmt_12rand_xoshiro20xoroshiro128starstarNtB5_20Xoroshiro128StarStarNtCsjpL00qHfNVI_9rand_core11SeedableRng9from_seed": {
+              "scope": "helper",
+              "non_nop_instructions": 77
+            }
+          },
+          "ptxas_resource_report": "ptxas warning : '--preserve-relocs' option is not fully implemented for 'sm_100' and may not work as expected\nptxas warning : Registers are spilled to local memory in function '_RNvXs0_NtCslhAn9NXnFmt_12rand_xoshiro20xoroshiro128starstarNtB5_20Xoroshiro128StarStarNtCsjpL00qHfNVI_9rand_core11SeedableRng9from_seed', 28 bytes spill stores, 28 bytes spill loads\nptxas info    : 64 bytes gmem\nptxas info    : Compiling entry function 'kernel_find_better_shallenge_nonce' for 'sm_100'\nptxas info    : Function properties for kernel_find_better_shallenge_nonce\n    176 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 96 registers, used 0 barriers, 176 bytes cumulative stack size\nptxas info    : Compile time = 146.270 ms\nptxas info    : Function properties for _RNvXs0_NtCslhAn9NXnFmt_12rand_xoshiro20xoroshiro128starstarNtB5_20Xoroshiro128StarStarNtCsjpL00qHfNVI_9rand_core11SeedableRng9from_seed\n    56 bytes stack frame, 28 bytes spill stores, 28 bytes spill loads\n"
+        }
+      }
+    }
+  },
+  "default_dce_retention": {
+    "run": 34792081740,
+    "results": [
+      {
+        "fixture": "small",
+        "definitions_before_after": [
+          3299,
+          93
+        ],
+        "matches_disabled_ptx_function_bodies": true,
+        "ptx_sha256": {
+          "none": "b325305f1d43b314bf0c794f099a4412b6ae038b17b841670d011d94d21e0702",
+          "default": "b325305f1d43b314bf0c794f099a4412b6ae038b17b841670d011d94d21e0702"
+        }
+      },
+      {
+        "fixture": "retention",
+        "definitions_before_after": [
+          3192,
+          5
+        ],
+        "matches_disabled_ptx_function_bodies": true,
+        "ptx_sha256": {
+          "none": "8688f55d8aad8e9ab1a4cbce5026ace21bb8b4e542317268826a922e77eb55bb",
+          "default": "8688f55d8aad8e9ab1a4cbce5026ace21bb8b4e542317268826a922e77eb55bb"
+        }
+      }
+    ]
+  },
+  "small_numerical": {
+    "tiny-loops": {
+      "host_oracle": {
+        "input_sha256": "a0fbe965a15f8084452a0bbabd7bb57dc5be78ee0537b9945c94b27861e06db7",
+        "oracle_sha256": "76f10d79ed3d05cedae0e1b050233b5dc21f9ad6870d38f918a950d2c96219d4",
+        "host_triple": "arm64-apple-darwin25.6.0",
+        "gpu_execution": false,
+        "result": "HOST_IR_NUMERICAL_PASS: 1608 cases across five extracted helpers"
+      },
+      "consumer": "generic CuMetal, Apple M5",
+      "ptx_sha256": "551de2b1b8a10c5d8dabd10bcf808123b45a2bed220d54b256ad4ebcb608da78",
+      "logs": {
+        "vecadd-run.log": "CUMETAL_PROVENANCE event=kernel_launch kernel=\"rust_vecadd\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=false launch_success=true duration_ns=1916 grid=(1,1,1) block=(64,1,1) unsupported_reason=\"\"\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"rust_vecadd\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1499 grid=(1,1,1) block=(64,1,1) unsupported_reason=\"\"\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"rust_vecadd\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1416 grid=(1,1,1) block=(64,1,1) unsupported_reason=\"\"\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"rust_vecadd\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1583 grid=(1,1,1) block=(64,1,1) unsupported_reason=\"\"\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"rust_vecadd\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1499 grid=(5,1,1) block=(64,1,1) unsupported_reason=\"\"\nDEVICE Apple M5\nNUMERICAL_PASS kernel=rust_vecadd count=1\nNUMERICAL_PASS kernel=rust_vecadd count=31\nNUMERICAL_PASS kernel=rust_vecadd count=32\nNUMERICAL_PASS kernel=rust_vecadd count=33\nNUMERICAL_PASS kernel=rust_vecadd count=257\n",
+        "sha256-run.log": "CUMETAL_PROVENANCE event=kernel_launch kernel=\"rust_sha256_32\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=false launch_success=true duration_ns=13750 grid=(1,1,1) block=(64,1,1) unsupported_reason=\"\"\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"rust_sha256_32\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=12000 grid=(1,1,1) block=(64,1,1) unsupported_reason=\"\"\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"rust_sha256_32\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=11874 grid=(1,1,1) block=(64,1,1) unsupported_reason=\"\"\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"rust_sha256_32\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=11791 grid=(1,1,1) block=(64,1,1) unsupported_reason=\"\"\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"rust_sha256_32\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=11249 grid=(5,1,1) block=(64,1,1) unsupported_reason=\"\"\nDEVICE Apple M5\nNUMERICAL_PASS kernel=rust_sha256_32 count=1\nNUMERICAL_PASS kernel=rust_sha256_32 count=31\nNUMERICAL_PASS kernel=rust_sha256_32 count=32\nNUMERICAL_PASS kernel=rust_sha256_32 count=33\nNUMERICAL_PASS kernel=rust_sha256_32 count=257\n"
+      },
+      "consumer_hashes": {
+        "build-rust-ptx-apple/cumetalc": "580e0d0df453055c13eef3fdc8520c593c91672952c74177a4f9cfd37074000a",
+        "build-rust-ptx-apple/libcumetal.dylib": "a101fdff598e160af5ec6e9d5fffdb65b88bb19f47a9ae8364224abed1a7fdb0",
+        "demos/rust-ptx/run.py": "623f9230f26b9dbc5c4241b32b37c8831a0fb36e80970161d6aac72efd368448"
+      }
+    },
+    "correlated-tiny-loops": {
+      "host_oracle": {
+        "input_sha256": "d6196a85219f613042bb989f50a273ca6b8e636a7ad8ce7614b15a1d4a438c78",
+        "oracle_sha256": "76f10d79ed3d05cedae0e1b050233b5dc21f9ad6870d38f918a950d2c96219d4",
+        "host_triple": "arm64-apple-darwin25.6.0",
+        "gpu_execution": false,
+        "result": "HOST_IR_NUMERICAL_PASS: 1608 cases across five extracted helpers"
+      },
+      "consumer": "generic CuMetal, Apple M5",
+      "ptx_sha256": "2e3be232386a22e74e7629c497defd9a0419dbe0b87d310803f189d66332f7f4",
+      "logs": {
+        "vecadd-run.log": "CUMETAL_PROVENANCE event=kernel_launch kernel=\"rust_vecadd\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=false launch_success=true duration_ns=1874 grid=(1,1,1) block=(64,1,1) unsupported_reason=\"\"\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"rust_vecadd\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1416 grid=(1,1,1) block=(64,1,1) unsupported_reason=\"\"\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"rust_vecadd\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1374 grid=(1,1,1) block=(64,1,1) unsupported_reason=\"\"\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"rust_vecadd\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1416 grid=(1,1,1) block=(64,1,1) unsupported_reason=\"\"\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"rust_vecadd\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1458 grid=(5,1,1) block=(64,1,1) unsupported_reason=\"\"\nDEVICE Apple M5\nNUMERICAL_PASS kernel=rust_vecadd count=1\nNUMERICAL_PASS kernel=rust_vecadd count=31\nNUMERICAL_PASS kernel=rust_vecadd count=32\nNUMERICAL_PASS kernel=rust_vecadd count=33\nNUMERICAL_PASS kernel=rust_vecadd count=257\n",
+        "sha256-run.log": "CUMETAL_PROVENANCE event=kernel_launch kernel=\"rust_sha256_32\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=false launch_success=true duration_ns=13999 grid=(1,1,1) block=(64,1,1) unsupported_reason=\"\"\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"rust_sha256_32\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=11875 grid=(1,1,1) block=(64,1,1) unsupported_reason=\"\"\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"rust_sha256_32\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=11791 grid=(1,1,1) block=(64,1,1) unsupported_reason=\"\"\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"rust_sha256_32\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=11833 grid=(1,1,1) block=(64,1,1) unsupported_reason=\"\"\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"rust_sha256_32\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=11249 grid=(5,1,1) block=(64,1,1) unsupported_reason=\"\"\nDEVICE Apple M5\nNUMERICAL_PASS kernel=rust_sha256_32 count=1\nNUMERICAL_PASS kernel=rust_sha256_32 count=31\nNUMERICAL_PASS kernel=rust_sha256_32 count=32\nNUMERICAL_PASS kernel=rust_sha256_32 count=33\nNUMERICAL_PASS kernel=rust_sha256_32 count=257\n"
+      },
+      "consumer_hashes": {
+        "build-rust-ptx-apple/cumetalc": "580e0d0df453055c13eef3fdc8520c593c91672952c74177a4f9cfd37074000a",
+        "build-rust-ptx-apple/libcumetal.dylib": "a101fdff598e160af5ec6e9d5fffdb65b88bb19f47a9ae8364224abed1a7fdb0",
+        "demos/rust-ptx/run.py": "623f9230f26b9dbc5c4241b32b37c8831a0fb36e80970161d6aac72efd368448"
+      }
+    }
+  },
+  "representative_isolation": {
+    "run": 34793214204,
+    "modes": {
+      "none": {
+        "input_sha256": "db4d754ce68334027d84aba442cf0c4221cce055614593fa0279e3798c24933d",
+        "libraries": {
+          "/nix/store/lispzgqrbchxvq60xcr8mgmmihvd0kgi-cuda-merged-13.2/nvvm/libdevice/libdevice.10.bc": "0c6b4d4e4c033e2faffcc6f671c68fec5e813020845a5a08f1dbdd35c19629d6",
+          "target/cuda-builder-codegen/debug/build/rustc_codegen_nvvm-51ecf64d3b71e193/out/libintrinsics_v19.bc": "1e49ef6a4767cb39656afa6e4d7b700a69affd6ed3673984003d72fed2019758"
+        },
+        "kernels": {
+          "wave2_float": {
+            "exit_code": 0,
+            "compiled": true,
+            "ir_sha256": "4984327d07755101301e00f3817dbb676183d9e56c8a6f476808780303341218"
+          },
+          "wave2_shared": {
+            "exit_code": 0,
+            "compiled": true,
+            "ir_sha256": "b0928e18cf40a2d68b9d3ddca9ec856fd208881fedb6bb155cf6ddd37f991808"
+          },
+          "wave2_atomic": {
+            "exit_code": 0,
+            "compiled": true,
+            "ir_sha256": "a8e7c062d825f5d8ba6d63b568ad382edaaec83ea7007d0b20f35c4dd621d0dd"
+          },
+          "wave2_shuffle": {
+            "exit_code": -11,
+            "compiled": false,
+            "ir_sha256": "cea1696ed78a750736767a554d6a85ab2c58f158a13ea8de4c4b27008930bd1c"
+          }
+        }
+      },
+      "default": {
+        "input_sha256": "862966ea9882d0fe8b0b6eeedb4f348509ffe3499df09aa679aeb70666ee8362",
+        "libraries": {
+          "/nix/store/lispzgqrbchxvq60xcr8mgmmihvd0kgi-cuda-merged-13.2/nvvm/libdevice/libdevice.10.bc": "0c6b4d4e4c033e2faffcc6f671c68fec5e813020845a5a08f1dbdd35c19629d6",
+          "target/cuda-builder-codegen/debug/build/rustc_codegen_nvvm-51ecf64d3b71e193/out/libintrinsics_v19.bc": "1e49ef6a4767cb39656afa6e4d7b700a69affd6ed3673984003d72fed2019758"
+        },
+        "kernels": {
+          "wave2_float": {
+            "exit_code": 0,
+            "compiled": true,
+            "ir_sha256": "76affca839cea0db2c2e4b8c08068e434eedfb11cad05dff46ff3223a4175604"
+          },
+          "wave2_shared": {
+            "exit_code": 0,
+            "compiled": true,
+            "ir_sha256": "907e383e1e4df0c6dac1b2b7adc26e9782003ab83cfd5f216a354907608d2117"
+          },
+          "wave2_atomic": {
+            "exit_code": 0,
+            "compiled": true,
+            "ir_sha256": "3f19ee37c3d81f9934dfba0e0b948e72c4377759d05a03ce2f9736292b9aea54"
+          },
+          "wave2_shuffle": {
+            "exit_code": -11,
+            "compiled": false,
+            "ir_sha256": "ac3b9584185d6b1526811c217f9b3d5795086935cab8d7276a2dbbcf725ebfc8"
+          }
+        }
+      },
+      "inline-scalar": {
+        "input_sha256": "e92eab21d5efe6e20499e429f59bc9a6d2d81c643199c028409b5f25e47f2554",
+        "libraries": {
+          "/nix/store/lispzgqrbchxvq60xcr8mgmmihvd0kgi-cuda-merged-13.2/nvvm/libdevice/libdevice.10.bc": "0c6b4d4e4c033e2faffcc6f671c68fec5e813020845a5a08f1dbdd35c19629d6",
+          "target/cuda-builder-codegen/debug/build/rustc_codegen_nvvm-51ecf64d3b71e193/out/libintrinsics_v19.bc": "1e49ef6a4767cb39656afa6e4d7b700a69affd6ed3673984003d72fed2019758"
+        },
+        "kernels": {
+          "wave2_float": {
+            "exit_code": 0,
+            "compiled": true,
+            "ir_sha256": "6ed4c338ccb9bba1ae15956d276f3576983ed31e6a3afd6ae77098dd2478c781"
+          },
+          "wave2_shared": {
+            "exit_code": 0,
+            "compiled": true,
+            "ir_sha256": "a18d47655cbae767b84ba2fc7c597a7b1e2f5b2207292474ffa024623544474b"
+          },
+          "wave2_atomic": {
+            "exit_code": 0,
+            "compiled": true,
+            "ir_sha256": "a76e3f1eb167c44e11dee43ac3f7d071ce713088dd6975aeaf13c59c7fd9922c"
+          },
+          "wave2_shuffle": {
+            "exit_code": -11,
+            "compiled": false,
+            "ir_sha256": "f1632f278cfbf9d3607b00fd2522cf3f49de4852c692b05d6a0b3fae302bf8f0"
+          }
+        }
+      }
+    },
+    "apple_numerical": {
+      "none/wave2_float": {
+        "module_sha256": "9974c4b82b399b36c630b11abeb80a7f01a94fcb7ebea4758da874033d74e089",
+        "runner_sha256": "c99b874d3e6311f37a1ce78cec43d395c4cafaaf8bde4ac5179ab2d51bd18d09",
+        "driver": "/Users/brandon/Desktop/gpu/cuda-metal/build-rust-ptx-apple/libcumetal.dylib",
+        "driver_version": 12000,
+        "device": "Apple M5",
+        "native_nvidia_driver_requested": false,
+        "results": [
+          {
+            "kernel": "wave2_float",
+            "count": 1,
+            "numerical_pass": true,
+            "guards_pass": true
+          },
+          {
+            "kernel": "wave2_float",
+            "count": 31,
+            "numerical_pass": true,
+            "guards_pass": true
+          },
+          {
+            "kernel": "wave2_float",
+            "count": 32,
+            "numerical_pass": true,
+            "guards_pass": true
+          },
+          {
+            "kernel": "wave2_float",
+            "count": 33,
+            "numerical_pass": true,
+            "guards_pass": true
+          },
+          {
+            "kernel": "wave2_float",
+            "count": 257,
+            "numerical_pass": true,
+            "guards_pass": true
+          },
+          {
+            "kernel": "wave2_float",
+            "count": 131072,
+            "numerical_pass": true,
+            "guards_pass": true
+          }
+        ],
+        "ptx_sha256": "78e5257a16fde090cb8e3772bc8c987f2ecd04266980b7d10cfc726217ae8e3d",
+        "execution_log": "CUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_float\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=false launch_success=true duration_ns=1833 grid=(1,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_float\", \"count\": 1, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_float\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1499 grid=(1,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_float\", \"count\": 31, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_float\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1499 grid=(1,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_float\", \"count\": 32, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_float\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1500 grid=(2,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_float\", \"count\": 33, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_float\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1666 grid=(9,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_float\", \"count\": 257, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_float\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=7874 grid=(4096,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_float\", \"count\": 131072, \"numerical_pass\": true, \"guards_pass\": true}\n"
+      },
+      "none/wave2_shared": {
+        "module_sha256": "5f069c332e5a2f6c6ac58b290c8559cdd3d90a047c54dc4a0cf44e328ec2cedc",
+        "runner_sha256": "c99b874d3e6311f37a1ce78cec43d395c4cafaaf8bde4ac5179ab2d51bd18d09",
+        "driver": "/Users/brandon/Desktop/gpu/cuda-metal/build-rust-ptx-apple/libcumetal.dylib",
+        "driver_version": 12000,
+        "device": "Apple M5",
+        "native_nvidia_driver_requested": false,
+        "results": [
+          {
+            "kernel": "wave2_shared",
+            "count": 1,
+            "numerical_pass": true,
+            "guards_pass": true
+          },
+          {
+            "kernel": "wave2_shared",
+            "count": 31,
+            "numerical_pass": true,
+            "guards_pass": true
+          },
+          {
+            "kernel": "wave2_shared",
+            "count": 32,
+            "numerical_pass": true,
+            "guards_pass": true
+          },
+          {
+            "kernel": "wave2_shared",
+            "count": 33,
+            "numerical_pass": true,
+            "guards_pass": true
+          },
+          {
+            "kernel": "wave2_shared",
+            "count": 257,
+            "numerical_pass": true,
+            "guards_pass": true
+          },
+          {
+            "kernel": "wave2_shared",
+            "count": 131072,
+            "numerical_pass": true,
+            "guards_pass": true
+          }
+        ],
+        "ptx_sha256": "3b3bb39351385bf48a11bb03d5e36ca7942f8e31096202e628847b6e8621f76e",
+        "execution_log": "CUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_shared\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=false launch_success=true duration_ns=2041 grid=(1,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_shared\", \"count\": 1, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_shared\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1541 grid=(1,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_shared\", \"count\": 31, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_shared\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1625 grid=(1,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_shared\", \"count\": 32, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_shared\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1541 grid=(2,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_shared\", \"count\": 33, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_shared\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1499 grid=(9,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_shared\", \"count\": 257, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_shared\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=6333 grid=(4096,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_shared\", \"count\": 131072, \"numerical_pass\": true, \"guards_pass\": true}\n"
+      },
+      "none/wave2_atomic": {
+        "module_sha256": "51ff608005dfd3943eb4cc729bb82d2e6f120141d34054845e98a4f58e689400",
+        "runner_sha256": "c99b874d3e6311f37a1ce78cec43d395c4cafaaf8bde4ac5179ab2d51bd18d09",
+        "driver": "/Users/brandon/Desktop/gpu/cuda-metal/build-rust-ptx-apple/libcumetal.dylib",
+        "driver_version": 12000,
+        "device": "Apple M5",
+        "native_nvidia_driver_requested": false,
+        "results": [
+          {
+            "kernel": "wave2_atomic",
+            "count": 1,
+            "numerical_pass": true,
+            "guards_pass": true
+          },
+          {
+            "kernel": "wave2_atomic",
+            "count": 31,
+            "numerical_pass": true,
+            "guards_pass": true
+          },
+          {
+            "kernel": "wave2_atomic",
+            "count": 32,
+            "numerical_pass": true,
+            "guards_pass": true
+          },
+          {
+            "kernel": "wave2_atomic",
+            "count": 33,
+            "numerical_pass": true,
+            "guards_pass": true
+          },
+          {
+            "kernel": "wave2_atomic",
+            "count": 257,
+            "numerical_pass": true,
+            "guards_pass": true
+          },
+          {
+            "kernel": "wave2_atomic",
+            "count": 131072,
+            "numerical_pass": true,
+            "guards_pass": true
+          }
+        ],
+        "ptx_sha256": "5a4d4c5bd5668a947c16d16310d12f5dddef2301dd3d87c3ab760fba55e4d1bb",
+        "execution_log": "CUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_atomic\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=false launch_success=true duration_ns=1791 grid=(1,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_atomic\", \"count\": 1, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_atomic\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1374 grid=(1,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_atomic\", \"count\": 31, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_atomic\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1499 grid=(1,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_atomic\", \"count\": 32, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_atomic\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1458 grid=(2,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_atomic\", \"count\": 33, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_atomic\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1499 grid=(9,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_atomic\", \"count\": 257, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_atomic\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=3791 grid=(4096,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_atomic\", \"count\": 131072, \"numerical_pass\": true, \"guards_pass\": true}\n"
+      },
+      "default/wave2_float": {
+        "module_sha256": "9974c4b82b399b36c630b11abeb80a7f01a94fcb7ebea4758da874033d74e089",
+        "runner_sha256": "c99b874d3e6311f37a1ce78cec43d395c4cafaaf8bde4ac5179ab2d51bd18d09",
+        "driver": "/Users/brandon/Desktop/gpu/cuda-metal/build-rust-ptx-apple/libcumetal.dylib",
+        "driver_version": 12000,
+        "device": "Apple M5",
+        "native_nvidia_driver_requested": false,
+        "results": [
+          {
+            "kernel": "wave2_float",
+            "count": 1,
+            "numerical_pass": true,
+            "guards_pass": true
+          },
+          {
+            "kernel": "wave2_float",
+            "count": 31,
+            "numerical_pass": true,
+            "guards_pass": true
+          },
+          {
+            "kernel": "wave2_float",
+            "count": 32,
+            "numerical_pass": true,
+            "guards_pass": true
+          },
+          {
+            "kernel": "wave2_float",
+            "count": 33,
+            "numerical_pass": true,
+            "guards_pass": true
+          },
+          {
+            "kernel": "wave2_float",
+            "count": 257,
+            "numerical_pass": true,
+            "guards_pass": true
+          },
+          {
+            "kernel": "wave2_float",
+            "count": 131072,
+            "numerical_pass": true,
+            "guards_pass": true
+          }
+        ],
+        "ptx_sha256": "78e5257a16fde090cb8e3772bc8c987f2ecd04266980b7d10cfc726217ae8e3d",
+        "execution_log": "CUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_float\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=false launch_success=true duration_ns=1666 grid=(1,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_float\", \"count\": 1, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_float\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1500 grid=(1,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_float\", \"count\": 31, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_float\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1499 grid=(1,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_float\", \"count\": 32, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_float\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1416 grid=(2,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_float\", \"count\": 33, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_float\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1499 grid=(9,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_float\", \"count\": 257, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_float\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=11791 grid=(4096,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_float\", \"count\": 131072, \"numerical_pass\": true, \"guards_pass\": true}\n"
+      },
+      "default/wave2_shared": {
+        "module_sha256": "5f069c332e5a2f6c6ac58b290c8559cdd3d90a047c54dc4a0cf44e328ec2cedc",
+        "runner_sha256": "c99b874d3e6311f37a1ce78cec43d395c4cafaaf8bde4ac5179ab2d51bd18d09",
+        "driver": "/Users/brandon/Desktop/gpu/cuda-metal/build-rust-ptx-apple/libcumetal.dylib",
+        "driver_version": 12000,
+        "device": "Apple M5",
+        "native_nvidia_driver_requested": false,
+        "results": [
+          {
+            "kernel": "wave2_shared",
+            "count": 1,
+            "numerical_pass": true,
+            "guards_pass": true
+          },
+          {
+            "kernel": "wave2_shared",
+            "count": 31,
+            "numerical_pass": true,
+            "guards_pass": true
+          },
+          {
+            "kernel": "wave2_shared",
+            "count": 32,
+            "numerical_pass": true,
+            "guards_pass": true
+          },
+          {
+            "kernel": "wave2_shared",
+            "count": 33,
+            "numerical_pass": true,
+            "guards_pass": true
+          },
+          {
+            "kernel": "wave2_shared",
+            "count": 257,
+            "numerical_pass": true,
+            "guards_pass": true
+          },
+          {
+            "kernel": "wave2_shared",
+            "count": 131072,
+            "numerical_pass": true,
+            "guards_pass": true
+          }
+        ],
+        "ptx_sha256": "3b3bb39351385bf48a11bb03d5e36ca7942f8e31096202e628847b6e8621f76e",
+        "execution_log": "CUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_shared\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=false launch_success=true duration_ns=1874 grid=(1,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_shared\", \"count\": 1, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_shared\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1541 grid=(1,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_shared\", \"count\": 31, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_shared\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1374 grid=(1,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_shared\", \"count\": 32, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_shared\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1499 grid=(2,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_shared\", \"count\": 33, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_shared\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1541 grid=(9,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_shared\", \"count\": 257, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_shared\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=6125 grid=(4096,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_shared\", \"count\": 131072, \"numerical_pass\": true, \"guards_pass\": true}\n"
+      },
+      "default/wave2_atomic": {
+        "module_sha256": "51ff608005dfd3943eb4cc729bb82d2e6f120141d34054845e98a4f58e689400",
+        "runner_sha256": "c99b874d3e6311f37a1ce78cec43d395c4cafaaf8bde4ac5179ab2d51bd18d09",
+        "driver": "/Users/brandon/Desktop/gpu/cuda-metal/build-rust-ptx-apple/libcumetal.dylib",
+        "driver_version": 12000,
+        "device": "Apple M5",
+        "native_nvidia_driver_requested": false,
+        "results": [
+          {
+            "kernel": "wave2_atomic",
+            "count": 1,
+            "numerical_pass": true,
+            "guards_pass": true
+          },
+          {
+            "kernel": "wave2_atomic",
+            "count": 31,
+            "numerical_pass": true,
+            "guards_pass": true
+          },
+          {
+            "kernel": "wave2_atomic",
+            "count": 32,
+            "numerical_pass": true,
+            "guards_pass": true
+          },
+          {
+            "kernel": "wave2_atomic",
+            "count": 33,
+            "numerical_pass": true,
+            "guards_pass": true
+          },
+          {
+            "kernel": "wave2_atomic",
+            "count": 257,
+            "numerical_pass": true,
+            "guards_pass": true
+          },
+          {
+            "kernel": "wave2_atomic",
+            "count": 131072,
+            "numerical_pass": true,
+            "guards_pass": true
+          }
+        ],
+        "ptx_sha256": "5a4d4c5bd5668a947c16d16310d12f5dddef2301dd3d87c3ab760fba55e4d1bb",
+        "execution_log": "CUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_atomic\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=false launch_success=true duration_ns=1958 grid=(1,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_atomic\", \"count\": 1, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_atomic\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=14499 grid=(1,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_atomic\", \"count\": 31, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_atomic\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1583 grid=(1,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_atomic\", \"count\": 32, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_atomic\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1499 grid=(2,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_atomic\", \"count\": 33, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_atomic\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1375 grid=(9,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_atomic\", \"count\": 257, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_atomic\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=3958 grid=(4096,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_atomic\", \"count\": 131072, \"numerical_pass\": true, \"guards_pass\": true}\n"
+      },
+      "inline-scalar/wave2_float": {
+        "module_sha256": "9974c4b82b399b36c630b11abeb80a7f01a94fcb7ebea4758da874033d74e089",
+        "runner_sha256": "c99b874d3e6311f37a1ce78cec43d395c4cafaaf8bde4ac5179ab2d51bd18d09",
+        "driver": "/Users/brandon/Desktop/gpu/cuda-metal/build-rust-ptx-apple/libcumetal.dylib",
+        "driver_version": 12000,
+        "device": "Apple M5",
+        "native_nvidia_driver_requested": false,
+        "results": [
+          {
+            "kernel": "wave2_float",
+            "count": 1,
+            "numerical_pass": true,
+            "guards_pass": true
+          },
+          {
+            "kernel": "wave2_float",
+            "count": 31,
+            "numerical_pass": true,
+            "guards_pass": true
+          },
+          {
+            "kernel": "wave2_float",
+            "count": 32,
+            "numerical_pass": true,
+            "guards_pass": true
+          },
+          {
+            "kernel": "wave2_float",
+            "count": 33,
+            "numerical_pass": true,
+            "guards_pass": true
+          },
+          {
+            "kernel": "wave2_float",
+            "count": 257,
+            "numerical_pass": true,
+            "guards_pass": true
+          },
+          {
+            "kernel": "wave2_float",
+            "count": 131072,
+            "numerical_pass": true,
+            "guards_pass": true
+          }
+        ],
+        "ptx_sha256": "2a4f0621ff68d0ceb1d1c1fe7376995a8b987d8a2aa1fddde819bd40be372472",
+        "execution_log": "CUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_float\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=false launch_success=true duration_ns=1749 grid=(1,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_float\", \"count\": 1, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_float\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1499 grid=(1,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_float\", \"count\": 31, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_float\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1500 grid=(1,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_float\", \"count\": 32, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_float\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1374 grid=(2,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_float\", \"count\": 33, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_float\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1666 grid=(9,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_float\", \"count\": 257, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_float\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=8125 grid=(4096,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_float\", \"count\": 131072, \"numerical_pass\": true, \"guards_pass\": true}\n"
+      },
+      "inline-scalar/wave2_shared": {
+        "module_sha256": "5f069c332e5a2f6c6ac58b290c8559cdd3d90a047c54dc4a0cf44e328ec2cedc",
+        "runner_sha256": "c99b874d3e6311f37a1ce78cec43d395c4cafaaf8bde4ac5179ab2d51bd18d09",
+        "driver": "/Users/brandon/Desktop/gpu/cuda-metal/build-rust-ptx-apple/libcumetal.dylib",
+        "driver_version": 12000,
+        "device": "Apple M5",
+        "native_nvidia_driver_requested": false,
+        "results": [
+          {
+            "kernel": "wave2_shared",
+            "count": 1,
+            "numerical_pass": true,
+            "guards_pass": true
+          },
+          {
+            "kernel": "wave2_shared",
+            "count": 31,
+            "numerical_pass": true,
+            "guards_pass": true
+          },
+          {
+            "kernel": "wave2_shared",
+            "count": 32,
+            "numerical_pass": true,
+            "guards_pass": true
+          },
+          {
+            "kernel": "wave2_shared",
+            "count": 33,
+            "numerical_pass": true,
+            "guards_pass": true
+          },
+          {
+            "kernel": "wave2_shared",
+            "count": 257,
+            "numerical_pass": true,
+            "guards_pass": true
+          },
+          {
+            "kernel": "wave2_shared",
+            "count": 131072,
+            "numerical_pass": true,
+            "guards_pass": true
+          }
+        ],
+        "ptx_sha256": "b71f5ca6ccc34ae70f27e3f215742ca8ccd7976e83ac9aeaf7ab3ec51e39e029",
+        "execution_log": "CUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_shared\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=false launch_success=true duration_ns=2000 grid=(1,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_shared\", \"count\": 1, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_shared\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=209124 grid=(1,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_shared\", \"count\": 31, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_shared\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1749 grid=(1,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_shared\", \"count\": 32, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_shared\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1499 grid=(2,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_shared\", \"count\": 33, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_shared\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1499 grid=(9,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_shared\", \"count\": 257, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_shared\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=5166 grid=(4096,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_shared\", \"count\": 131072, \"numerical_pass\": true, \"guards_pass\": true}\n"
+      },
+      "inline-scalar/wave2_atomic": {
+        "module_sha256": "51ff608005dfd3943eb4cc729bb82d2e6f120141d34054845e98a4f58e689400",
+        "runner_sha256": "c99b874d3e6311f37a1ce78cec43d395c4cafaaf8bde4ac5179ab2d51bd18d09",
+        "driver": "/Users/brandon/Desktop/gpu/cuda-metal/build-rust-ptx-apple/libcumetal.dylib",
+        "driver_version": 12000,
+        "device": "Apple M5",
+        "native_nvidia_driver_requested": false,
+        "results": [
+          {
+            "kernel": "wave2_atomic",
+            "count": 1,
+            "numerical_pass": true,
+            "guards_pass": true
+          },
+          {
+            "kernel": "wave2_atomic",
+            "count": 31,
+            "numerical_pass": true,
+            "guards_pass": true
+          },
+          {
+            "kernel": "wave2_atomic",
+            "count": 32,
+            "numerical_pass": true,
+            "guards_pass": true
+          },
+          {
+            "kernel": "wave2_atomic",
+            "count": 33,
+            "numerical_pass": true,
+            "guards_pass": true
+          },
+          {
+            "kernel": "wave2_atomic",
+            "count": 257,
+            "numerical_pass": true,
+            "guards_pass": true
+          },
+          {
+            "kernel": "wave2_atomic",
+            "count": 131072,
+            "numerical_pass": true,
+            "guards_pass": true
+          }
+        ],
+        "ptx_sha256": "3a5b0b939291f7ce09fb46003b6bedcae71eb6411653b6d86e49bf720b44fd85",
+        "execution_log": "CUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_atomic\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=false launch_success=true duration_ns=1624 grid=(1,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_atomic\", \"count\": 1, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_atomic\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1249 grid=(1,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_atomic\", \"count\": 31, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_atomic\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1583 grid=(1,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_atomic\", \"count\": 32, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_atomic\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1291 grid=(2,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_atomic\", \"count\": 33, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_atomic\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1249 grid=(9,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_atomic\", \"count\": 257, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_atomic\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=3749 grid=(4096,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_atomic\", \"count\": 131072, \"numerical_pass\": true, \"guards_pass\": true}\n"
+      }
+    }
+  },
+  "rng_native_experiments": {
+    "llvm_version": "LLVM (http://llvm.org/):\n  LLVM version 19.1.7\n  Optimized build.\n  Default target: arm64-apple-darwin25.6.0\n  Host CPU: apple-m3\n",
+    "input_sha256": "77e448e3b4fcae0030b948c656b32cb6be0ab0aede6424890c42b86456b2820d",
+    "nvidia_compilation": false,
+    "experiments": {
+      "inline-scalar": {
+        "command": [
+          "/nix/store/wzl1cc011901fvpbb9jnnznskzjc365j-llvm-19.1.7/bin/opt",
+          "-passes=globaldce,cgscc(inline),function(sroa,instcombine<max-iterations=2;no-verify-fixpoint>,simplifycfg,adce),globaldce,verify",
+          "-verify-each",
+          "-S",
+          "/tmp/wave2-solana-34792081315/solana/none/final-module.ll",
+          "-o",
+          "/tmp/wave2-rng-native/inline-scalar.ll"
+        ],
+        "output_sha256": "455f1b4ffa9c63fb1d6e719f65b10bef7944799d229333451e5126e19bc81532",
+        "helper": "_RNvXs0_NtCslhAn9NXnFmt_12rand_xoshiro20xoroshiro128starstarNtB5_20Xoroshiro128StarStarNtCsjpL00qHfNVI_9rand_core11SeedableRng9from_seed",
+        "helper_lines": 176,
+        "allocations": 5,
+        "recursive_calls": 1
+      },
+      "attrs-tail": {
+        "command": [
+          "/nix/store/wzl1cc011901fvpbb9jnnznskzjc365j-llvm-19.1.7/bin/opt",
+          "-passes=globaldce,cgscc(inline),function(sroa,instcombine<max-iterations=2;no-verify-fixpoint>,simplifycfg,adce),globaldce,cgscc(function-attrs),function(tailcallelim,sroa,instcombine<max-iterations=2;no-verify-fixpoint>,simplifycfg,adce),verify",
+          "-verify-each",
+          "-S",
+          "/tmp/wave2-solana-34792081315/solana/none/final-module.ll",
+          "-o",
+          "/tmp/wave2-rng-native/attrs-tail.ll"
+        ],
+        "output_sha256": "b2aa49e7ae54a2f091abd2c3130c0bb7a7b60048ef321c992758be51232c04ed",
+        "helper": "_RNvXs0_NtCslhAn9NXnFmt_12rand_xoshiro20xoroshiro128starstarNtB5_20Xoroshiro128StarStarNtCsjpL00qHfNVI_9rand_core11SeedableRng9from_seed",
+        "helper_lines": 176,
+        "allocations": 5,
+        "recursive_calls": 1
+      },
+      "attrs-tail-inline": {
+        "command": [
+          "/nix/store/wzl1cc011901fvpbb9jnnznskzjc365j-llvm-19.1.7/bin/opt",
+          "-passes=globaldce,cgscc(inline),function(sroa,instcombine<max-iterations=2;no-verify-fixpoint>,simplifycfg,adce),globaldce,cgscc(function-attrs),function(tailcallelim),cgscc(inline),function(sroa,instcombine<max-iterations=2;no-verify-fixpoint>,simplifycfg,adce),globaldce,verify",
+          "-verify-each",
+          "-S",
+          "/tmp/wave2-solana-34792081315/solana/none/final-module.ll",
+          "-o",
+          "/tmp/wave2-rng-native/attrs-tail-inline.ll"
+        ],
+        "output_sha256": "7fefaa383f12eb41c78aea3ff19a63dcee7c93f8c2faaa1bdb582d439d22b583",
+        "helper": "_RNvXs0_NtCslhAn9NXnFmt_12rand_xoshiro20xoroshiro128starstarNtB5_20Xoroshiro128StarStarNtCsjpL00qHfNVI_9rand_core11SeedableRng9from_seed",
+        "helper_lines": 176,
+        "allocations": 5,
+        "recursive_calls": 1
+      },
+      "threaded-tiny": {
+        "command": [
+          "/nix/store/wzl1cc011901fvpbb9jnnznskzjc365j-llvm-19.1.7/bin/opt",
+          "-passes=globaldce,cgscc(inline),function(sroa,instcombine<max-iterations=2;no-verify-fixpoint>,simplifycfg,adce),globaldce,function(jump-threading,instcombine<max-iterations=2;no-verify-fixpoint>,simplifycfg,loop-simplify,lcssa,loop(indvars),loop-unroll<O2;full-unroll-max=4;no-partial;no-peeling;no-profile-peeling;no-runtime;no-upperbound>,sroa,instcombine<max-iterations=2;no-verify-fixpoint>,simplifycfg,adce),verify",
+          "-verify-each",
+          "-S",
+          "/tmp/wave2-solana-34792081315/solana/none/final-module.ll",
+          "-o",
+          "/tmp/wave2-rng-native/threaded-tiny.ll"
+        ],
+        "output_sha256": "2847cb8b2d60035638fd314606d5ff170fa1864f17f35d26fc78057e09166e43",
+        "helper": "_RNvXs0_NtCslhAn9NXnFmt_12rand_xoshiro20xoroshiro128starstarNtB5_20Xoroshiro128StarStarNtCsjpL00qHfNVI_9rand_core11SeedableRng9from_seed",
+        "helper_lines": 140,
+        "allocations": 4,
+        "recursive_calls": 1
+      }
+    }
+  },
+  "representative_full_module": {
+    "run": 34793862065,
+    "consumer_hashes": {
+      "/Users/brandon/Desktop/gpu/cuda-metal/build-rust-ptx-apple/cumetalc": "916a68a542d4d9492c9931f172b0dbf3ee885378d400d540483f66934d800afb",
+      "/Users/brandon/Desktop/gpu/cuda-metal/build-rust-ptx-apple/libcumetal.dylib": "3997b2225e4bf8b849f9908c8aa7a03fc3bf9e8695f9b808427dd13e804996af"
+    },
+    "nvidia_execution": false,
+    "cases": {
+      "none/wave2_float": {
+        "ptx_sha256": "6c4fe4b9a3031fbe6138daf2fd6f1fe6130b2efd9e8ccc270d0b2f2728d3df46",
+        "commands": [
+          [
+            "/Users/brandon/Desktop/gpu/cuda-metal/build-rust-ptx-apple/cumetalc",
+            "/tmp/wave2-representative-34793862065/representative/none/rust_kernels.ptx",
+            "--backend=cumetal-ir",
+            "--ptx-strict",
+            "--entry",
+            "wave2_float",
+            "--emit=msl",
+            "-o",
+            "/tmp/wave2-representative-full-apple/none-wave2_float/kernel.metal",
+            "--overwrite"
+          ],
+          [
+            "python3",
+            "examples/ptx_export/run_wave2_gpu.py",
+            "/tmp/wave2-representative-full-apple/none-wave2_float/kernel.metal",
+            "--kernel",
+            "wave2_float",
+            "--driver",
+            "/Users/brandon/Desktop/gpu/cuda-metal/build-rust-ptx-apple/libcumetal.dylib",
+            "--out",
+            "/tmp/wave2-representative-full-apple/none-wave2_float/result.json"
+          ]
+        ],
+        "stage_0_exit": 0,
+        "stage_1_exit": 0,
+        "result": {
+          "module_sha256": "9974c4b82b399b36c630b11abeb80a7f01a94fcb7ebea4758da874033d74e089",
+          "runner_sha256": "c71b5b007a4ba7cafe3bb4500b4f502f37479245cefcfc33b9eb68708b1216d0",
+          "driver": "/Users/brandon/Desktop/gpu/cuda-metal/build-rust-ptx-apple/libcumetal.dylib",
+          "driver_version": 12000,
+          "device": "Apple M5",
+          "native_nvidia_driver_requested": false,
+          "results": [
+            {
+              "kernel": "wave2_float",
+              "count": 1,
+              "numerical_pass": true,
+              "guards_pass": true
+            },
+            {
+              "kernel": "wave2_float",
+              "count": 31,
+              "numerical_pass": true,
+              "guards_pass": true
+            },
+            {
+              "kernel": "wave2_float",
+              "count": 32,
+              "numerical_pass": true,
+              "guards_pass": true
+            },
+            {
+              "kernel": "wave2_float",
+              "count": 33,
+              "numerical_pass": true,
+              "guards_pass": true
+            },
+            {
+              "kernel": "wave2_float",
+              "count": 257,
+              "numerical_pass": true,
+              "guards_pass": true
+            },
+            {
+              "kernel": "wave2_float",
+              "count": 131072,
+              "numerical_pass": true,
+              "guards_pass": true
+            }
+          ]
+        },
+        "execution_log": "CUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_float\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=false launch_success=true duration_ns=1874 grid=(1,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_float\", \"count\": 1, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_float\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1499 grid=(1,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_float\", \"count\": 31, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_float\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1416 grid=(1,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_float\", \"count\": 32, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_float\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1499 grid=(2,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_float\", \"count\": 33, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_float\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1499 grid=(9,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_float\", \"count\": 257, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_float\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=7958 grid=(4096,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_float\", \"count\": 131072, \"numerical_pass\": true, \"guards_pass\": true}\n"
+      },
+      "none/wave2_shared": {
+        "ptx_sha256": "6c4fe4b9a3031fbe6138daf2fd6f1fe6130b2efd9e8ccc270d0b2f2728d3df46",
+        "commands": [
+          [
+            "/Users/brandon/Desktop/gpu/cuda-metal/build-rust-ptx-apple/cumetalc",
+            "/tmp/wave2-representative-34793862065/representative/none/rust_kernels.ptx",
+            "--backend=cumetal-ir",
+            "--ptx-strict",
+            "--entry",
+            "wave2_shared",
+            "--emit=msl",
+            "-o",
+            "/tmp/wave2-representative-full-apple/none-wave2_shared/kernel.metal",
+            "--overwrite"
+          ],
+          [
+            "python3",
+            "examples/ptx_export/run_wave2_gpu.py",
+            "/tmp/wave2-representative-full-apple/none-wave2_shared/kernel.metal",
+            "--kernel",
+            "wave2_shared",
+            "--driver",
+            "/Users/brandon/Desktop/gpu/cuda-metal/build-rust-ptx-apple/libcumetal.dylib",
+            "--out",
+            "/tmp/wave2-representative-full-apple/none-wave2_shared/result.json"
+          ]
+        ],
+        "stage_0_exit": 0,
+        "stage_1_exit": 0,
+        "result": {
+          "module_sha256": "5f069c332e5a2f6c6ac58b290c8559cdd3d90a047c54dc4a0cf44e328ec2cedc",
+          "runner_sha256": "c71b5b007a4ba7cafe3bb4500b4f502f37479245cefcfc33b9eb68708b1216d0",
+          "driver": "/Users/brandon/Desktop/gpu/cuda-metal/build-rust-ptx-apple/libcumetal.dylib",
+          "driver_version": 12000,
+          "device": "Apple M5",
+          "native_nvidia_driver_requested": false,
+          "results": [
+            {
+              "kernel": "wave2_shared",
+              "count": 1,
+              "numerical_pass": true,
+              "guards_pass": true
+            },
+            {
+              "kernel": "wave2_shared",
+              "count": 31,
+              "numerical_pass": true,
+              "guards_pass": true
+            },
+            {
+              "kernel": "wave2_shared",
+              "count": 32,
+              "numerical_pass": true,
+              "guards_pass": true
+            },
+            {
+              "kernel": "wave2_shared",
+              "count": 33,
+              "numerical_pass": true,
+              "guards_pass": true
+            },
+            {
+              "kernel": "wave2_shared",
+              "count": 257,
+              "numerical_pass": true,
+              "guards_pass": true
+            },
+            {
+              "kernel": "wave2_shared",
+              "count": 131072,
+              "numerical_pass": true,
+              "guards_pass": true
+            }
+          ]
+        },
+        "execution_log": "CUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_shared\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=false launch_success=true duration_ns=2000 grid=(1,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_shared\", \"count\": 1, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_shared\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1499 grid=(1,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_shared\", \"count\": 31, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_shared\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1624 grid=(1,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_shared\", \"count\": 32, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_shared\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1458 grid=(2,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_shared\", \"count\": 33, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_shared\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1499 grid=(9,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_shared\", \"count\": 257, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_shared\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=4749 grid=(4096,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_shared\", \"count\": 131072, \"numerical_pass\": true, \"guards_pass\": true}\n"
+      },
+      "none/wave2_atomic": {
+        "ptx_sha256": "6c4fe4b9a3031fbe6138daf2fd6f1fe6130b2efd9e8ccc270d0b2f2728d3df46",
+        "commands": [
+          [
+            "/Users/brandon/Desktop/gpu/cuda-metal/build-rust-ptx-apple/cumetalc",
+            "/tmp/wave2-representative-34793862065/representative/none/rust_kernels.ptx",
+            "--backend=cumetal-ir",
+            "--ptx-strict",
+            "--entry",
+            "wave2_atomic",
+            "--emit=msl",
+            "-o",
+            "/tmp/wave2-representative-full-apple/none-wave2_atomic/kernel.metal",
+            "--overwrite"
+          ],
+          [
+            "python3",
+            "examples/ptx_export/run_wave2_gpu.py",
+            "/tmp/wave2-representative-full-apple/none-wave2_atomic/kernel.metal",
+            "--kernel",
+            "wave2_atomic",
+            "--driver",
+            "/Users/brandon/Desktop/gpu/cuda-metal/build-rust-ptx-apple/libcumetal.dylib",
+            "--out",
+            "/tmp/wave2-representative-full-apple/none-wave2_atomic/result.json"
+          ]
+        ],
+        "stage_0_exit": 0,
+        "stage_1_exit": 0,
+        "result": {
+          "module_sha256": "51ff608005dfd3943eb4cc729bb82d2e6f120141d34054845e98a4f58e689400",
+          "runner_sha256": "c71b5b007a4ba7cafe3bb4500b4f502f37479245cefcfc33b9eb68708b1216d0",
+          "driver": "/Users/brandon/Desktop/gpu/cuda-metal/build-rust-ptx-apple/libcumetal.dylib",
+          "driver_version": 12000,
+          "device": "Apple M5",
+          "native_nvidia_driver_requested": false,
+          "results": [
+            {
+              "kernel": "wave2_atomic",
+              "count": 1,
+              "numerical_pass": true,
+              "guards_pass": true
+            },
+            {
+              "kernel": "wave2_atomic",
+              "count": 31,
+              "numerical_pass": true,
+              "guards_pass": true
+            },
+            {
+              "kernel": "wave2_atomic",
+              "count": 32,
+              "numerical_pass": true,
+              "guards_pass": true
+            },
+            {
+              "kernel": "wave2_atomic",
+              "count": 33,
+              "numerical_pass": true,
+              "guards_pass": true
+            },
+            {
+              "kernel": "wave2_atomic",
+              "count": 257,
+              "numerical_pass": true,
+              "guards_pass": true
+            },
+            {
+              "kernel": "wave2_atomic",
+              "count": 131072,
+              "numerical_pass": true,
+              "guards_pass": true
+            }
+          ]
+        },
+        "execution_log": "CUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_atomic\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=false launch_success=true duration_ns=2125 grid=(1,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_atomic\", \"count\": 1, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_atomic\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1374 grid=(1,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_atomic\", \"count\": 31, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_atomic\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1374 grid=(1,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_atomic\", \"count\": 32, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_atomic\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1249 grid=(2,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_atomic\", \"count\": 33, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_atomic\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1458 grid=(9,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_atomic\", \"count\": 257, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_atomic\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=3791 grid=(4096,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_atomic\", \"count\": 131072, \"numerical_pass\": true, \"guards_pass\": true}\n"
+      },
+      "none/wave2_shuffle": {
+        "ptx_sha256": "6c4fe4b9a3031fbe6138daf2fd6f1fe6130b2efd9e8ccc270d0b2f2728d3df46",
+        "commands": [
+          [
+            "/Users/brandon/Desktop/gpu/cuda-metal/build-rust-ptx-apple/cumetalc",
+            "/tmp/wave2-representative-34793862065/representative/none/rust_kernels.ptx",
+            "--backend=cumetal-ir",
+            "--ptx-strict",
+            "--entry",
+            "wave2_shuffle",
+            "--emit=msl",
+            "-o",
+            "/tmp/wave2-representative-full-apple/none-wave2_shuffle/kernel.metal",
+            "--overwrite"
+          ],
+          [
+            "python3",
+            "examples/ptx_export/run_wave2_gpu.py",
+            "/tmp/wave2-representative-full-apple/none-wave2_shuffle/kernel.metal",
+            "--kernel",
+            "wave2_shuffle",
+            "--driver",
+            "/Users/brandon/Desktop/gpu/cuda-metal/build-rust-ptx-apple/libcumetal.dylib",
+            "--out",
+            "/tmp/wave2-representative-full-apple/none-wave2_shuffle/result.json",
+            "--counts",
+            "32"
+          ]
+        ],
+        "stage_0_exit": 0,
+        "stage_1_exit": 1,
+        "result": {
+          "module_sha256": "6443104175ef54fb73d9494aa0f96236d4df2446b1e1fbb5fc0fcea1a78d3e25",
+          "runner_sha256": "c71b5b007a4ba7cafe3bb4500b4f502f37479245cefcfc33b9eb68708b1216d0",
+          "driver": "/Users/brandon/Desktop/gpu/cuda-metal/build-rust-ptx-apple/libcumetal.dylib",
+          "driver_version": 12000,
+          "device": "Apple M5",
+          "native_nvidia_driver_requested": false,
+          "results": [],
+          "error": "wave2_shuffle/32: output[0] = 0xffffffff, expected 0x28b7bc80"
+        },
+        "execution_log": "CUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_shuffle\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=false launch_success=true duration_ns=341375 grid=(1,1,1) block=(32,1,1) unsupported_reason=\"\"\nTraceback (most recent call last):\n  File \"/Users/brandon/Desktop/gpu/rust-cuda-ptx-export/examples/ptx_export/run_wave2_gpu.py\", line 152, in <module>\n    main()\n    ~~~~^^\n  File \"/Users/brandon/Desktop/gpu/rust-cuda-ptx-export/examples/ptx_export/run_wave2_gpu.py\", line 140, in main\n    result=run_case(driver,kernel,args.kernel,count,args.repeats if args.benchmark else 0)\n  File \"/Users/brandon/Desktop/gpu/rust-cuda-ptx-export/examples/ptx_export/run_wave2_gpu.py\", line 80, in run_case\n    raise RuntimeError(f'{name}/{count}: output[{index}] = {host_output[index]:#010x}, '\n                       f'expected {expected[index]:#010x}')\nRuntimeError: wave2_shuffle/32: output[0] = 0xffffffff, expected 0x28b7bc80\n"
+      },
+      "default/wave2_float": {
+        "ptx_sha256": "6c4fe4b9a3031fbe6138daf2fd6f1fe6130b2efd9e8ccc270d0b2f2728d3df46",
+        "commands": [
+          [
+            "/Users/brandon/Desktop/gpu/cuda-metal/build-rust-ptx-apple/cumetalc",
+            "/tmp/wave2-representative-34793862065/representative/default/rust_kernels.ptx",
+            "--backend=cumetal-ir",
+            "--ptx-strict",
+            "--entry",
+            "wave2_float",
+            "--emit=msl",
+            "-o",
+            "/tmp/wave2-representative-full-apple/default-wave2_float/kernel.metal",
+            "--overwrite"
+          ],
+          [
+            "python3",
+            "examples/ptx_export/run_wave2_gpu.py",
+            "/tmp/wave2-representative-full-apple/default-wave2_float/kernel.metal",
+            "--kernel",
+            "wave2_float",
+            "--driver",
+            "/Users/brandon/Desktop/gpu/cuda-metal/build-rust-ptx-apple/libcumetal.dylib",
+            "--out",
+            "/tmp/wave2-representative-full-apple/default-wave2_float/result.json"
+          ]
+        ],
+        "stage_0_exit": 0,
+        "stage_1_exit": 0,
+        "result": {
+          "module_sha256": "9974c4b82b399b36c630b11abeb80a7f01a94fcb7ebea4758da874033d74e089",
+          "runner_sha256": "c71b5b007a4ba7cafe3bb4500b4f502f37479245cefcfc33b9eb68708b1216d0",
+          "driver": "/Users/brandon/Desktop/gpu/cuda-metal/build-rust-ptx-apple/libcumetal.dylib",
+          "driver_version": 12000,
+          "device": "Apple M5",
+          "native_nvidia_driver_requested": false,
+          "results": [
+            {
+              "kernel": "wave2_float",
+              "count": 1,
+              "numerical_pass": true,
+              "guards_pass": true
+            },
+            {
+              "kernel": "wave2_float",
+              "count": 31,
+              "numerical_pass": true,
+              "guards_pass": true
+            },
+            {
+              "kernel": "wave2_float",
+              "count": 32,
+              "numerical_pass": true,
+              "guards_pass": true
+            },
+            {
+              "kernel": "wave2_float",
+              "count": 33,
+              "numerical_pass": true,
+              "guards_pass": true
+            },
+            {
+              "kernel": "wave2_float",
+              "count": 257,
+              "numerical_pass": true,
+              "guards_pass": true
+            },
+            {
+              "kernel": "wave2_float",
+              "count": 131072,
+              "numerical_pass": true,
+              "guards_pass": true
+            }
+          ]
+        },
+        "execution_log": "CUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_float\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=false launch_success=true duration_ns=1750 grid=(1,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_float\", \"count\": 1, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_float\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1458 grid=(1,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_float\", \"count\": 31, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_float\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1458 grid=(1,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_float\", \"count\": 32, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_float\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1416 grid=(2,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_float\", \"count\": 33, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_float\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1416 grid=(9,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_float\", \"count\": 257, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_float\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=12124 grid=(4096,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_float\", \"count\": 131072, \"numerical_pass\": true, \"guards_pass\": true}\n"
+      },
+      "default/wave2_shared": {
+        "ptx_sha256": "6c4fe4b9a3031fbe6138daf2fd6f1fe6130b2efd9e8ccc270d0b2f2728d3df46",
+        "commands": [
+          [
+            "/Users/brandon/Desktop/gpu/cuda-metal/build-rust-ptx-apple/cumetalc",
+            "/tmp/wave2-representative-34793862065/representative/default/rust_kernels.ptx",
+            "--backend=cumetal-ir",
+            "--ptx-strict",
+            "--entry",
+            "wave2_shared",
+            "--emit=msl",
+            "-o",
+            "/tmp/wave2-representative-full-apple/default-wave2_shared/kernel.metal",
+            "--overwrite"
+          ],
+          [
+            "python3",
+            "examples/ptx_export/run_wave2_gpu.py",
+            "/tmp/wave2-representative-full-apple/default-wave2_shared/kernel.metal",
+            "--kernel",
+            "wave2_shared",
+            "--driver",
+            "/Users/brandon/Desktop/gpu/cuda-metal/build-rust-ptx-apple/libcumetal.dylib",
+            "--out",
+            "/tmp/wave2-representative-full-apple/default-wave2_shared/result.json"
+          ]
+        ],
+        "stage_0_exit": 0,
+        "stage_1_exit": 0,
+        "result": {
+          "module_sha256": "5f069c332e5a2f6c6ac58b290c8559cdd3d90a047c54dc4a0cf44e328ec2cedc",
+          "runner_sha256": "c71b5b007a4ba7cafe3bb4500b4f502f37479245cefcfc33b9eb68708b1216d0",
+          "driver": "/Users/brandon/Desktop/gpu/cuda-metal/build-rust-ptx-apple/libcumetal.dylib",
+          "driver_version": 12000,
+          "device": "Apple M5",
+          "native_nvidia_driver_requested": false,
+          "results": [
+            {
+              "kernel": "wave2_shared",
+              "count": 1,
+              "numerical_pass": true,
+              "guards_pass": true
+            },
+            {
+              "kernel": "wave2_shared",
+              "count": 31,
+              "numerical_pass": true,
+              "guards_pass": true
+            },
+            {
+              "kernel": "wave2_shared",
+              "count": 32,
+              "numerical_pass": true,
+              "guards_pass": true
+            },
+            {
+              "kernel": "wave2_shared",
+              "count": 33,
+              "numerical_pass": true,
+              "guards_pass": true
+            },
+            {
+              "kernel": "wave2_shared",
+              "count": 257,
+              "numerical_pass": true,
+              "guards_pass": true
+            },
+            {
+              "kernel": "wave2_shared",
+              "count": 131072,
+              "numerical_pass": true,
+              "guards_pass": true
+            }
+          ]
+        },
+        "execution_log": "CUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_shared\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=false launch_success=true duration_ns=2000 grid=(1,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_shared\", \"count\": 1, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_shared\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1749 grid=(1,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_shared\", \"count\": 31, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_shared\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1374 grid=(1,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_shared\", \"count\": 32, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_shared\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1500 grid=(2,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_shared\", \"count\": 33, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_shared\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1499 grid=(9,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_shared\", \"count\": 257, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_shared\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=4749 grid=(4096,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_shared\", \"count\": 131072, \"numerical_pass\": true, \"guards_pass\": true}\n"
+      },
+      "default/wave2_atomic": {
+        "ptx_sha256": "6c4fe4b9a3031fbe6138daf2fd6f1fe6130b2efd9e8ccc270d0b2f2728d3df46",
+        "commands": [
+          [
+            "/Users/brandon/Desktop/gpu/cuda-metal/build-rust-ptx-apple/cumetalc",
+            "/tmp/wave2-representative-34793862065/representative/default/rust_kernels.ptx",
+            "--backend=cumetal-ir",
+            "--ptx-strict",
+            "--entry",
+            "wave2_atomic",
+            "--emit=msl",
+            "-o",
+            "/tmp/wave2-representative-full-apple/default-wave2_atomic/kernel.metal",
+            "--overwrite"
+          ],
+          [
+            "python3",
+            "examples/ptx_export/run_wave2_gpu.py",
+            "/tmp/wave2-representative-full-apple/default-wave2_atomic/kernel.metal",
+            "--kernel",
+            "wave2_atomic",
+            "--driver",
+            "/Users/brandon/Desktop/gpu/cuda-metal/build-rust-ptx-apple/libcumetal.dylib",
+            "--out",
+            "/tmp/wave2-representative-full-apple/default-wave2_atomic/result.json"
+          ]
+        ],
+        "stage_0_exit": 0,
+        "stage_1_exit": 0,
+        "result": {
+          "module_sha256": "51ff608005dfd3943eb4cc729bb82d2e6f120141d34054845e98a4f58e689400",
+          "runner_sha256": "c71b5b007a4ba7cafe3bb4500b4f502f37479245cefcfc33b9eb68708b1216d0",
+          "driver": "/Users/brandon/Desktop/gpu/cuda-metal/build-rust-ptx-apple/libcumetal.dylib",
+          "driver_version": 12000,
+          "device": "Apple M5",
+          "native_nvidia_driver_requested": false,
+          "results": [
+            {
+              "kernel": "wave2_atomic",
+              "count": 1,
+              "numerical_pass": true,
+              "guards_pass": true
+            },
+            {
+              "kernel": "wave2_atomic",
+              "count": 31,
+              "numerical_pass": true,
+              "guards_pass": true
+            },
+            {
+              "kernel": "wave2_atomic",
+              "count": 32,
+              "numerical_pass": true,
+              "guards_pass": true
+            },
+            {
+              "kernel": "wave2_atomic",
+              "count": 33,
+              "numerical_pass": true,
+              "guards_pass": true
+            },
+            {
+              "kernel": "wave2_atomic",
+              "count": 257,
+              "numerical_pass": true,
+              "guards_pass": true
+            },
+            {
+              "kernel": "wave2_atomic",
+              "count": 131072,
+              "numerical_pass": true,
+              "guards_pass": true
+            }
+          ]
+        },
+        "execution_log": "CUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_atomic\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=false launch_success=true duration_ns=2083 grid=(1,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_atomic\", \"count\": 1, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_atomic\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1374 grid=(1,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_atomic\", \"count\": 31, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_atomic\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1583 grid=(1,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_atomic\", \"count\": 32, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_atomic\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1375 grid=(2,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_atomic\", \"count\": 33, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_atomic\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1374 grid=(9,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_atomic\", \"count\": 257, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_atomic\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=3875 grid=(4096,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_atomic\", \"count\": 131072, \"numerical_pass\": true, \"guards_pass\": true}\n"
+      },
+      "default/wave2_shuffle": {
+        "ptx_sha256": "6c4fe4b9a3031fbe6138daf2fd6f1fe6130b2efd9e8ccc270d0b2f2728d3df46",
+        "commands": [
+          [
+            "/Users/brandon/Desktop/gpu/cuda-metal/build-rust-ptx-apple/cumetalc",
+            "/tmp/wave2-representative-34793862065/representative/default/rust_kernels.ptx",
+            "--backend=cumetal-ir",
+            "--ptx-strict",
+            "--entry",
+            "wave2_shuffle",
+            "--emit=msl",
+            "-o",
+            "/tmp/wave2-representative-full-apple/default-wave2_shuffle/kernel.metal",
+            "--overwrite"
+          ],
+          [
+            "python3",
+            "examples/ptx_export/run_wave2_gpu.py",
+            "/tmp/wave2-representative-full-apple/default-wave2_shuffle/kernel.metal",
+            "--kernel",
+            "wave2_shuffle",
+            "--driver",
+            "/Users/brandon/Desktop/gpu/cuda-metal/build-rust-ptx-apple/libcumetal.dylib",
+            "--out",
+            "/tmp/wave2-representative-full-apple/default-wave2_shuffle/result.json",
+            "--counts",
+            "32"
+          ]
+        ],
+        "stage_0_exit": 0,
+        "stage_1_exit": 1,
+        "result": {
+          "module_sha256": "6443104175ef54fb73d9494aa0f96236d4df2446b1e1fbb5fc0fcea1a78d3e25",
+          "runner_sha256": "c71b5b007a4ba7cafe3bb4500b4f502f37479245cefcfc33b9eb68708b1216d0",
+          "driver": "/Users/brandon/Desktop/gpu/cuda-metal/build-rust-ptx-apple/libcumetal.dylib",
+          "driver_version": 12000,
+          "device": "Apple M5",
+          "native_nvidia_driver_requested": false,
+          "results": [],
+          "error": "wave2_shuffle/32: output[0] = 0xffffffff, expected 0x28b7bc80"
+        },
+        "execution_log": "CUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_shuffle\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=false launch_success=true duration_ns=1833 grid=(1,1,1) block=(32,1,1) unsupported_reason=\"\"\nTraceback (most recent call last):\n  File \"/Users/brandon/Desktop/gpu/rust-cuda-ptx-export/examples/ptx_export/run_wave2_gpu.py\", line 152, in <module>\n    main()\n    ~~~~^^\n  File \"/Users/brandon/Desktop/gpu/rust-cuda-ptx-export/examples/ptx_export/run_wave2_gpu.py\", line 140, in main\n    result=run_case(driver,kernel,args.kernel,count,args.repeats if args.benchmark else 0)\n  File \"/Users/brandon/Desktop/gpu/rust-cuda-ptx-export/examples/ptx_export/run_wave2_gpu.py\", line 80, in run_case\n    raise RuntimeError(f'{name}/{count}: output[{index}] = {host_output[index]:#010x}, '\n                       f'expected {expected[index]:#010x}')\nRuntimeError: wave2_shuffle/32: output[0] = 0xffffffff, expected 0x28b7bc80\n"
+      },
+      "inline-scalar/wave2_float": {
+        "ptx_sha256": "aa05ea8cc449823d6e22b4cc332946afbf569a98a5856f489b9b7480cc0ffd0f",
+        "commands": [
+          [
+            "/Users/brandon/Desktop/gpu/cuda-metal/build-rust-ptx-apple/cumetalc",
+            "/tmp/wave2-representative-34793862065/representative/inline-scalar/rust_kernels.ptx",
+            "--backend=cumetal-ir",
+            "--ptx-strict",
+            "--entry",
+            "wave2_float",
+            "--emit=msl",
+            "-o",
+            "/tmp/wave2-representative-full-apple/inline-scalar-wave2_float/kernel.metal",
+            "--overwrite"
+          ],
+          [
+            "python3",
+            "examples/ptx_export/run_wave2_gpu.py",
+            "/tmp/wave2-representative-full-apple/inline-scalar-wave2_float/kernel.metal",
+            "--kernel",
+            "wave2_float",
+            "--driver",
+            "/Users/brandon/Desktop/gpu/cuda-metal/build-rust-ptx-apple/libcumetal.dylib",
+            "--out",
+            "/tmp/wave2-representative-full-apple/inline-scalar-wave2_float/result.json"
+          ]
+        ],
+        "stage_0_exit": 0,
+        "stage_1_exit": 0,
+        "result": {
+          "module_sha256": "9974c4b82b399b36c630b11abeb80a7f01a94fcb7ebea4758da874033d74e089",
+          "runner_sha256": "c71b5b007a4ba7cafe3bb4500b4f502f37479245cefcfc33b9eb68708b1216d0",
+          "driver": "/Users/brandon/Desktop/gpu/cuda-metal/build-rust-ptx-apple/libcumetal.dylib",
+          "driver_version": 12000,
+          "device": "Apple M5",
+          "native_nvidia_driver_requested": false,
+          "results": [
+            {
+              "kernel": "wave2_float",
+              "count": 1,
+              "numerical_pass": true,
+              "guards_pass": true
+            },
+            {
+              "kernel": "wave2_float",
+              "count": 31,
+              "numerical_pass": true,
+              "guards_pass": true
+            },
+            {
+              "kernel": "wave2_float",
+              "count": 32,
+              "numerical_pass": true,
+              "guards_pass": true
+            },
+            {
+              "kernel": "wave2_float",
+              "count": 33,
+              "numerical_pass": true,
+              "guards_pass": true
+            },
+            {
+              "kernel": "wave2_float",
+              "count": 257,
+              "numerical_pass": true,
+              "guards_pass": true
+            },
+            {
+              "kernel": "wave2_float",
+              "count": 131072,
+              "numerical_pass": true,
+              "guards_pass": true
+            }
+          ]
+        },
+        "execution_log": "CUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_float\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=false launch_success=true duration_ns=1749 grid=(1,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_float\", \"count\": 1, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_float\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1499 grid=(1,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_float\", \"count\": 31, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_float\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1541 grid=(1,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_float\", \"count\": 32, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_float\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1375 grid=(2,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_float\", \"count\": 33, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_float\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1500 grid=(9,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_float\", \"count\": 257, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_float\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=9499 grid=(4096,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_float\", \"count\": 131072, \"numerical_pass\": true, \"guards_pass\": true}\n"
+      },
+      "inline-scalar/wave2_shared": {
+        "ptx_sha256": "aa05ea8cc449823d6e22b4cc332946afbf569a98a5856f489b9b7480cc0ffd0f",
+        "commands": [
+          [
+            "/Users/brandon/Desktop/gpu/cuda-metal/build-rust-ptx-apple/cumetalc",
+            "/tmp/wave2-representative-34793862065/representative/inline-scalar/rust_kernels.ptx",
+            "--backend=cumetal-ir",
+            "--ptx-strict",
+            "--entry",
+            "wave2_shared",
+            "--emit=msl",
+            "-o",
+            "/tmp/wave2-representative-full-apple/inline-scalar-wave2_shared/kernel.metal",
+            "--overwrite"
+          ],
+          [
+            "python3",
+            "examples/ptx_export/run_wave2_gpu.py",
+            "/tmp/wave2-representative-full-apple/inline-scalar-wave2_shared/kernel.metal",
+            "--kernel",
+            "wave2_shared",
+            "--driver",
+            "/Users/brandon/Desktop/gpu/cuda-metal/build-rust-ptx-apple/libcumetal.dylib",
+            "--out",
+            "/tmp/wave2-representative-full-apple/inline-scalar-wave2_shared/result.json"
+          ]
+        ],
+        "stage_0_exit": 0,
+        "stage_1_exit": 0,
+        "result": {
+          "module_sha256": "5f069c332e5a2f6c6ac58b290c8559cdd3d90a047c54dc4a0cf44e328ec2cedc",
+          "runner_sha256": "c71b5b007a4ba7cafe3bb4500b4f502f37479245cefcfc33b9eb68708b1216d0",
+          "driver": "/Users/brandon/Desktop/gpu/cuda-metal/build-rust-ptx-apple/libcumetal.dylib",
+          "driver_version": 12000,
+          "device": "Apple M5",
+          "native_nvidia_driver_requested": false,
+          "results": [
+            {
+              "kernel": "wave2_shared",
+              "count": 1,
+              "numerical_pass": true,
+              "guards_pass": true
+            },
+            {
+              "kernel": "wave2_shared",
+              "count": 31,
+              "numerical_pass": true,
+              "guards_pass": true
+            },
+            {
+              "kernel": "wave2_shared",
+              "count": 32,
+              "numerical_pass": true,
+              "guards_pass": true
+            },
+            {
+              "kernel": "wave2_shared",
+              "count": 33,
+              "numerical_pass": true,
+              "guards_pass": true
+            },
+            {
+              "kernel": "wave2_shared",
+              "count": 257,
+              "numerical_pass": true,
+              "guards_pass": true
+            },
+            {
+              "kernel": "wave2_shared",
+              "count": 131072,
+              "numerical_pass": true,
+              "guards_pass": true
+            }
+          ]
+        },
+        "execution_log": "CUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_shared\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=false launch_success=true duration_ns=1916 grid=(1,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_shared\", \"count\": 1, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_shared\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=293124 grid=(1,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_shared\", \"count\": 31, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_shared\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1624 grid=(1,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_shared\", \"count\": 32, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_shared\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1499 grid=(2,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_shared\", \"count\": 33, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_shared\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1499 grid=(9,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_shared\", \"count\": 257, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_shared\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=5499 grid=(4096,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_shared\", \"count\": 131072, \"numerical_pass\": true, \"guards_pass\": true}\n"
+      },
+      "inline-scalar/wave2_atomic": {
+        "ptx_sha256": "aa05ea8cc449823d6e22b4cc332946afbf569a98a5856f489b9b7480cc0ffd0f",
+        "commands": [
+          [
+            "/Users/brandon/Desktop/gpu/cuda-metal/build-rust-ptx-apple/cumetalc",
+            "/tmp/wave2-representative-34793862065/representative/inline-scalar/rust_kernels.ptx",
+            "--backend=cumetal-ir",
+            "--ptx-strict",
+            "--entry",
+            "wave2_atomic",
+            "--emit=msl",
+            "-o",
+            "/tmp/wave2-representative-full-apple/inline-scalar-wave2_atomic/kernel.metal",
+            "--overwrite"
+          ],
+          [
+            "python3",
+            "examples/ptx_export/run_wave2_gpu.py",
+            "/tmp/wave2-representative-full-apple/inline-scalar-wave2_atomic/kernel.metal",
+            "--kernel",
+            "wave2_atomic",
+            "--driver",
+            "/Users/brandon/Desktop/gpu/cuda-metal/build-rust-ptx-apple/libcumetal.dylib",
+            "--out",
+            "/tmp/wave2-representative-full-apple/inline-scalar-wave2_atomic/result.json"
+          ]
+        ],
+        "stage_0_exit": 0,
+        "stage_1_exit": 0,
+        "result": {
+          "module_sha256": "51ff608005dfd3943eb4cc729bb82d2e6f120141d34054845e98a4f58e689400",
+          "runner_sha256": "c71b5b007a4ba7cafe3bb4500b4f502f37479245cefcfc33b9eb68708b1216d0",
+          "driver": "/Users/brandon/Desktop/gpu/cuda-metal/build-rust-ptx-apple/libcumetal.dylib",
+          "driver_version": 12000,
+          "device": "Apple M5",
+          "native_nvidia_driver_requested": false,
+          "results": [
+            {
+              "kernel": "wave2_atomic",
+              "count": 1,
+              "numerical_pass": true,
+              "guards_pass": true
+            },
+            {
+              "kernel": "wave2_atomic",
+              "count": 31,
+              "numerical_pass": true,
+              "guards_pass": true
+            },
+            {
+              "kernel": "wave2_atomic",
+              "count": 32,
+              "numerical_pass": true,
+              "guards_pass": true
+            },
+            {
+              "kernel": "wave2_atomic",
+              "count": 33,
+              "numerical_pass": true,
+              "guards_pass": true
+            },
+            {
+              "kernel": "wave2_atomic",
+              "count": 257,
+              "numerical_pass": true,
+              "guards_pass": true
+            },
+            {
+              "kernel": "wave2_atomic",
+              "count": 131072,
+              "numerical_pass": true,
+              "guards_pass": true
+            }
+          ]
+        },
+        "execution_log": "CUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_atomic\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=false launch_success=true duration_ns=1874 grid=(1,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_atomic\", \"count\": 1, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_atomic\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1416 grid=(1,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_atomic\", \"count\": 31, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_atomic\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1375 grid=(1,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_atomic\", \"count\": 32, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_atomic\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1333 grid=(2,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_atomic\", \"count\": 33, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_atomic\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1375 grid=(9,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_atomic\", \"count\": 257, \"numerical_pass\": true, \"guards_pass\": true}\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_atomic\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=3791 grid=(4096,1,1) block=(32,1,1) unsupported_reason=\"\"\n{\"kernel\": \"wave2_atomic\", \"count\": 131072, \"numerical_pass\": true, \"guards_pass\": true}\n"
+      },
+      "inline-scalar/wave2_shuffle": {
+        "ptx_sha256": "aa05ea8cc449823d6e22b4cc332946afbf569a98a5856f489b9b7480cc0ffd0f",
+        "commands": [
+          [
+            "/Users/brandon/Desktop/gpu/cuda-metal/build-rust-ptx-apple/cumetalc",
+            "/tmp/wave2-representative-34793862065/representative/inline-scalar/rust_kernels.ptx",
+            "--backend=cumetal-ir",
+            "--ptx-strict",
+            "--entry",
+            "wave2_shuffle",
+            "--emit=msl",
+            "-o",
+            "/tmp/wave2-representative-full-apple/inline-scalar-wave2_shuffle/kernel.metal",
+            "--overwrite"
+          ],
+          [
+            "python3",
+            "examples/ptx_export/run_wave2_gpu.py",
+            "/tmp/wave2-representative-full-apple/inline-scalar-wave2_shuffle/kernel.metal",
+            "--kernel",
+            "wave2_shuffle",
+            "--driver",
+            "/Users/brandon/Desktop/gpu/cuda-metal/build-rust-ptx-apple/libcumetal.dylib",
+            "--out",
+            "/tmp/wave2-representative-full-apple/inline-scalar-wave2_shuffle/result.json",
+            "--counts",
+            "32"
+          ]
+        ],
+        "stage_0_exit": 0,
+        "stage_1_exit": 1,
+        "result": {
+          "module_sha256": "c90afa4bb09677b2082305fb072e480ed1123631a6f77a3d549e089e5d944e5c",
+          "runner_sha256": "c71b5b007a4ba7cafe3bb4500b4f502f37479245cefcfc33b9eb68708b1216d0",
+          "driver": "/Users/brandon/Desktop/gpu/cuda-metal/build-rust-ptx-apple/libcumetal.dylib",
+          "driver_version": 12000,
+          "device": "Apple M5",
+          "native_nvidia_driver_requested": false,
+          "results": [],
+          "error": "wave2_shuffle/32: output[0] = 0xffffffff, expected 0x28b7bc80"
+        },
+        "execution_log": "CUMETAL_PROVENANCE event=kernel_launch kernel=\"wave2_shuffle\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=false launch_success=true duration_ns=1583 grid=(1,1,1) block=(32,1,1) unsupported_reason=\"\"\nTraceback (most recent call last):\n  File \"/Users/brandon/Desktop/gpu/rust-cuda-ptx-export/examples/ptx_export/run_wave2_gpu.py\", line 152, in <module>\n    main()\n    ~~~~^^\n  File \"/Users/brandon/Desktop/gpu/rust-cuda-ptx-export/examples/ptx_export/run_wave2_gpu.py\", line 140, in main\n    result=run_case(driver,kernel,args.kernel,count,args.repeats if args.benchmark else 0)\n  File \"/Users/brandon/Desktop/gpu/rust-cuda-ptx-export/examples/ptx_export/run_wave2_gpu.py\", line 80, in run_case\n    raise RuntimeError(f'{name}/{count}: output[{index}] = {host_output[index]:#010x}, '\n                       f'expected {expected[index]:#010x}')\nRuntimeError: wave2_shuffle/32: output[0] = 0xffffffff, expected 0x28b7bc80\n"
+      }
+    },
+    "comparison": {
+      "workload": "representative",
+      "expected_entry_count": 4,
+      "default_matches_disabled_ptx": true,
+      "inline_scalar_matches_replay": true,
+      "nvidia_execution": false,
+      "ptx_sha256": {
+        "none": "6c4fe4b9a3031fbe6138daf2fd6f1fe6130b2efd9e8ccc270d0b2f2728d3df46",
+        "default": "6c4fe4b9a3031fbe6138daf2fd6f1fe6130b2efd9e8ccc270d0b2f2728d3df46",
+        "inline-scalar": "aa05ea8cc449823d6e22b4cc332946afbf569a98a5856f489b9b7480cc0ffd0f"
+      }
+    },
+    "source_commit": "363efef"
+  },
+  "rng_ipo_experiments": {
+    "input_sha256": "77e448e3b4fcae0030b948c656b32cb6be0ab0aede6424890c42b86456b2820d",
+    "nvidia_compilation": false,
+    "variants": {
+      "ipsccp": {
+        "passes": "globaldce,cgscc(inline),function(sroa,instcombine<max-iterations=2;no-verify-fixpoint>,simplifycfg,adce),globaldce,ipsccp,function(sroa,instcombine<max-iterations=2;no-verify-fixpoint>,simplifycfg,adce),globaldce,verify",
+        "verify_each": true,
+        "output_sha256": "b50aa51aa43b54e90a7b1b77a41b0e97b2b8235beeac39454e4bdf07630f9d9d",
+        "module_bytes": 638370,
+        "helper_retained": true,
+        "helper_signature": "define internal { i64, i64 } @_RNvXs0_NtCslhAn9NXnFmt_12rand_xoshiro20xoroshiro128starstarNtB5_20Xoroshiro128StarStarNtCsjpL00qHfNVI_9rand_core11SeedableRng9from_seed(ptr noalias readonly align 1 dereferenceable(16) %seed) unnamed_addr #0 {",
+        "helper_allocations": 5
+      },
+      "argpromotion": {
+        "passes": "globaldce,cgscc(inline),function(sroa,instcombine<max-iterations=2;no-verify-fixpoint>,simplifycfg,adce),globaldce,function(loop-simplify,lcssa,loop(indvars),loop-unroll<O2;full-unroll-max=4;no-partial;no-peeling;no-profile-peeling;no-runtime;no-upperbound>,sroa,instcombine<max-iterations=2;no-verify-fixpoint>,simplifycfg,adce),cgscc(argpromotion),ipsccp,function(sroa,instcombine<max-iterations=2;no-verify-fixpoint>,simplifycfg,adce),cgscc(inline),function(sroa,instcombine<max-iterations=2;no-verify-fixpoint>,simplifycfg,adce),globaldce,verify",
+        "verify_each": true,
+        "output_sha256": "64e7642515c9e622ca479ad487c94cd77694058aea8c54fd644b7f21701342b4",
+        "module_bytes": 2242467,
+        "helper_retained": true,
+        "helper_signature": "define internal { i64, i64 } @_RNvXs0_NtCslhAn9NXnFmt_12rand_xoshiro20xoroshiro128starstarNtB5_20Xoroshiro128StarStarNtCsjpL00qHfNVI_9rand_core11SeedableRng9from_seed(ptr noalias readonly align 1 dereferenceable(16) %seed) unnamed_addr #0 {",
+        "helper_allocations": 4
+      }
+    }
+  },
+  "final_small_numerical": {
+    "run": 34794484421,
+    "host": {
+      "none": {
+        "input_sha256": "aaaad5aa668b30aa0bdbe625c0de8697b20cd83265d5944902e4de03b2c98780",
+        "oracle_sha256": "76f10d79ed3d05cedae0e1b050233b5dc21f9ad6870d38f918a950d2c96219d4",
+        "host_triple": "arm64-apple-darwin25.6.0",
+        "gpu_execution": false,
+        "result": "HOST_IR_NUMERICAL_PASS: 1608 cases across five extracted helpers"
+      },
+      "inline-scalar": {
+        "input_sha256": "58e0a29aab3abb75208927615183eaa7c15c75baa092b5d164406ecce1c0d7b3",
+        "oracle_sha256": "76f10d79ed3d05cedae0e1b050233b5dc21f9ad6870d38f918a950d2c96219d4",
+        "host_triple": "arm64-apple-darwin25.6.0",
+        "gpu_execution": false,
+        "result": "HOST_IR_NUMERICAL_PASS: 1608 cases across five extracted helpers"
+      },
+      "tiny-loops": {
+        "input_sha256": "a0fbe965a15f8084452a0bbabd7bb57dc5be78ee0537b9945c94b27861e06db7",
+        "oracle_sha256": "76f10d79ed3d05cedae0e1b050233b5dc21f9ad6870d38f918a950d2c96219d4",
+        "host_triple": "arm64-apple-darwin25.6.0",
+        "gpu_execution": false,
+        "result": "HOST_IR_NUMERICAL_PASS: 1608 cases across five extracted helpers"
+      },
+      "correlated-tiny-loops": {
+        "input_sha256": "d6196a85219f613042bb989f50a273ca6b8e636a7ad8ce7614b15a1d4a438c78",
+        "oracle_sha256": "76f10d79ed3d05cedae0e1b050233b5dc21f9ad6870d38f918a950d2c96219d4",
+        "host_triple": "arm64-apple-darwin25.6.0",
+        "gpu_execution": false,
+        "result": "HOST_IR_NUMERICAL_PASS: 1608 cases across five extracted helpers"
+      },
+      "loop-idiom": {
+        "input_sha256": "fee14de651d60590cbf2a4b02719d0e9fb5ee770235978cd0026bd2aa87f472b",
+        "oracle_sha256": "76f10d79ed3d05cedae0e1b050233b5dc21f9ad6870d38f918a950d2c96219d4",
+        "host_triple": "arm64-apple-darwin25.6.0",
+        "gpu_execution": false,
+        "result": "HOST_IR_NUMERICAL_PASS: 1608 cases across five extracted helpers"
+      }
+    },
+    "apple": {
+      "none": {
+        "ptx_sha256": "b325305f1d43b314bf0c794f099a4412b6ae038b17b841670d011d94d21e0702",
+        "logs": {
+          "vecadd-run.log": "CUMETAL_PROVENANCE event=kernel_launch kernel=\"rust_vecadd\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=false launch_success=true duration_ns=1874 grid=(1,1,1) block=(64,1,1) unsupported_reason=\"\"\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"rust_vecadd\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1458 grid=(1,1,1) block=(64,1,1) unsupported_reason=\"\"\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"rust_vecadd\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1374 grid=(1,1,1) block=(64,1,1) unsupported_reason=\"\"\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"rust_vecadd\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1500 grid=(1,1,1) block=(64,1,1) unsupported_reason=\"\"\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"rust_vecadd\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1416 grid=(5,1,1) block=(64,1,1) unsupported_reason=\"\"\nDEVICE Apple M5\nNUMERICAL_PASS kernel=rust_vecadd count=1\nNUMERICAL_PASS kernel=rust_vecadd count=31\nNUMERICAL_PASS kernel=rust_vecadd count=32\nNUMERICAL_PASS kernel=rust_vecadd count=33\nNUMERICAL_PASS kernel=rust_vecadd count=257\n",
+          "sha256-run.log": "CUMETAL_PROVENANCE event=kernel_launch kernel=\"rust_sha256_32\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=false launch_success=true duration_ns=14249 grid=(1,1,1) block=(64,1,1) unsupported_reason=\"\"\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"rust_sha256_32\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=11875 grid=(1,1,1) block=(64,1,1) unsupported_reason=\"\"\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"rust_sha256_32\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=11958 grid=(1,1,1) block=(64,1,1) unsupported_reason=\"\"\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"rust_sha256_32\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=11750 grid=(1,1,1) block=(64,1,1) unsupported_reason=\"\"\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"rust_sha256_32\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=11249 grid=(5,1,1) block=(64,1,1) unsupported_reason=\"\"\nDEVICE Apple M5\nNUMERICAL_PASS kernel=rust_sha256_32 count=1\nNUMERICAL_PASS kernel=rust_sha256_32 count=31\nNUMERICAL_PASS kernel=rust_sha256_32 count=32\nNUMERICAL_PASS kernel=rust_sha256_32 count=33\nNUMERICAL_PASS kernel=rust_sha256_32 count=257\n"
+        }
+      },
+      "inline-scalar": {
+        "ptx_sha256": "732df2f175dcf0841f273645e79164dd23a1e2b3bea808f455633ec248377821",
+        "logs": {
+          "vecadd-run.log": "CUMETAL_PROVENANCE event=kernel_launch kernel=\"rust_vecadd\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=false launch_success=true duration_ns=153375 grid=(1,1,1) block=(64,1,1) unsupported_reason=\"\"\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"rust_vecadd\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1499 grid=(1,1,1) block=(64,1,1) unsupported_reason=\"\"\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"rust_vecadd\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1375 grid=(1,1,1) block=(64,1,1) unsupported_reason=\"\"\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"rust_vecadd\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1416 grid=(1,1,1) block=(64,1,1) unsupported_reason=\"\"\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"rust_vecadd\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=1416 grid=(5,1,1) block=(64,1,1) unsupported_reason=\"\"\nDEVICE Apple M5\nNUMERICAL_PASS kernel=rust_vecadd count=1\nNUMERICAL_PASS kernel=rust_vecadd count=31\nNUMERICAL_PASS kernel=rust_vecadd count=32\nNUMERICAL_PASS kernel=rust_vecadd count=33\nNUMERICAL_PASS kernel=rust_vecadd count=257\n",
+          "sha256-run.log": "CUMETAL_PROVENANCE event=kernel_launch kernel=\"rust_sha256_32\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=false launch_success=true duration_ns=19041 grid=(1,1,1) block=(64,1,1) unsupported_reason=\"\"\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"rust_sha256_32\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=11875 grid=(1,1,1) block=(64,1,1) unsupported_reason=\"\"\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"rust_sha256_32\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=11875 grid=(1,1,1) block=(64,1,1) unsupported_reason=\"\"\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"rust_sha256_32\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=11875 grid=(1,1,1) block=(64,1,1) unsupported_reason=\"\"\nCUMETAL_PROVENANCE event=kernel_launch kernel=\"rust_sha256_32\" source=generic_ptx provenance=generic_ptx_lowering semantic_quality=exact device=apple_gpu device_name=\"Apple M5\" math_mode=safe compile_cache_hit=true launch_success=true duration_ns=11166 grid=(5,1,1) block=(64,1,1) unsupported_reason=\"\"\nDEVICE Apple M5\nNUMERICAL_PASS kernel=rust_sha256_32 count=1\nNUMERICAL_PASS kernel=rust_sha256_32 count=31\nNUMERICAL_PASS kernel=rust_sha256_32 count=32\nNUMERICAL_PASS kernel=rust_sha256_32 count=33\nNUMERICAL_PASS kernel=rust_sha256_32 count=257\n"
+        }
+      }
+    },
+    "nvidia_execution": false
+  }
+}
