@@ -140,7 +140,7 @@ jobs:
           docker exec "$CONTAINER_NAME" bash -lc 'set -euo pipefail
             apt-get update
             DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-              build-essential libclang-dev curl ca-certificates git pkg-config libssl-dev \
+              build-essential libclang-dev python3 curl ca-certificates git pkg-config libssl-dev \
               libffi-dev libedit-dev libxml2-dev libtinfo-dev zlib1g-dev xz-utils
             curl --proto "=https" --tlsv1.2 -sSf https://sh.rustup.rs | \
               sh -s -- -y --profile minimal --default-toolchain none
@@ -227,6 +227,7 @@ jobs:
               export LD_LIBRARY_PATH="$(dirname "$LLVM_CONFIG_21")/../lib:/usr/local/cuda/nvvm/lib64:${LD_LIBRARY_PATH:-}"
               export LIBRARY_PATH="/usr/local/cuda/lib64/stubs:${LIBRARY_PATH:-}"
               test "$("$LLVM_CONFIG_21" --version)" = 21.1.8
+              python3 tests/llvm-wrapper/run.py
               cargo build -p vecadd --features llvm21
             '
 

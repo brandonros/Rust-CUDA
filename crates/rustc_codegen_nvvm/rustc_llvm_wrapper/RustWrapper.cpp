@@ -197,7 +197,11 @@ extern "C" LLVMContextRef LLVMRustContextCreate(bool shouldDiscardNames)
 extern "C" void LLVMRustSetNormalizedTarget(LLVMModuleRef M,
                                             const char *Triple)
 {
-  unwrap(M)->setTargetTriple(Triple::normalize(Triple));
+#if LLVM_VERSION_MAJOR >= 21
+  unwrap(M)->setTargetTriple(llvm::Triple(llvm::Triple::normalize(Triple)));
+#else
+  unwrap(M)->setTargetTriple(llvm::Triple::normalize(Triple));
+#endif
 }
 
 extern "C" void LLVMRustPrintPassTimings()
@@ -264,7 +268,11 @@ static Attribute::AttrKind fromRust(LLVMRustAttribute Kind)
   case NoAlias:
     return Attribute::NoAlias;
   case NoCapture:
+#if LLVM_VERSION_MAJOR >= 21
+    return Attribute::Captures;
+#else
     return Attribute::NoCapture;
+#endif
   case NoInline:
     return Attribute::NoInline;
   case NonNull:
@@ -307,6 +315,17 @@ static Attribute::AttrKind fromRust(LLVMRustAttribute Kind)
   report_fatal_error("bad AttributeKind");
 }
 
+// LLVM 21 replaced the enum attribute nocapture with captures(none).
+// Construct its payload explicitly for both function and call-site attributes.
+static Attribute rustAttribute(LLVMContext &Ctx, LLVMRustAttribute Kind)
+{
+#if LLVM_VERSION_MAJOR >= 21
+  if (Kind == NoCapture)
+    return Attribute::getWithCaptureInfo(Ctx, CaptureInfo::none());
+#endif
+  return Attribute::get(Ctx, fromRust(Kind));
+}
+
 extern "C" void LLVMRustAddCallSiteAttribute(LLVMValueRef Instr, unsigned Index,
                                              LLVMRustAttribute RustAttr)
 {
@@ -314,11 +333,11 @@ extern "C" void LLVMRustAddCallSiteAttribute(LLVMValueRef Instr, unsigned Index,
   CallBase *Call = unwrap<CallBase>(Instr);
   LLVMContext &Ctx = Call->getContext();
   AttrBuilder B(Ctx);
-  B.addAttribute(Attribute::get(Ctx, fromRust(RustAttr)));
+  B.addAttribute(rustAttribute(Ctx, RustAttr));
   Call->setAttributes(Call->getAttributes().addAttributesAtIndex(Ctx, Index, B));
 #else
   CallSite Call = CallSite(unwrap<Instruction>(Instr));
-  Attribute Attr = Attribute::get(Call->getContext(), fromRust(RustAttr));
+  Attribute Attr = rustAttribute(Call->getContext(), RustAttr);
 #if LLVM_VERSION_GE(5, 0)
   Call.addAttribute(Index, Attr);
 #else
@@ -412,11 +431,11 @@ extern "C" void LLVMRustAddFunctionAttribute(LLVMValueRef Fn, unsigned Index,
   Function *A = unwrap<Function>(Fn);
   LLVMContext &Ctx = A->getContext();
   AttrBuilder B(Ctx);
-  B.addAttribute(Attribute::get(Ctx, fromRust(RustAttr)));
+  B.addAttribute(rustAttribute(Ctx, RustAttr));
   A->setAttributes(A->getAttributes().addAttributesAtIndex(Ctx, Index, B));
 #else
   Function *A = unwrap<Function>(Fn);
-  Attribute Attr = Attribute::get(A->getContext(), fromRust(RustAttr));
+  Attribute Attr = rustAttribute(A->getContext(), RustAttr);
   AttrBuilder B(Attr);
 #if LLVM_VERSION_GE(5, 0)
   A->addAttributes(Index, B);
@@ -439,7 +458,7 @@ extern "C" void LLVMRustAddFunctionAttributeWithType(LLVMValueRef Fn, unsigned I
   } else if (RustAttr == ByVal) {
     B.addByValAttr(unwrap(Ty));
   } else {
-    B.addAttribute(Attribute::get(Ctx, fromRust(RustAttr)));
+    B.addAttribute(rustAttribute(Ctx, RustAttr));
   }
   A->setAttributes(A->getAttributes().addAttributesAtIndex(Ctx, Index, B));
 #else
@@ -448,7 +467,7 @@ extern "C" void LLVMRustAddFunctionAttributeWithType(LLVMValueRef Fn, unsigned I
   // to the kind-only add on legacy LLVM.
   (void)Ty;
   Function *A = unwrap<Function>(Fn);
-  Attribute Attr = Attribute::get(A->getContext(), fromRust(RustAttr));
+  Attribute Attr = rustAttribute(A->getContext(), RustAttr);
   AttrBuilder B(Attr);
 #if LLVM_VERSION_GE(5, 0)
   A->addAttributes(Index, B);
@@ -557,7 +576,7 @@ extern "C" void LLVMRustRemoveFunctionAttributes(LLVMValueRef Fn,
   F->setAttributes(PALNew);
 #else
   Function *F = unwrap<Function>(Fn);
-  Attribute Attr = Attribute::get(F->getContext(), fromRust(RustAttr));
+  Attribute Attr = rustAttribute(F->getContext(), RustAttr);
   AttrBuilder B(Attr);
   auto PAL = F->getAttributes();
 #if LLVM_VERSION_GE(5, 0)
@@ -1643,8 +1662,10 @@ extern "C" LLVMTypeKind LLVMRustGetTypeKind(LLVMTypeRef Ty)
   case Type::VectorTyID:
     return LLVMVectorTypeKind;
 #endif
+#if LLVM_VERSION_MAJOR < 21
   case Type::X86_MMXTyID:
     return LLVMX86_MMXTypeKind;
+#endif
   case Type::TokenTyID:
     return LLVMTokenTypeKind;
   }

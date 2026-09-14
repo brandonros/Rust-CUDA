@@ -641,7 +641,11 @@ extern "C" void LLVMRustAddBuilderLibraryInfo(LLVMPassManagerBuilderRef PMBR,
 {
 #if LLVM_VERSION_MAJOR >= 19
   auto *Builder = unwrap(PMBR);
+#if LLVM_VERSION_MAJOR >= 21
+  Builder->TargetTriple = unwrap(M)->getTargetTriple().str();
+#else
   Builder->TargetTriple = unwrap(M)->getTargetTriple();
+#endif
   Builder->DisableSimplifyLibCalls = DisableSimplifyLibCalls;
 #else
   Triple TargetTriple(unwrap(M)->getTargetTriple());
