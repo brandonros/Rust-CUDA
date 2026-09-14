@@ -8,6 +8,9 @@ use crate::gpu_only;
 use core::arch::asm;
 use half::{bf16, f16};
 
+#[path = "warp_control.rs"]
+mod control;
+
 /// Synchronizes all of the threads inside of this warp according to `mask`.
 ///
 /// # Safety
@@ -766,15 +769,7 @@ unsafe fn warp_shuffle_32(
         fn __nvvm_warp_shuffle(mask: u32, mode: u32, a: u32, b: u32, c: u32) -> u64;
     }
 
-    assert!(
-        !(width & (width - 1)) != 0 && width <= 32,
-        "width must be a power of 2 and less than or equal to 32"
-    );
-
-    // mimicking nvcc's behavior
-    let mut c = 0;
-    c |= 0b11111;
-    c |= (32 - width) << 8;
+    let c = control::shuffle_control(width, matches!(mode, WarpShuffleMode::Up));
 
     let result = unsafe { __nvvm_warp_shuffle(mask, mode as u32, value, b, c) };
     unpack_warp_result(result)
