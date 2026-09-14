@@ -17,7 +17,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     if let Some(features) = env::args().nth(4) {
         builder = builder.build_args(&["--no-default-features", "--features", &features]);
     }
-    match env::args().nth(2).as_deref().unwrap_or("none") {
+    let mode = env::args().nth(2).unwrap_or_else(|| "default".into());
+    // Historical wave-1 experiments explicitly isolate their selected pipeline.
+    // The default mode exercises the production default without overrides.
+    if mode != "default" {
+        builder = builder.llvm19_global_dce(false);
+    }
+    match mode.as_str() {
+        "default" => {}
         "none" => {}
         "size-s" => {
             builder = builder
@@ -41,7 +48,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         "inline" => builder = builder.llvm19_cleanup(Llvm19Cleanup::Inline),
         _ => {
             return Err(
-                "cleanup mode must be none, dce, scalar, inline, inline-scalar, module-scalar, module-inline, size-s, or size-z".into(),
+                "cleanup mode must be default, none, dce, scalar, inline, inline-scalar, module-scalar, module-inline, size-s, or size-z".into(),
             );
         }
     }

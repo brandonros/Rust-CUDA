@@ -205,7 +205,9 @@ pub struct CudaBuilder {
     /// An optional path where to dump LLVM IR of the final output the codegen will feed to libnvvm. Usually
     /// used for debugging.
     pub final_module_path: Option<PathBuf>,
-    /// Opt-in modern LLVM cleanup; disabled by default.
+    /// Whether LLVM 19 removes unreachable definitions at the merged handoff.
+    pub llvm19_global_dce: bool,
+    /// Additional opt-in modern LLVM cleanup; disabled by default.
     pub llvm19_cleanup: Option<Llvm19Cleanup>,
     /// Experimental scalar cleanup of each codegen unit before serialization.
     pub llvm19_module_cleanup: bool,
@@ -231,9 +233,17 @@ impl CudaBuilder {
             debug: DebugInfo::None,
             build_args: vec![],
             final_module_path: None,
+            llvm19_global_dce: true,
             llvm19_cleanup: None,
             llvm19_module_cleanup: false,
         }
+    }
+
+    /// Enable or disable the default LLVM 19 merged-module GlobalDCE pass.
+    /// Disabling is intended for compiler-output comparisons; LLVM 7 is unchanged.
+    pub fn llvm19_global_dce(mut self, enabled: bool) -> Self {
+        self.llvm19_global_dce = enabled;
+        self
     }
 
     /// Enable verified scalar cleanup before each codegen unit is serialized.
@@ -754,6 +764,9 @@ fn invoke_rustc(builder: &CudaBuilder) -> Result<PathBuf, CudaBuilderError> {
     }
 
     let mut llvm_args = vec![NvvmOption::Arch(builder.arch).to_string()];
+    if !builder.llvm19_global_dce {
+        llvm_args.push("--disable-llvm19-global-dce".to_string());
+    }
     if builder.llvm19_module_cleanup {
         llvm_args.push("--llvm19-module-cleanup".to_string());
     }

@@ -654,6 +654,7 @@ pub struct CodegenArgs {
     // None leaves the existing NVVM handoff unchanged.
     pub llvm19_cleanup: Option<crate::llvm::NvvmCleanup>,
     pub llvm19_module_cleanup: bool,
+    pub disable_llvm19_global_dce: bool,
     pub disassemble: Option<DisassembleMode>,
 }
 
@@ -678,6 +679,12 @@ impl CodegenArgs {
                 cg_args.override_libm = true;
             } else if arg == "--use-constant-memory-space" {
                 cg_args.use_constant_memory_space = true;
+            } else if arg == "--disable-llvm19-global-dce" {
+                if !cfg!(feature = "llvm19") {
+                    sess.dcx()
+                        .fatal("--disable-llvm19-global-dce requires the llvm19 backend feature");
+                }
+                cg_args.disable_llvm19_global_dce = true;
             } else if arg == "--llvm19-module-cleanup" {
                 if !cfg!(feature = "llvm19") {
                     sess.dcx()
