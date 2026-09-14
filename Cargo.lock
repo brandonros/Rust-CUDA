@@ -2593,6 +2593,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "ptx-representative-kernels"
+version = "0.1.0"
+dependencies = [
+ "cuda_std",
+]
+
+[[package]]
 name = "ptx-retention-kernels"
 version = "0.1.0"
 dependencies = [
