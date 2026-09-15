@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Build one pinned workload and compare production DCE and bounded LLVM experiments."""
 import argparse
+from contextlib import nullcontext
 import hashlib
 import json
 from pathlib import Path
@@ -10,7 +11,7 @@ import subprocess
 import sys
 from replay_cleanup import normalized_functions
 
-MINER_COMMIT = '9791234249fc8cb762c296c4fda4503d2686ff77'
+from workload import MINER_COMMIT, prepared_miner
 WORKLOADS = ('solana', 'bitcoin', 'ethereum', 'shallenge', 'self_test', 'representative', 'small')
 
 
@@ -22,25 +23,22 @@ def main():
     args = parser.parse_args()
     scripts = Path(__file__).resolve().parent
     root = args.out.resolve(); root.mkdir(parents=True, exist_ok=True)
+    if args.workload not in ('representative', 'small') and args.miner is None:
+        parser.error('mining workload requires a pinned checkout')
+    context = prepared_miner(args.miner, root) if args.workload not in ('representative', 'small') else nullcontext(None)
+    with context as miner:
+        compare(args, scripts, root, miner)
+
+
+def compare(args, scripts, root, miner):
     provenance = {'workload':args.workload, 'source_commit':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()}
     if args.workload in ('representative', 'small'):
         kernels = scripts/('representative-kernels' if args.workload == 'representative' else 'kernels')
         extra = [str(kernels)]
         expected = set(re.findall(r'pub unsafe fn (\w+)\(', (kernels/'src/lib.rs').read_text()))
     else:
-        if args.miner is None: raise RuntimeError('mining workload requires a pinned checkout')
-        miner = args.miner.resolve()
-        commit = subprocess.check_output(['git','-C',str(miner),'rev-parse','HEAD'],text=True).strip()
-        if commit != MINER_COMMIT: raise RuntimeError('mining revision differs from the experiment pin')
         kernels = miner/'kernels'
-        manifest = kernels/'Cargo.toml'; original = manifest.read_text()
-        replacement = 'cuda_std = { path = '+json.dumps(str(scripts.parents[1]/'crates/cuda_std'))+' }'
-        patched, count = re.subn(r'^cuda_std = \{ git = "https://github.com/brandonros/Rust-CUDA.git", rev = "2f4fd1d" \}$',replacement,original,flags=re.M)
-        if count != 1: raise RuntimeError('unexpected cuda_std dependency')
-        (root/'Cargo.toml.original').write_text(original)
-        shutil.copy2(kernels/'Cargo.lock',root/'Cargo.lock.original')
-        manifest.write_text(patched); (root/'Cargo.toml.patched').write_text(patched)
-        provenance['mining_commit'] = commit
+        provenance['mining_commit'] = MINER_COMMIT
         source_file = {'solana':'solana_vanity.rs','bitcoin':'bitcoin_vanity.rs','ethereum':'ethereum_vanity.rs','shallenge':'shallenge.rs','self_test':'self_test.rs'}[args.workload]
         expected = set(re.findall(r'pub unsafe extern "C" fn (\w+)\(', (kernels/'src'/source_file).read_text()))
         extra = [str(kernels),args.workload]
