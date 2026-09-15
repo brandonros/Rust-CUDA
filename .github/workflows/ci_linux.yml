@@ -131,10 +131,11 @@ jobs:
         if: matrix.variance.llvm == 21
         env:
           LLVM_ARCH: ${{ matrix.variance.artifact }}
+          PREBUILT_LLVM_URL: ${{ vars.PREBUILT_LLVM_URL || 'https://github.com/brandonros/rustc_codegen_nvvm-llvm/releases/download/llvm-21.1.8' }}
         run: |
           mkdir -p llvm-prebuilt
           curl --fail --location --retry 3 \
-            "https://github.com/Rust-GPU/rustc_codegen_nvvm-llvm/releases/download/llvm-21.1.8/$LLVM_ARCH.tar.xz" \
+            "${PREBUILT_LLVM_URL%/}/$LLVM_ARCH.tar.xz" \
             -o "llvm-prebuilt/$LLVM_ARCH.tar.xz"
           tar -xf "llvm-prebuilt/$LLVM_ARCH.tar.xz" -C llvm-prebuilt
           docker exec "$CONTAINER_NAME" bash -lc 'set -euo pipefail

@@ -121,7 +121,7 @@ fn target_to_llvm_prebuilt(target: &str) -> String {
 
 fn download_prebuilt_llvm(target: &str, base_url: &str) -> PathBuf {
     let prebuilt_name = target_to_llvm_prebuilt(target);
-    let url = format!("{base_url}{prebuilt_name}");
+    let url = format!("{}/{prebuilt_name}", base_url.trim_end_matches('/'));
 
     println!("cargo:warning=Downloading prebuilt LLVM from {url}");
 
