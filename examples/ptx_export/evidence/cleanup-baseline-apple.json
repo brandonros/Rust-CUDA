@@ -1,0 +1,41 @@
+{
+  "artifact_run": 34784267526,
+  "device": "Apple M5",
+  "consumer": "CuMetal generic PTX lowering",
+  "nvidia_execution": false,
+  "performance_measurement": false,
+  "workload_specializations": false,
+  "sha256": {
+    "ptx": "b325305f1d43b314bf0c794f099a4412b6ae038b17b841670d011d94d21e0702",
+    "cumetalc": "16220050a5913d98be424c3001e20a44180dd90e998e4c684abf4e1c9ec53c7e",
+    "libcumetal": "eae463ca27f839d1a514249e5b34f571376aad99fa2d7cdc9a3cbc8dab3f6e62",
+    "vector_sha_runner_source": "bd62e6f8e55770f677697eb546569479a637796afc3bfa5e23e3821b57204992",
+    "vector_sha_harness": "623f9230f26b9dbc5c4241b32b37c8831a0fb36e80970161d6aac72efd368448",
+    "guarded_runner": "165cad8e45b1fdc9f9c41ed2a69ae4fe3fc9d0d940b876aedd821c8ef87d8286"
+  },
+  "numerical_results": {
+    "vector_add": [
+      "NUMERICAL_PASS kernel=rust_vecadd count=1",
+      "NUMERICAL_PASS kernel=rust_vecadd count=31",
+      "NUMERICAL_PASS kernel=rust_vecadd count=32",
+      "NUMERICAL_PASS kernel=rust_vecadd count=33",
+      "NUMERICAL_PASS kernel=rust_vecadd count=257"
+    ],
+    "sha256": [
+      "NUMERICAL_PASS kernel=rust_sha256_32 count=1",
+      "NUMERICAL_PASS kernel=rust_sha256_32 count=31",
+      "NUMERICAL_PASS kernel=rust_sha256_32 count=32",
+      "NUMERICAL_PASS kernel=rust_sha256_32 count=33",
+      "NUMERICAL_PASS kernel=rust_sha256_32 count=257"
+    ],
+    "guarded_select": [
+      "NUMERICAL_PASS rust_guarded_select: 1608 cases, independent oracle and guards; device=Apple M5 driver=/Users/brandon/Desktop/gpu/cuda-metal/build-rust-ptx-apple/libcumetal.dylib"
+    ]
+  },
+  "filtered_select": "Not executed: CuMetal rejects trap in stepped helper",
+  "commands": [
+    "python3 cuda-metal/demos/rust-ptx/run.py BASELINE_PTX --build-dir cuda-metal/build-rust-ptx-apple --out OUTPUT_DIR",
+    "cumetalc BASELINE_PTX --backend=cumetal-ir --ptx-strict --overwrite --entry rust_guarded_select --emit=msl -o GUARDED_METAL",
+    "python3 examples/ptx_export/run_guarded_select.py GUARDED_METAL --kernel rust_guarded_select --driver LIBCUMETAL_PATH"
+  ]
+}

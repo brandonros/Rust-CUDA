@@ -44,7 +44,12 @@ fn should_override<'tcx>(func: Instance<'tcx>, cx: &CodegenCx<'_, 'tcx>) -> bool
         return false;
     }
 
-    let sym = cx.tcx.item_name(func.def_id());
+    // Closures can remain as separate codegen items (for example libm's
+    // rint_round at opt-level=s). They have no item name and cannot name a
+    // libdevice intrinsic. item_name would ICE instead of compiling them.
+    let Some(sym) = cx.tcx.opt_item_name(func.def_id()) else {
+        return false;
+    };
     let name = sym.as_str();
 
     if is_unsupported_libdevice_fn(name) {

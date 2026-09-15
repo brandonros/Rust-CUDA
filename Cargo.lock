@@ -2585,10 +2585,39 @@ dependencies = [
 ]
 
 [[package]]
+name = "ptx-export-kernels"
+version = "0.1.0"
+dependencies = [
+ "cuda_std",
+ "sha2",
+]
+
+[[package]]
+name = "ptx-representative-kernels"
+version = "0.1.0"
+dependencies = [
+ "cuda_std",
+]
+
+[[package]]
+name = "ptx-retention-kernels"
+version = "0.1.0"
+dependencies = [
+ "cuda_std",
+]
+
+[[package]]
 name = "ptx_compiler"
 version = "0.1.1"
 dependencies = [
  "cust_raw",
+]
+
+[[package]]
+name = "ptx_export"
+version = "0.1.0"
+dependencies = [
+ "cuda_builder",
 ]
 
 [[package]]

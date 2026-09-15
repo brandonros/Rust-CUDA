@@ -418,6 +418,23 @@ impl Module {
         }
     }
 
+    /// Takes ownership of an already loaded CUDA module without loading it again.
+    ///
+    /// The returned owner unloads the module when dropped. This allows callers
+    /// using raw loading APIs, for example to collect JIT logs, to retain the
+    /// loaded module with cust's normal function lifetimes and cleanup.
+    ///
+    /// # Safety
+    ///
+    /// `inner` must be a valid, non-null module handle loaded in the current CUDA
+    /// context. The caller must transfer exclusive ownership: no other owner may
+    /// unload the module, including another `Module` wrapping the same handle.
+    /// The context must remain alive while the returned module is in use and
+    /// must be current when accessing or dropping it.
+    pub unsafe fn from_raw(inner: driver_sys::CUmodule) -> Self {
+        Self { inner }
+    }
+
     // Get the inner `CUmodule` from the `Module`. If you use this handle elsewhere,
     // make sure not to use it after the module has been dropped. Or ManuallyDrop the struct to be safe.
     pub fn as_inner(&self) -> driver_sys::CUmodule {

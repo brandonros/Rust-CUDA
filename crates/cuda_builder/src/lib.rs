@@ -51,6 +51,18 @@ impl DebugInfo {
     }
 }
 
+/// Experimental pre-NVVM optimization. Requires the LLVM 21 backend.
+/// The historical LLVM 19 API names are retained for caller compatibility.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Llvm19Cleanup {
+    /// Remove unreachable internal definitions without rewriting live function bodies.
+    GlobalDce,
+    /// Inline internal calls, then run scalar cleanup without correlated propagation.
+    InlineScalar,
+    Scalar,
+    Inline,
+}
+
 pub enum EmitOption {
     LlvmIr,
     Bitcode,
@@ -194,6 +206,12 @@ pub struct CudaBuilder {
     /// An optional path where to dump LLVM IR of the final output the codegen will feed to libnvvm. Usually
     /// used for debugging.
     pub final_module_path: Option<PathBuf>,
+    /// Whether the modern backend removes unreachable definitions at the merged handoff.
+    pub llvm19_global_dce: bool,
+    /// Additional opt-in modern LLVM cleanup; disabled by default.
+    pub llvm19_cleanup: Option<Llvm19Cleanup>,
+    /// Experimental scalar cleanup of each codegen unit before serialization.
+    pub llvm19_module_cleanup: bool,
 }
 
 impl CudaBuilder {
@@ -216,7 +234,31 @@ impl CudaBuilder {
             debug: DebugInfo::None,
             build_args: vec![],
             final_module_path: None,
+            llvm19_global_dce: true,
+            llvm19_cleanup: None,
+            llvm19_module_cleanup: false,
         }
+    }
+
+    /// Enable or disable the default modern LLVM merged-module GlobalDCE pass.
+    /// Disabling is intended for compiler-output comparisons; LLVM 7 is unchanged.
+    pub fn llvm19_global_dce(mut self, enabled: bool) -> Self {
+        self.llvm19_global_dce = enabled;
+        self
+    }
+
+    /// Enable verified scalar cleanup before each codegen unit is serialized.
+    /// Disabled by default; independent of merged-module cleanup.
+    pub fn llvm19_module_cleanup(mut self, enabled: bool) -> Self {
+        self.llvm19_module_cleanup = enabled;
+        self
+    }
+
+    /// Enable a bounded modern LLVM cleanup pipeline before NVVM compilation.
+    /// This is experimental; compare numerical results and generated code.
+    pub fn llvm19_cleanup(mut self, cleanup: Llvm19Cleanup) -> Self {
+        self.llvm19_cleanup = Some(cleanup);
+        self
     }
 
     /// Additional arguments passed to cargo during `cargo build`.
@@ -354,9 +396,12 @@ impl CudaBuilder {
     /// Runs rustc to build the codegen and codegens the gpu crate, returning the path of the final
     /// ptx file. If [`ptx_file_copy_path`](Self::ptx_file_copy_path) is set, this returns the copied path.
     pub fn build(self) -> Result<PathBuf, CudaBuilderError> {
+        let _timing = timing::phase("cuda_builder", &self.path_to_crate.to_string_lossy());
+        println!("cargo:rerun-if-env-changed=NVVM_TIMING_DIR");
         println!("cargo:rerun-if-changed={}", self.path_to_crate.display());
         let path = invoke_rustc(&self)?;
         if let Some(copy_path) = self.ptx_file_copy_path {
+            let _timing = timing::phase("copy_ptx", &copy_path.to_string_lossy());
             std::fs::copy(path, &copy_path).map_err(CudaBuilderError::FailedToCopyPtxFile)?;
             Ok(copy_path)
         } else {
@@ -392,6 +437,7 @@ fn codegen_filename() -> String {
 }
 
 fn find_rustc_codegen_nvvm() -> PathBuf {
+    let _timing = timing::phase("find_backend", "");
     let filename = codegen_filename();
 
     if let Some(path) = search_backend_artifact(&filename) {
@@ -544,6 +590,7 @@ fn search_backend_artifact(filename: &str) -> Option<PathBuf> {
 }
 
 fn build_backend_and_find(filename: &str) -> Option<PathBuf> {
+    let _timing = timing::phase("build_backend_fallback", filename);
     let workspace_dir = workspace_root_dir()?;
 
     println!("cargo:warning=Building rustc_codegen_nvvm to satisfy cuda_builder requirements");
@@ -662,6 +709,7 @@ fn push_dir(path: PathBuf, dirs: &mut Vec<PathBuf>, seen: &mut HashSet<PathBuf>)
 }
 
 fn rustc_sysroot_lib_dirs() -> Vec<PathBuf> {
+    let _timing = timing::phase("find_sysroot", "");
     let mut dirs = Vec::new();
 
     let sysroot = match Command::new("rustc").args(["--print", "sysroot"]).output() {
@@ -698,6 +746,7 @@ fn rustc_sysroot_lib_dirs() -> Vec<PathBuf> {
 }
 
 fn invoke_rustc(builder: &CudaBuilder) -> Result<PathBuf, CudaBuilderError> {
+    let _timing = timing::phase("prepare_and_build_kernels", "");
     // see https://github.com/EmbarkStudios/rust-gpu/blob/main/crates/spirv-builder/src/lib.rs#L385-L392
     // on what this does
     let rustc_codegen_nvvm = find_rustc_codegen_nvvm();
@@ -723,6 +772,21 @@ fn invoke_rustc(builder: &CudaBuilder) -> Result<PathBuf, CudaBuilderError> {
     }
 
     let mut llvm_args = vec![NvvmOption::Arch(builder.arch).to_string()];
+    if !builder.llvm19_global_dce {
+        llvm_args.push("--disable-llvm19-global-dce".to_string());
+    }
+    if builder.llvm19_module_cleanup {
+        llvm_args.push("--llvm19-module-cleanup".to_string());
+    }
+    if let Some(mode) = builder.llvm19_cleanup {
+        let mode = match mode {
+            Llvm19Cleanup::GlobalDce => "dce",
+            Llvm19Cleanup::InlineScalar => "inline-scalar",
+            Llvm19Cleanup::Scalar => "scalar",
+            Llvm19Cleanup::Inline => "inline",
+        };
+        llvm_args.push(format!("--llvm19-cleanup={mode}"));
+    }
 
     if !builder.nvvm_opts {
         llvm_args.push("-opt=0".to_string());
@@ -769,6 +833,17 @@ fn invoke_rustc(builder: &CudaBuilder) -> Result<PathBuf, CudaBuilderError> {
     }
 
     let mut cargo = Command::new("cargo");
+    if let Some(directory) = env::var_os("NVVM_TIMING_DIR") {
+        let directory = PathBuf::from(directory).join("rustc");
+        // These files cover rustc query activity before and during backend work.
+        // Per-invocation filenames are generated by rustc itself.
+        if let Err(error) = fs::create_dir_all(&directory) {
+            eprintln!("Could not create rustc self-profile directory: {error}");
+        } else {
+            rustflags.push(format!("-Zself-profile={}", directory.display()));
+            rustflags.push("-Ztime-passes".into());
+        }
+    }
     extend_library_path_env(&mut cargo, &library_dirs);
     cargo.args([
         "build",
@@ -779,6 +854,9 @@ fn invoke_rustc(builder: &CudaBuilder) -> Result<PathBuf, CudaBuilderError> {
     ]);
 
     cargo.args(&builder.build_args);
+    if env::var_os("NVVM_TIMING_DIR").is_some() {
+        cargo.arg("--timings");
+    }
 
     if builder.release {
         cargo.arg("--release");
@@ -816,16 +894,19 @@ fn invoke_rustc(builder: &CudaBuilder) -> Result<PathBuf, CudaBuilderError> {
     // HACK(fee1-dead): didn't seem like there was a better way to disable f16/f128s, the `target_config`` did not work for some reason.
     cargo.env("CARGO_FEATURE_NO_F16_F128", "1");
 
+    let nested_timing = timing::phase("nested_cargo", &builder.path_to_crate.to_string_lossy());
     let build = cargo
         .stderr(Stdio::inherit())
         .current_dir(&builder.path_to_crate)
         .env("CARGO_ENCODED_RUSTFLAGS", cargo_encoded_rustflags)
         .output()
         .expect("failed to execute cargo build");
+    drop(nested_timing);
 
     // `get_last_artifact` has the side-effect of printing invalid lines, so
     // we do that even in case of an error, to let through any useful messages
     // that ended up on stdout instead of stderr.
+    let _timing = timing::phase("read_ptx_artifact", "");
     let stdout = String::from_utf8(build.stdout).unwrap();
     let artifact = get_last_artifact(&stdout);
     if build.status.success() {

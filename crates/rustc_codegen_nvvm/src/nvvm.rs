@@ -72,6 +72,7 @@ pub fn codegen_bitcode_modules(
     modules: Vec<Vec<u8>>,
     llcx: &Context,
 ) -> Result<Vec<u8>, CodegenErr> {
+    let _total = crate::timing::phase("bitcode_to_ptx", "");
     debug!("Codegenning bitcode to PTX");
     let target_arch = selected_arch(args);
     debug!(
@@ -91,11 +92,20 @@ pub fn codegen_bitcode_modules(
     // First, create the nvvm program we will add modules to.
     let prog = NvvmProgram::new()?;
 
-    let module = merge_llvm_modules(modules, llcx);
+    let module = {
+        let _timing = crate::timing::phase("merge_modules", "");
+        merge_llvm_modules(modules, llcx)
+    };
     unsafe {
+        let internalize_timing = crate::timing::phase("internalize", "");
         LLVMRustRestoreNvvmKernelAnnotations(module);
         internalize_pass(module, llcx);
-        dce_pass(module);
+        drop(internalize_timing);
+        #[cfg(not(feature = "llvm21"))]
+        {
+            let _timing = crate::timing::phase("legacy_dce", "");
+            dce_pass(module);
+        }
 
         if sess.opts.debuginfo != DebugInfo::None {
             cleanup_dicompileunit(module);
@@ -115,7 +125,43 @@ pub fn codegen_bitcode_modules(
 
         LLVMAddNamedMetadataOperand(module, c"nvvmir.version".as_ptr().cast(), node);
 
+        // Inline pipelines already contain GlobalDCE; avoid running it twice.
+        // Keep the default pass at the verified handoff, after debug/IR metadata
+        // is finalized, exactly where the opt-in implementation was validated.
+        let run_default_dce = cfg!(feature = "llvm21")
+            && !args.disable_llvm19_global_dce
+            && matches!(args.llvm19_cleanup, None | Some(NvvmCleanup::Scalar));
+        if run_default_dce || args.llvm19_cleanup.is_some() {
+            if let Some(path) = &args.final_module_path {
+                let _timing = crate::timing::phase("write_pre_cleanup_ir", "");
+                let before = path.with_extension("before-cleanup.ll");
+                let before = before.to_str().unwrap();
+                LLVMRustPrintModule(
+                    module,
+                    before.as_c_char_ptr(),
+                    before.len(),
+                    demangle_callback,
+                )
+                .into_result()
+                .expect("failed to write pre-cleanup LLVM IR");
+            }
+            let modes = run_default_dce
+                .then_some(NvvmCleanup::GlobalDce)
+                .into_iter()
+                .chain(args.llvm19_cleanup);
+            for mode in modes {
+                let _timing = crate::timing::phase("llvm_cleanup", "");
+                if LLVMRustRunNvvmCleanup(module, mode).into_result().is_err() {
+                    sess.dcx().fatal(format!(
+                        "LLVM 19 cleanup failed: {}",
+                        crate::llvm::last_error().unwrap_or_else(|| "unknown LLVM error".into())
+                    ));
+                }
+            }
+        }
+
         if let Some(path) = &args.final_module_path {
+            let _timing = crate::timing::phase("write_final_ir", "");
             let out = path.to_str().unwrap();
             let result =
                 LLVMRustPrintModule(module, out.as_c_char_ptr(), out.len(), demangle_callback);
@@ -125,11 +171,16 @@ pub fn codegen_bitcode_modules(
         }
     }
 
-    let buf = ModuleBuffer::new(module, false);
+    let buf = {
+        let _timing = crate::timing::phase("serialize_bitcode", "");
+        ModuleBuffer::new(module, false)
+    };
 
+    let add_timing = crate::timing::phase("nvvm_add_modules", "");
     prog.add_module(buf.data(), "merged".to_string())?;
     prog.add_lazy_module(LIBDEVICE_BITCODE, "libdevice".to_string())?;
     prog.add_lazy_module(LIBINTRINSICS, "libintrinsics".to_string())?;
+    drop(add_timing);
 
     // for now, while the codegen is young, we always run verification on the program.
     // This is to make debugging much easier, libnvvm tends to infinitely loop or segfault on invalid programs
@@ -142,10 +193,12 @@ pub fn codegen_bitcode_modules(
     // reader and reject LLVM 21 dialect bitcode that would otherwise compile fine (see
     // `is_known_nvvm_verify_false_negative` for the resulting log signature). On the LLVM 7
     // path we keep the original option-less verify to avoid drift from the pre-llvm21 baseline.
+    let verify_timing = crate::timing::phase("nvvm_verify", "");
     #[cfg(feature = "llvm21")]
     let verification_res = prog.verify_with_options(&args.nvvm_options);
     #[cfg(not(feature = "llvm21"))]
     let verification_res = prog.verify();
+    drop(verify_timing);
     if verification_res.is_err() {
         let log = prog.compiler_log().unwrap().unwrap_or_default();
         #[cfg(feature = "llvm21")]
@@ -168,6 +221,7 @@ pub fn codegen_bitcode_modules(
         }
     }
 
+    let _compile_timing = crate::timing::phase("nvvm_compile", "");
     let res = match prog.compile(&args.nvvm_options) {
         Ok(b) => b,
         Err(error) => {
@@ -341,29 +395,22 @@ unsafe fn internalize_pass(module: &Module, cx: &Context) {
         }
 
         let iter = GlobalIter::new(&module);
-        for func in iter {
-            let is_decl = LLVMIsDeclaration(func) == True;
-
-            if !is_decl {
-                LLVMRustSetLinkage(func, Linkage::InternalLinkage);
-                LLVMRustSetVisibility(func, Visibility::Default);
+        for global in iter {
+            let is_decl = LLVMIsDeclaration(global) == True;
+            // llvm.used, llvm.compiler.used and other appending globals have
+            // special linker/optimizer semantics. Internalizing them produces
+            // invalid LLVM IR and prevents verified pre-NVVM optimization.
+            let is_appending = LLVMRustGetLinkage(global) == Linkage::AppendingLinkage;
+            if !is_decl && !is_appending {
+                LLVMRustSetLinkage(global, Linkage::InternalLinkage);
+                LLVMRustSetVisibility(global, Visibility::Default);
             }
         }
     }
 }
 
+#[cfg(not(feature = "llvm21"))]
 unsafe fn dce_pass(module: &Module) {
-    #[cfg(feature = "llvm21")]
-    {
-        // The legacy C API entrypoint used below (`LLVMAddGlobalDCEPass`) is not
-        // available on our current LLVM 21 runtime path. Keep the backend loadable
-        // by skipping this cleanup for now; revisit if LLVM 21 smoke tests show we
-        // need an explicit replacement pass.
-        let _ = module;
-        return;
-    }
-
-    #[cfg(not(feature = "llvm21"))]
     unsafe {
         let pass_manager = LLVMCreatePassManager();
 
