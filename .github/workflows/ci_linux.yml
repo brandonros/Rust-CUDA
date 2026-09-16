@@ -229,6 +229,7 @@ jobs:
               export LIBRARY_PATH="/usr/local/cuda/lib64/stubs:${LIBRARY_PATH:-}"
               test "$("$LLVM_CONFIG_21" --version)" = 21.1.8
               python3 tests/llvm-wrapper/run.py
+              python3 tests/cargo-backend/run.py
               cargo build -p vecadd --features llvm21
             '
 

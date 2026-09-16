@@ -3,6 +3,9 @@
 The examples in here showcase both the GPU side and the CPU side of writing a tool which uses the
 GPU.
 
+Cargo builds the compiler backend dependency automatically. See the
+[build instructions](../README.md#building-kernels) for feature selection.
+
 ## Available Examples
 
 ### [vecadd](vecadd)

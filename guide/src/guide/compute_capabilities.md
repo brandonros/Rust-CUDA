@@ -1,5 +1,8 @@
 # Compute capability gating
 
+The examples use the Cargo-managed backend. Enable `cuda_builder/llvm21`
+when selecting the modern LLVM toolchain.
+
 This section covers how to write code that adapts to different CUDA compute capabilities
 using conditional compilation.
 

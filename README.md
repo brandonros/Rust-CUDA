@@ -20,6 +20,83 @@
 Please see [The Rust CUDA Guide](https://rust-gpu.github.io/rust-cuda/) for documentation on Rust
 CUDA.
 
+## Building kernels
+
+Cargo builds the backend as a pinned dependency, using the same Rust toolchain
+as the builder. The normal API needs only the kernel crate:
+
+```rust,ignore
+CudaBuilder::new("kernels").build()?;
+```
+
+Enable `cuda_builder/llvm21` to forward the modern LLVM feature to the backend
+and select matching options. For example, from this checkout on Linux:
+
+```sh
+nix develop .#v21 --command cargo build -p vecadd --features llvm21
+```
+
+The default `rustc_codegen_nvvm` feature enables the Cargo integration. A small
+internal proc macro records the path of its linked backend dependency, so user
+build scripts do not link rustc's private libraries. No directory scanning,
+filename guessing, or nested backend builds are involved. `backend_path()`
+reports the selected compiler for provenance.
+
+For an externally built compiler, disable default features on `cuda_builder`
+and supply the path explicitly:
+
+```rust,ignore
+CudaBuilder::with_backend("kernels", "/path/to/librustc_codegen_nvvm.so").build()?;
+```
+
+Use the same Rust toolchain and LLVM flavor as the external backend. With
+`default-features = false`, `llvm21` selects modern options without building a
+backend. Cargo-managed paths refer to build artifacts; after moving/removing a
+target directory, rebuild the builder and its backend dependency.
+
+## Compiler phase timings
+
+From the consuming project's directory, capture the complete command:
+
+```sh
+/path/to/rust-cuda/scripts/trace-build.sh \
+  nix develop .#v21 --command cargo build --release --timings -vv --features llvm21,self_test
+```
+
+The script prints its log location immediately. `build.log` captures the command,
+start/end times, exit status, Nix setup output, and verbose Cargo output. Cargo's
+HTML timing reports are in each build's target directory under `cargo-timings/`;
+the nested kernel build has its own target directory and report.
+
+The script sets `NVVM_TIMING_DIR` to a fresh directory under
+`~/.cache/rust-cuda-traces` (or `$XDG_CACHE_HOME`). You can also set this variable
+yourself. Each builder/compiler process writes `rust-cuda-<pid>.log` there.
+Records include Unix timestamps for cross-process correlation, monotonic elapsed
+milliseconds, thread ID, and codegen-unit name where available. No phase logs are
+created when unset. The logger is shared by `cuda_builder` and the backend through
+the `nvvm` crate.
+
+The phases cover backend path validation, sysroot lookup, nested Cargo,
+artifact parsing/copying, backend initialization, codegen units, LLVM optimization, module merging,
+internalization, cleanup/DCE, IR output, bitcode serialization, libnvvm verification,
+and PTX compilation. Watch the files with `tail -f`: an unmatched `begin` identifies
+work still in progress (or a process that terminated before finishing).
+Phases can nest or overlap, so their durations should not be summed. `end` means
+the scope exited, not that compilation succeeded; panic unwinding uses `unwind`.
+
+With timing enabled, `cuda_builder` adds `--timings` to nested Cargo and
+`-Ztime-passes` plus `-Zself-profile` to its rustc invocations. Rustc query profiles
+are stored under `rustc/` in the trace directory, for analysis with the Rust
+`measureme` tools. These expose compiler work before and during backend execution;
+they cannot expose optimization passes hidden inside NVIDIA's libnvvm.
+
+Changing `NVVM_TIMING_DIR` reruns consuming build scripts that use `CudaBuilder`;
+cached dependencies remain cached. For a genuinely cold build, select a fresh
+`CARGO_TARGET_DIR` after entering the development shell. Warm and cold timings
+measure different work. Existing running compilers cannot be instrumented.
+For local development, patch the consuming project to use the matching local
+Rust-CUDA crates together, rather than mixing them with a pinned Git revision.
+
 ## License
 
 Licensed under either of

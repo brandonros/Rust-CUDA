@@ -46,6 +46,7 @@ mod llvm;
 mod lto;
 mod mono_item;
 mod nvvm;
+use ::nvvm::timing;
 mod override_fns;
 mod ptx_filter;
 mod target;
@@ -80,6 +81,11 @@ use tracing::debug;
 use std::ffi::CString;
 use std::path::PathBuf;
 
+/// Address anchor used by cuda_builder's compile-time Cargo integration.
+/// A data address avoids function-pointer stubs that can live in the caller.
+#[doc(hidden)]
+pub static BACKEND_LIBRARY_MARKER: u8 = 0;
+
 // codegen dylib entrypoint
 #[unsafe(no_mangle)]
 pub fn __rustc_codegen_backend() -> Box<dyn CodegenBackend> {
@@ -108,6 +114,7 @@ impl CodegenBackend for NvvmCodegenBackend {
     }
 
     fn init(&self, sess: &Session) {
+        let _timing = timing::phase("backend_init", "");
         let filter = tracing_subscriber::EnvFilter::from_env("NVVM_LOG");
         let subscriber = tracing_subscriber::fmt()
             .with_env_filter(filter)
@@ -177,6 +184,7 @@ impl CodegenBackend for NvvmCodegenBackend {
     }
 
     fn codegen_crate(&self, tcx: TyCtxt<'_>, crate_info: &CrateInfo) -> Box<dyn std::any::Any> {
+        let _timing = timing::phase("codegen_crate", "");
         debug!("Codegen crate");
         Box::new(rustc_codegen_ssa::base::codegen_crate(
             Self, tcx, crate_info,
@@ -190,6 +198,7 @@ impl CodegenBackend for NvvmCodegenBackend {
         _outputs: &OutputFilenames,
     ) -> (CompiledModules, FxIndexMap<WorkProductId, WorkProduct>) {
         debug!("Join codegen");
+        let _timing = timing::phase("join_codegen", "");
         let (compiled_modules, work_products) = ongoing_codegen
             .downcast::<OngoingCodegen<Self>>()
             .expect("Expected OngoingCodegen, found Box<Any>")
@@ -206,6 +215,7 @@ impl CodegenBackend for NvvmCodegenBackend {
         metadata: rustc_metadata::EncodedMetadata,
         outputs: &config::OutputFilenames,
     ) {
+        let _timing = timing::phase("link", "");
         link::link(sess, compiled_modules, crate_info, metadata, outputs);
     }
 

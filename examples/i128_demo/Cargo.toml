@@ -7,4 +7,4 @@ edition = "2024"
 cust = { path = "../../crates/cust" }
 
 [build-dependencies]
-cuda_builder = { workspace = true, default-features = false }
+cuda_builder = { workspace = true }

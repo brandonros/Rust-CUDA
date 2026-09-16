@@ -1,0 +1,120 @@
+name: Export portable PTX
+
+on:
+  workflow_dispatch:
+    inputs:
+      cleanup_experiment:
+        description: Replay LLVM 21 handoff IR with opt-in cleanup passes
+        type: boolean
+        default: false
+      optimization_sweep:
+        description: Run the extended CFG, DCE, memory and inlining experiments
+        type: boolean
+        default: false
+      mining_workload:
+        description: Compile pinned Solana mining source and replay memory cleanup
+        type: boolean
+        default: false
+  push:
+    branches: [poc/portable-ptx-export]
+
+permissions:
+  contents: read
+
+jobs:
+  export:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@main
+      - uses: DeterminateSystems/magic-nix-cache-action@v14
+        with:
+          use-flakehub: false
+      - name: Restore Cargo cache
+        id: cargo-cache
+        uses: actions/cache/restore@v4
+        with:
+          # Include all nested builds, notably target/cuda-builder-codegen.
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target/
+          key: ptx-cargo-v1-${{ runner.os }}-${{ runner.arch }}-llvm21-${{ hashFiles('flake.nix', 'flake.lock', 'rust-toolchain.toml', '**/Cargo.toml', '**/Cargo.lock', '.cargo/**', '.github/workflows/ptx_export.yml') }}-${{ github.sha }}
+          restore-keys: |
+            ptx-cargo-v1-${{ runner.os }}-${{ runner.arch }}-llvm21-${{ hashFiles('flake.nix', 'flake.lock', 'rust-toolchain.toml', '**/Cargo.toml', '**/Cargo.lock', '.cargo/**', '.github/workflows/ptx_export.yml') }}-
+      - name: Test codegen inventory parser
+        run: python3 -m unittest discover -s examples/ptx_export -p 'test_*.py'
+      - name: Rebuild the checked-out backend and regenerate device evidence
+        run: |
+          # Cargo builds the exporter and its exact backend dependency together.
+          nix develop .#v21 --command cargo build -p ptx_export --features llvm21
+          # Device Cargo fingerprints do not track changes to the backend .so;
+          # cached builds also omit the IR side outputs required by this job.
+          # Retain the expensive host/backend dependency cache.
+          rm -rf target/nvptx64-nvidia-cuda
+      - name: Check guarded-select source semantics on CPU
+        run: |
+          nix develop .#v21 --command rustc --edition=2024 --test examples/ptx_export/kernels/src/guarded_select.rs -o /tmp/guarded-select-debug
+          /tmp/guarded-select-debug
+          nix develop .#v21 --command rustc --edition=2024 -O --test examples/ptx_export/kernels/src/guarded_select.rs -o /tmp/guarded-select-release
+          /tmp/guarded-select-release
+      - name: Compile Rust kernels without a GPU
+        id: export
+        run: |
+          mkdir -p artifacts/ptx
+          printf '%s\n' 'nix develop .#v21 --command cargo run -vv -p ptx_export --features llvm21 -- artifacts/ptx none' > artifacts/ptx/build-command.txt
+          nix develop .#v21 --command cargo run -vv -p ptx_export --features llvm21 -- artifacts/ptx none 2>&1 | tee artifacts/ptx/build.log
+      - name: Verify LLVM 21 handoff IR
+        run: nix develop .#v21 --command opt-21 -passes=verify -disable-output artifacts/ptx/final-module.ll
+      - name: Record provenance
+        run: |
+          git rev-parse HEAD > artifacts/ptx/source-commit.txt
+          nix develop .#v21 --command rustc -Vv > artifacts/ptx/rustc-version.txt
+          nix develop .#v21 --command nvcc --version > artifacts/ptx/nvcc-version.txt
+          cp flake.lock rust-toolchain.toml Cargo.lock artifacts/ptx/
+          sha256sum "$(cat artifacts/ptx/backend-path.txt)" > artifacts/ptx/backend-sha256.txt
+          # Keep per-crate LLVM IR as well as the linked final-module.ll.
+          mkdir -p artifacts/ptx/llvm-ir
+          find target/nvptx64-nvidia-cuda -name '*.ll' -exec cp --parents '{}' artifacts/ptx/llvm-ir/ \;
+      - name: Assemble and inspect NVIDIA machine code without a GPU
+        run: nix develop .#v21 --command python3 examples/ptx_export/inspect_codegen.py artifacts/ptx
+      - name: Verify default DCE retention and explicit disable
+        run: nix develop .#v21 --command python3 examples/ptx_export/check_default_dce.py artifacts/ptx
+      - name: Investigate pre-NVVM cleanup (opt-in)
+        if: ${{ github.event_name == 'workflow_dispatch' && (inputs.cleanup_experiment || inputs.optimization_sweep) }}
+        run: nix develop .#v21 --command python3 examples/ptx_export/replay_cleanup.py artifacts/ptx ${{ inputs.optimization_sweep && '--extended' || '' }}
+      - name: Validate integrated cleanup against replay (opt-in)
+        if: ${{ github.event_name == 'workflow_dispatch' && (inputs.cleanup_experiment || inputs.optimization_sweep) }}
+        run: nix develop .#v21 --command python3 examples/ptx_export/check_integrated_cleanup.py artifacts/ptx
+      - name: Validate per-module cleanup (extended sweep)
+        if: ${{ !cancelled() && steps.export.outcome == 'success' && github.event_name == 'workflow_dispatch' && inputs.optimization_sweep }}
+        run: nix develop .#v21 --command python3 examples/ptx_export/check_module_cleanup.py artifacts/ptx
+      - name: Validate size-oriented builds (extended sweep)
+        if: ${{ !cancelled() && steps.export.outcome == 'success' && github.event_name == 'workflow_dispatch' && inputs.optimization_sweep }}
+        run: nix develop .#v21 --command python3 examples/ptx_export/check_workloads.py artifacts/ptx
+      - name: Checkout pinned mining workload
+        if: ${{ !cancelled() && steps.export.outcome == 'success' && github.event_name == 'workflow_dispatch' && inputs.mining_workload }}
+        uses: actions/checkout@v4
+        with:
+          repository: brandonros/vanity-miner-rs
+          ref: 9791234249fc8cb762c296c4fda4503d2686ff77
+          path: workloads/vanity-miner
+      - name: Compare cleanup on Solana mining kernel
+        if: ${{ !cancelled() && steps.export.outcome == 'success' && github.event_name == 'workflow_dispatch' && inputs.mining_workload }}
+        run: nix develop .#v21 --command python3 examples/ptx_export/check_workloads.py artifacts/ptx --miner workloads/vanity-miner
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: rust-ptx
+          path: artifacts/ptx/
+          if-no-files-found: error
+      - name: Save Cargo cache, including after compilation failures
+        if: ${{ !cancelled() && steps.cargo-cache.outcome == 'success' && steps.cargo-cache.outputs.cache-hit != 'true' }}
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target/
+          key: ${{ steps.cargo-cache.outputs.cache-primary-key }}

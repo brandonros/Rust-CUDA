@@ -12,19 +12,14 @@ readme = "../../README.md"
 no-default-features = true
 
 [features]
-default = []
-# HACK(see rust-gpu/spirv-builder): use `dep:` to avoid Cargo auto-creating a feature
-# with the dependency name. Consumers must explicitly opt-in to compiling the backend.
-rustc_codegen_nvvm = ["dep:rustc_codegen_nvvm"]
-# Build the backend against LLVM 21 instead of LLVM 7. Propagates to `nvvm` (which
-# uses it to flip the default `NvvmArch` to `Compute100`) and, when the optional
-# `rustc_codegen_nvvm` dep is also enabled, to `rustc_codegen_nvvm` itself. Even
-# when the optional dep is disabled, the build script's nested `cargo build -p
-# rustc_codegen_nvvm` reads `cfg(feature = "llvm21")` here and forwards it.
-llvm21 = ["nvvm/llvm21", "rustc_codegen_nvvm?/llvm21"]
+default = ["rustc_codegen_nvvm"]
+# Cargo builds and identifies the exact backend dependency via an internal macro.
+# Disable default features when exclusively using CudaBuilder::with_backend.
+rustc_codegen_nvvm = ["dep:cuda_builder_backend"]
+llvm21 = ["nvvm/llvm21", "cuda_builder_backend?/llvm21"]
 
 [dependencies]
-rustc_codegen_nvvm = { version = "0.3", path = "../rustc_codegen_nvvm", optional = true }
+cuda_builder_backend = { path = "../cuda_builder_backend", version = "0.1", optional = true }
 nvvm = { path = "../nvvm", version = "0.1" }
 serde = { version = "1.0.217", features = ["derive"] }
 serde_json = "1.0.138"

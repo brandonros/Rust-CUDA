@@ -651,6 +651,10 @@ pub struct CodegenArgs {
     pub override_libm: bool,
     pub use_constant_memory_space: bool,
     pub final_module_path: Option<PathBuf>,
+    // None leaves the existing NVVM handoff unchanged.
+    pub llvm_cleanup: Option<crate::llvm::NvvmCleanup>,
+    pub llvm_module_cleanup: bool,
+    pub disable_llvm_global_dce: bool,
     pub disassemble: Option<DisassembleMode>,
 }
 
@@ -675,6 +679,32 @@ impl CodegenArgs {
                 cg_args.override_libm = true;
             } else if arg == "--use-constant-memory-space" {
                 cg_args.use_constant_memory_space = true;
+            } else if arg == "--disable-llvm-global-dce" {
+                if !cfg!(feature = "llvm21") {
+                    sess.dcx()
+                        .fatal("--disable-llvm-global-dce requires the llvm21 backend feature");
+                }
+                cg_args.disable_llvm_global_dce = true;
+            } else if arg == "--llvm-module-cleanup" {
+                if !cfg!(feature = "llvm21") {
+                    sess.dcx()
+                        .fatal("--llvm-module-cleanup requires the llvm21 backend feature");
+                }
+                cg_args.llvm_module_cleanup = true;
+            } else if let Some(mode) = arg.strip_prefix("--llvm-cleanup=") {
+                if !cfg!(feature = "llvm21") {
+                    sess.dcx()
+                        .fatal("--llvm-cleanup requires the llvm21 backend feature");
+                }
+                cg_args.llvm_cleanup = Some(match mode {
+                    "scalar" => crate::llvm::NvvmCleanup::Scalar,
+                    "inline" => crate::llvm::NvvmCleanup::Inline,
+                    "dce" => crate::llvm::NvvmCleanup::GlobalDce,
+                    "inline-scalar" => crate::llvm::NvvmCleanup::InlineScalar,
+                    _ => sess
+                        .dcx()
+                        .fatal("--llvm-cleanup expects scalar, inline, inline-scalar, or dce"),
+                });
             } else if arg == "--final-module-path" {
                 let path = match args.get(idx + 1) {
                     Some(p) => p,

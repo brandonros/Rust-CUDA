@@ -1,0 +1,12 @@
+[package]
+name = "ptx_export"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[features]
+default = []
+llvm21 = ["cuda_builder/llvm21"]
+
+[dependencies]
+cuda_builder = { workspace = true }

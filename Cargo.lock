@@ -810,10 +810,18 @@ checksum = "b365fabc795046672053e29c954733ec3b05e4be654ab130fe8f1f94d7051f35"
 name = "cuda_builder"
 version = "0.3.0"
 dependencies = [
+ "cuda_builder_backend",
  "nvvm",
- "rustc_codegen_nvvm",
  "serde",
  "serde_json",
+]
+
+[[package]]
+name = "cuda_builder_backend"
+version = "0.1.0"
+dependencies = [
+ "libc",
+ "rustc_codegen_nvvm",
 ]
 
 [[package]]
@@ -2585,10 +2593,39 @@ dependencies = [
 ]
 
 [[package]]
+name = "ptx-export-kernels"
+version = "0.1.0"
+dependencies = [
+ "cuda_std",
+ "sha2",
+]
+
+[[package]]
+name = "ptx-representative-kernels"
+version = "0.1.0"
+dependencies = [
+ "cuda_std",
+]
+
+[[package]]
+name = "ptx-retention-kernels"
+version = "0.1.0"
+dependencies = [
+ "cuda_std",
+]
+
+[[package]]
 name = "ptx_compiler"
 version = "0.1.1"
 dependencies = [
  "cust_raw",
+]
+
+[[package]]
+name = "ptx_export"
+version = "0.1.0"
+dependencies = [
+ "cuda_builder",
 ]
 
 [[package]]

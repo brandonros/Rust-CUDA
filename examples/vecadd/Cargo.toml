@@ -5,9 +5,8 @@ edition = "2024"
 
 [features]
 default = []
-# Build the kernels crate with the LLVM 21 backend. Forwards to `cuda_builder`,
-# which propagates the feature to `nvvm` (default arch -> Compute100 / Blackwell)
-# and to its nested `cargo build -p rustc_codegen_nvvm`.
+# Select LLVM 21 kernel options (default arch -> Compute100 / Blackwell).
+# Forwards LLVM 21 to the Cargo-managed compiler backend.
 llvm21 = ["cuda_builder/llvm21"]
 
 [dependencies]
@@ -16,4 +15,4 @@ cust_raw = { path = "../../crates/cust_raw", default-features = false, features 
 nanorand = "0.7"
 
 [build-dependencies]
-cuda_builder = { workspace = true, default-features = false }
+cuda_builder = { workspace = true }

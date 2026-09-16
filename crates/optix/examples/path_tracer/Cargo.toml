@@ -22,4 +22,4 @@ sysinfo = "0.33.1"
 anyhow = "1.0.53"
 
 [build-dependencies]
-cuda_builder = { workspace = true, default-features = false }
+cuda_builder = { workspace = true }

@@ -1,0 +1,41 @@
+// Exact helper definition extracted from CI run 34783117581.
+// This is an inspection fixture, not a standalone launchable module.
+// Full PTX SHA-256: d97b462c4c17e9390b82f676d39d3359dd5a438598b10382fef8705ab9379f37
+.func  (.param .b64 func_retval0) _RNvNtCsh77cIZBgDVk_18ptx_export_kernels14guarded_select8filtered(
+	.param .b64 _RNvNtCsh77cIZBgDVk_18ptx_export_kernels14guarded_select8filtered_param_0,
+	.param .b32 _RNvNtCsh77cIZBgDVk_18ptx_export_kernels14guarded_select8filtered_param_1
+)
+{
+	.reg .pred 	%p<3>;
+	.reg .b32 	%r<3>;
+	.reg .b64 	%rd<12>;
+
+	ld.param.b64 	%rd4, [_RNvNtCsh77cIZBgDVk_18ptx_export_kernels14guarded_select8filtered_param_0];
+	ld.param.b32 	%r1, [_RNvNtCsh77cIZBgDVk_18ptx_export_kernels14guarded_select8filtered_param_1];
+	cvta.to.global.u64 	%rd1, %rd4;
+	min.u32 	%r2, %r1, 64;
+	cvt.u64.u32 	%rd2, %r2;
+	mov.b64 	%rd10, 0;
+	mov.b64 	%rd9, %rd10;
+$L__BB1_1:
+	setp.ge.u64 	%p1, %rd10, %rd2;
+	@%p1 bra 	$L__BB1_4;
+	add.s64 	%rd3, %rd10, 1;
+	and.b64 	%rd5, %rd10, 1;
+	setp.ne.b64 	%p2, %rd5, 0;
+	selp.b64 	%rd11, %rd10, %rd11, %p2;
+	mov.b64 	%rd10, %rd3;
+	@%p2 bra 	$L__BB1_3;
+	bra.uni 	$L__BB1_1;
+$L__BB1_3:
+	shl.b64 	%rd6, %rd11, 3;
+	add.s64 	%rd7, %rd1, %rd6;
+	ld.global.b64 	%rd8, [%rd7];
+	add.s64 	%rd9, %rd8, %rd9;
+	mov.b64 	%rd10, %rd3;
+	bra.uni 	$L__BB1_1;
+$L__BB1_4:
+	st.param.b64 	[func_retval0], %rd9;
+	ret;
+
+}

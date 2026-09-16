@@ -1,0 +1,11 @@
+[package]
+name = "ptx-retention-kernels"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+cuda_std = { path = "../../../crates/cuda_std" }
+
+[lib]
+crate-type = ["cdylib", "rlib"]

@@ -1,0 +1,68 @@
+name: LLVM 21 optimization wave 2
+
+on:
+  workflow_dispatch:
+    inputs:
+      workload:
+        description: Workload to repeat (all runs the complete matrix)
+        type: choice
+        default: all
+        options: [all, small, representative, solana, bitcoin, ethereum, shallenge, self_test]
+  push:
+    branches: [poc/portable-ptx-export]
+    paths:
+      - '.github/workflows/optimization_wave2.yml'
+      - 'examples/ptx_export/run_wave2.py'
+      - 'examples/ptx_export/representative-kernels/**'
+
+permissions:
+  contents: read
+
+jobs:
+  compare:
+    name: Compare ${{ matrix.workload }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: ${{ matrix.workload == 'self_test' && 90 || 45 }}
+    strategy:
+      fail-fast: false
+      matrix:
+        workload: ${{ fromJSON(inputs.workload != '' && inputs.workload != 'all' && format('["{0}"]', inputs.workload) || '["small","representative","solana","bitcoin","ethereum","shallenge","self_test"]') }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@main
+      - uses: DeterminateSystems/magic-nix-cache-action@v14
+        with:
+          use-flakehub: false
+      - uses: actions/cache/restore@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target/
+          key: wave2-cargo-${{ runner.os }}-llvm21-${{ github.sha }}
+          restore-keys: |
+            ptx-cargo-v1-${{ runner.os }}-${{ runner.arch }}-llvm21-
+      - name: Build the checked-out backend
+        run: |
+          nix develop .#v21 --command cargo build -p ptx_export --features llvm21
+          rm -rf target/nvptx64-nvidia-cuda
+      - name: Checkout pinned workload
+        uses: actions/checkout@v4
+        with:
+          repository: brandonros/vanity-miner-rs
+          ref: 9791234249fc8cb762c296c4fda4503d2686ff77
+          path: workloads/vanity-miner
+      - name: Compile and compare
+        run: |
+          mkdir -p artifacts
+          git rev-parse HEAD > artifacts/source-commit.txt
+          nix develop .#v21 --command rustc -Vv > artifacts/rustc-version.txt
+          cp flake.lock Cargo.lock rust-toolchain.toml artifacts/
+          nix develop .#v21 --command python3 examples/ptx_export/run_wave2.py ${{ matrix.workload }} --out artifacts/${{ matrix.workload }} --miner workloads/vanity-miner
+          find artifacts -name backend-path.txt -exec sh -c 'sha256sum "$(cat "$1")"' sh {} \; > artifacts/backend-sha256.txt
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: wave2-${{ matrix.workload }}
+          path: artifacts/
+          if-no-files-found: error
