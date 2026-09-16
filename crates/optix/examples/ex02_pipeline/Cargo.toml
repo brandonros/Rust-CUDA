@@ -13,4 +13,4 @@ anyhow = "1.0.44"
 ex02_pipeline-kernels = { path = "./kernels" }
 
 [build-dependencies]
-cuda_builder = { workspace = true, default-features = false }
+cuda_builder = { workspace = true }

@@ -1,7 +1,7 @@
 # Compute capability gating
 
-`backend_path` in the examples below is the path to an already-built backend
-dylib matching your Rust toolchain and selected LLVM flavor.
+The examples use the Cargo-managed backend. Enable `cuda_builder/llvm21`
+when selecting the modern LLVM toolchain.
 
 This section covers how to write code that adapts to different CUDA compute capabilities
 using conditional compilation.
@@ -71,7 +71,7 @@ Example usage:
 
 ```rust
 // In build.rs
-CudaBuilder::new("kernels", backend_path)
+CudaBuilder::new("kernels")
     .arch(NvvmArch::Compute70)
     .build()
     .unwrap();
@@ -96,7 +96,7 @@ Example usage:
 
 ```rust
 // In build.rs
-CudaBuilder::new("kernels", backend_path)
+CudaBuilder::new("kernels")
     .arch(NvvmArch::Compute101f)
     .build()
     .unwrap();
@@ -127,7 +127,7 @@ Example usage:
 
 ```rust
 // In build.rs
-CudaBuilder::new("kernels", backend_path)
+CudaBuilder::new("kernels")
     .arch(NvvmArch::Compute100a)
     .build()
     .unwrap();

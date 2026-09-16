@@ -107,7 +107,7 @@ mod tests {
     #[test]
     fn default_flags_preserve_backend_paths_with_spaces() {
         let backend = Path::new("compiler directory/backend.so");
-        let builder = CudaBuilder::new("kernels", backend).arch(NvvmArch::Compute70);
+        let builder = CudaBuilder::with_backend("kernels", backend).arch(NvvmArch::Compute70);
         let flags = rustflags(&builder, backend).unwrap();
         assert_eq!(
             flags,
@@ -129,7 +129,7 @@ mod tests {
     #[test]
     fn translates_debug_math_and_cleanup_options() {
         let backend = Path::new("backend.so");
-        let builder = CudaBuilder::new("kernels", backend)
+        let builder = CudaBuilder::with_backend("kernels", backend)
             .arch(NvvmArch::Compute100)
             .release(false)
             .ftz(true)
@@ -174,7 +174,7 @@ mod tests {
         use std::{ffi::OsStr, os::unix::ffi::OsStrExt};
 
         let path = Path::new(OsStr::from_bytes(b"bad-\xff"));
-        let builder = CudaBuilder::new("kernels", path);
+        let builder = CudaBuilder::with_backend("kernels", path);
         assert!(matches!(
             rustflags(&builder, path),
             Err(CudaBuilderError::InvalidOption(_))

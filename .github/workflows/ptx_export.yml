@@ -21,9 +21,6 @@ on:
 permissions:
   contents: read
 
-env:
-  RUST_CUDA_CODEGEN_BACKEND: ${{ github.workspace }}/target/cuda-builder-codegen/debug/librustc_codegen_nvvm.so
-
 jobs:
   export:
     runs-on: ubuntu-24.04
@@ -50,8 +47,8 @@ jobs:
         run: python3 -m unittest discover -s examples/ptx_export -p 'test_*.py'
       - name: Rebuild the checked-out backend and regenerate device evidence
         run: |
-          # Build the exact backend passed to the exporter via the required path.
-          nix develop .#v21 --command cargo build -p rustc_codegen_nvvm --features llvm21 --target-dir target/cuda-builder-codegen
+          # Cargo builds the exporter and its exact backend dependency together.
+          nix develop .#v21 --command cargo build -p ptx_export --features llvm21
           # Device Cargo fingerprints do not track changes to the backend .so;
           # cached builds also omit the IR side outputs required by this job.
           # Retain the expensive host/backend dependency cache.
@@ -76,7 +73,7 @@ jobs:
           nix develop .#v21 --command rustc -Vv > artifacts/ptx/rustc-version.txt
           nix develop .#v21 --command nvcc --version > artifacts/ptx/nvcc-version.txt
           cp flake.lock rust-toolchain.toml Cargo.lock artifacts/ptx/
-          sha256sum target/cuda-builder-codegen/debug/librustc_codegen_nvvm.so > artifacts/ptx/backend-sha256.txt
+          sha256sum "$(cat artifacts/ptx/backend-path.txt)" > artifacts/ptx/backend-sha256.txt
           # Keep per-crate LLVM IR as well as the linked final-module.ll.
           mkdir -p artifacts/ptx/llvm-ir
           find target/nvptx64-nvidia-cuda -name '*.ll' -exec cp --parents '{}' artifacts/ptx/llvm-ir/ \;

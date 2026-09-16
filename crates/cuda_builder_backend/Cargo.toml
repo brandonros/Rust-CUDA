@@ -1,0 +1,19 @@
+[package]
+name = "cuda_builder_backend"
+version = "0.1.0"
+edition = "2024"
+license = "MIT OR Apache-2.0"
+description = "Internal Cargo backend integration for cuda_builder"
+repository = "https://github.com/Rust-GPU/rust-cuda"
+
+[lib]
+proc-macro = true
+
+[features]
+llvm21 = ["rustc_codegen_nvvm/llvm21"]
+
+[dependencies]
+rustc_codegen_nvvm = { path = "../rustc_codegen_nvvm", version = "0.3" }
+
+[target.'cfg(unix)'.dependencies]
+libc = "0.2"

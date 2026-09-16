@@ -9,7 +9,18 @@ use std::{
 
 use crate::{CudaBuilderError, timing};
 
-pub(crate) fn resolve(path: &Path) -> Result<PathBuf, String> {
+pub(crate) enum Backend {
+    #[cfg(feature = "rustc_codegen_nvvm")]
+    Cargo,
+    Explicit(PathBuf),
+}
+
+pub(crate) fn resolve(backend: &Backend) -> Result<PathBuf, String> {
+    let path = match backend {
+        #[cfg(feature = "rustc_codegen_nvvm")]
+        Backend::Cargo => Path::new(cuda_builder_backend::backend_path!()),
+        Backend::Explicit(path) => path,
+    };
     // Resolve before the kernel build changes its working directory.
     println!("cargo:rerun-if-changed={}", path.display());
     let absolute = fs::canonicalize(path)
@@ -97,11 +108,24 @@ fn rustc_sysroot_lib_dirs() -> Vec<PathBuf> {
 mod tests {
     use super::*;
 
+    #[cfg(feature = "rustc_codegen_nvvm")]
+    #[test]
+    fn cargo_constructor_uses_the_linked_dependency() {
+        let builder = crate::CudaBuilder::new("kernels");
+        let expected = Path::new(cuda_builder_backend::backend_path!())
+            .canonicalize()
+            .unwrap();
+        assert_eq!(builder.backend_path().unwrap(), expected);
+    }
+
     #[test]
     fn uses_only_the_supplied_file() {
         let path = std::env::current_exe().unwrap();
-        assert_eq!(resolve(&path).unwrap(), path.canonicalize().unwrap());
-        assert!(resolve(&path.join("missing")).is_err());
-        assert!(resolve(path.parent().unwrap()).is_err());
+        assert_eq!(
+            resolve(&Backend::Explicit(path.clone())).unwrap(),
+            path.canonicalize().unwrap()
+        );
+        assert!(resolve(&Backend::Explicit(path.join("missing"))).is_err());
+        assert!(resolve(&Backend::Explicit(path.parent().unwrap().to_owned())).is_err());
     }
 }

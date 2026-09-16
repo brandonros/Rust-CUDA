@@ -67,19 +67,12 @@ The file structure looks like this:
 internals that are subject to change. Copy `rust-toolchain.toml` from the same Rust-CUDA checkout used to build your
 backend so that your own project uses the matching nightly version.
 
-### Build the backend separately
+### Backend dependency
 
-The builder requires an explicit backend path. From your Rust-CUDA checkout,
-build the legacy LLVM 7 backend used by this example (Linux):
-
-```sh
-cargo build -p rustc_codegen_nvvm --target-dir target/cuda-builder-codegen
-export RUST_CUDA_CODEGEN_BACKEND="$PWD/target/cuda-builder-codegen/debug/librustc_codegen_nvvm.so"
-```
-
-On Windows, the filename is `rustc_codegen_nvvm.dll`. Build the backend again
-after editing its sources. The dependency examples below use the same checkout;
-replace `/path/to/rust-cuda` with its absolute path.
+Cargo builds the backend through `cuda_builder`'s default `rustc_codegen_nvvm`
+feature. The dependency examples below use one Rust-CUDA checkout; replace
+`/path/to/rust-cuda` with its absolute path. Enable `cuda_builder/llvm21` when
+using the modern LLVM toolchain. This example uses the default legacy backend.
 
 ### `Cargo.toml` and `kernels/Cargo.toml`
 
@@ -191,12 +184,8 @@ fn main() {
     let out_dir = path::PathBuf::from(env::var("OUT_DIR").unwrap());
     let manifest_dir = path::PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
 
-    println!("cargo::rerun-if-env-changed=RUST_CUDA_CODEGEN_BACKEND");
-    let backend = env::var_os("RUST_CUDA_CODEGEN_BACKEND")
-        .expect("Set RUST_CUDA_CODEGEN_BACKEND to the already-built backend dylib");
-
     // Compile the `kernels` crate to `$OUT_DIR/kernels.ptx`.
-    CudaBuilder::new(manifest_dir.join("kernels"), backend)
+    CudaBuilder::new(manifest_dir.join("kernels"))
         .copy_to(out_dir.join("kernels.ptx"))
         .build()
         .unwrap();

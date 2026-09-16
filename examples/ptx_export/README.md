@@ -5,14 +5,12 @@ application or launching an NVIDIA GPU. Compilation still requires the normal
 Rust-CUDA Linux toolchain, CUDA toolkit, and NVVM libraries.
 
 ```sh
-nix develop .#v21 --command cargo build -p rustc_codegen_nvvm --features llvm21 --target-dir target/cuda-builder-codegen
-export RUST_CUDA_CODEGEN_BACKEND="$PWD/target/cuda-builder-codegen/debug/librustc_codegen_nvvm.so"
 nix develop .#v21 --command cargo run -p ptx_export --features llvm21 -- artifacts/ptx
 ```
 
-The exporter requires `RUST_CUDA_CODEGEN_BACKEND` and passes that exact path to
-`CudaBuilder`. Build the backend again after editing its sources. For LLVM 7,
-build it without `--features llvm21` and point the variable at that build instead.
+Cargo builds the backend dependency with the exporter's `llvm21` feature.
+`backend-path.txt` records the exact backend used. For LLVM 7, omit the feature
+and use the matching toolchain shell.
 
 The exporter uses `CudaBuilder`'s feature-dependent target default: `compute_100`
 with `llvm21`, or `compute_75` without it. This keeps the target compatible with

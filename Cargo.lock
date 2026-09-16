@@ -810,9 +810,18 @@ checksum = "b365fabc795046672053e29c954733ec3b05e4be654ab130fe8f1f94d7051f35"
 name = "cuda_builder"
 version = "0.3.0"
 dependencies = [
+ "cuda_builder_backend",
  "nvvm",
  "serde",
  "serde_json",
+]
+
+[[package]]
+name = "cuda_builder_backend"
+version = "0.1.0"
+dependencies = [
+ "libc",
+ "rustc_codegen_nvvm",
 ]
 
 [[package]]

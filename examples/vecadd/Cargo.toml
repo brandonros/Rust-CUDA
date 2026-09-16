@@ -6,7 +6,7 @@ edition = "2024"
 [features]
 default = []
 # Select LLVM 21 kernel options (default arch -> Compute100 / Blackwell).
-# RUST_CUDA_CODEGEN_BACKEND must point to a separately built LLVM 21 backend.
+# Forwards LLVM 21 to the Cargo-managed compiler backend.
 llvm21 = ["cuda_builder/llvm21"]
 
 [dependencies]
@@ -15,4 +15,4 @@ cust_raw = { path = "../../crates/cust_raw", default-features = false, features 
 nanorand = "0.7"
 
 [build-dependencies]
-cuda_builder = { workspace = true, default-features = false }
+cuda_builder = { workspace = true }

@@ -123,7 +123,6 @@ jobs:
             -w /workspace \
             -e RUST_LOG \
             -e RUST_BACKTRACE \
-            -e RUST_CUDA_CODEGEN_BACKEND=/workspace/target/cuda-builder-codegen/debug/librustc_codegen_nvvm.so \
             ${{ matrix.variance.image }} \
             sleep infinity
           docker start "$CONTAINER_NAME"
@@ -167,13 +166,6 @@ jobs:
         run: |
           docker exec "$CONTAINER_NAME" bash -lc 'set -euo pipefail
             cargo build --all-features -p cust_raw
-          '
-
-      - name: Build LLVM 7 backend
-        if: matrix.variance.llvm == 7
-        run: |
-          docker exec "$CONTAINER_NAME" bash -lc 'set -euo pipefail
-            cargo build -p rustc_codegen_nvvm --target-dir target/cuda-builder-codegen
           '
 
       - name: Build workspace
@@ -236,7 +228,7 @@ jobs:
               export LIBRARY_PATH="/usr/local/cuda/lib64/stubs:${LIBRARY_PATH:-}"
               test "$("$LLVM_CONFIG_21" --version)" = 21.1.8
               python3 tests/llvm-wrapper/run.py
-              cargo build -p rustc_codegen_nvvm --features llvm21 --target-dir target/cuda-builder-codegen
+              python3 tests/cargo-backend/run.py
               cargo build -p vecadd --features llvm21
             '
 

@@ -3,6 +3,7 @@ resolver = "2"
 members = [
   "crates/blastoff",
   "crates/cuda_builder",
+  "crates/cuda_builder_backend",
   "crates/cuda_std",
   "crates/cuda_std_macros",
   "crates/cudnn",
@@ -72,5 +73,5 @@ opt-level = 3
 
 [workspace.dependencies]
 cuda_std = { path = "crates/cuda_std" }
-cuda_builder = { path = "crates/cuda_builder", version = "=0.3.0", default-features = false }
+cuda_builder = { path = "crates/cuda_builder", version = "=0.3.0" }
 rustc_codegen_nvvm = { path = "crates/rustc_codegen_nvvm", version = "=0.3.0" }

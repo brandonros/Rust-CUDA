@@ -13,9 +13,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .nth(3)
         .map(PathBuf::from)
         .unwrap_or_else(|| PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("kernels"));
-    let backend = env::var_os("RUST_CUDA_CODEGEN_BACKEND")
-        .ok_or("Set RUST_CUDA_CODEGEN_BACKEND to the already-built rustc_codegen_nvvm dylib")?;
-    let mut builder = CudaBuilder::new(kernels, backend);
+    let mut builder = CudaBuilder::new(kernels);
     if let Some(features) = env::args().nth(4) {
         builder = builder.build_args(&["--no-default-features", "--features", &features]);
     }
@@ -54,6 +52,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             );
         }
     }
+    fs::write(
+        output.join("backend-path.txt"),
+        builder.backend_path()?.to_string_lossy().as_bytes(),
+    )?;
     let ptx = builder
         .copy_to(output.join("rust_kernels.ptx"))
         .final_module_path(output.join("final-module.ll"))

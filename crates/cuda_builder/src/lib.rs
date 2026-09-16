@@ -1,8 +1,10 @@
 //! Utility crate for easily building CUDA crates using rustc_codegen_nvvm. Derived from rust-gpu's spirv_builder.
 //!
-//! Build or install `rustc_codegen_nvvm` separately, then pass its dylib path to
-//! [`CudaBuilder::new`]. This crate only builds kernels; it never discovers,
-//! downloads, or builds the compiler backend.
+//! With the default `rustc_codegen_nvvm` feature, Cargo builds the backend as a
+//! dependency and `CudaBuilder::new` uses that exact artifact. The `llvm21`
+//! feature forwards to the backend and selects matching compiler options.
+//! Use [`CudaBuilder::with_backend`] for an explicitly supplied compiler.
+//! Neither path scans for backend files or starts a nested backend build.
 
 mod artifact;
 mod backend;

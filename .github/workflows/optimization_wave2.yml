@@ -18,9 +18,6 @@ on:
 permissions:
   contents: read
 
-env:
-  RUST_CUDA_CODEGEN_BACKEND: ${{ github.workspace }}/target/cuda-builder-codegen/debug/librustc_codegen_nvvm.so
-
 jobs:
   compare:
     name: Compare ${{ matrix.workload }}
@@ -47,7 +44,7 @@ jobs:
             ptx-cargo-v1-${{ runner.os }}-${{ runner.arch }}-llvm21-
       - name: Build the checked-out backend
         run: |
-          nix develop .#v21 --command cargo build -p rustc_codegen_nvvm --features llvm21 --target-dir target/cuda-builder-codegen
+          nix develop .#v21 --command cargo build -p ptx_export --features llvm21
           rm -rf target/nvptx64-nvidia-cuda
       - name: Checkout pinned workload
         uses: actions/checkout@v4
@@ -59,10 +56,10 @@ jobs:
         run: |
           mkdir -p artifacts
           git rev-parse HEAD > artifacts/source-commit.txt
-          sha256sum target/cuda-builder-codegen/debug/librustc_codegen_nvvm.so > artifacts/backend-sha256.txt
           nix develop .#v21 --command rustc -Vv > artifacts/rustc-version.txt
           cp flake.lock Cargo.lock rust-toolchain.toml artifacts/
           nix develop .#v21 --command python3 examples/ptx_export/run_wave2.py ${{ matrix.workload }} --out artifacts/${{ matrix.workload }} --miner workloads/vanity-miner
+          find artifacts -name backend-path.txt -exec sh -c 'sha256sum "$(cat "$1")"' sh {} \; > artifacts/backend-sha256.txt
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:

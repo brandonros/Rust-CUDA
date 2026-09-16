@@ -2,7 +2,7 @@
 
 use std::path::{Path, PathBuf};
 
-use crate::{CudaBuilderError, NvvmArch, build};
+use crate::{CudaBuilderError, NvvmArch, backend::Backend, build};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum DebugInfo {
@@ -32,7 +32,7 @@ pub enum EmitOption {
 /// A builder for easily compiling Rust GPU crates in build.rs
 pub struct CudaBuilder {
     pub(crate) path_to_crate: PathBuf,
-    pub(crate) codegen_backend: PathBuf,
+    pub(crate) codegen_backend: Backend,
     /// Whether to compile the gpu crate for release.
     /// `true` by default.
     pub release: bool,
@@ -177,13 +177,36 @@ pub struct CudaBuilder {
 }
 
 impl CudaBuilder {
+    /// Compile kernels with the backend dependency selected and built by Cargo.
+    /// Requires the default `rustc_codegen_nvvm` feature. Enable `llvm21` to
+    /// forward the modern LLVM configuration to that dependency.
+    #[cfg(feature = "rustc_codegen_nvvm")]
+    pub fn new(path_to_crate_root: impl AsRef<Path>) -> Self {
+        Self::configured(path_to_crate_root.as_ref(), Backend::Cargo)
+    }
+
     /// Compile a kernel crate using the specified, already-built backend dylib.
     /// Relative paths are resolved against the calling process's working directory.
     /// The backend must match the Rust toolchain and LLVM flavor used by this builder.
-    pub fn new(path_to_crate_root: impl AsRef<Path>, codegen_backend: impl AsRef<Path>) -> Self {
+    pub fn with_backend(
+        path_to_crate_root: impl AsRef<Path>,
+        codegen_backend: impl AsRef<Path>,
+    ) -> Self {
+        Self::configured(
+            path_to_crate_root.as_ref(),
+            Backend::Explicit(codegen_backend.as_ref().to_owned()),
+        )
+    }
+
+    /// Return the exact compiler dylib this builder will use, for build provenance.
+    pub fn backend_path(&self) -> Result<PathBuf, CudaBuilderError> {
+        crate::backend::resolve(&self.codegen_backend).map_err(CudaBuilderError::Backend)
+    }
+
+    fn configured(path_to_crate_root: &Path, codegen_backend: Backend) -> Self {
         Self {
-            path_to_crate: path_to_crate_root.as_ref().to_owned(),
-            codegen_backend: codegen_backend.as_ref().to_owned(),
+            path_to_crate: path_to_crate_root.to_owned(),
+            codegen_backend,
             release: true,
             ptx_file_copy_path: None,
             generate_line_info: true,

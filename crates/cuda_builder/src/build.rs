@@ -32,7 +32,7 @@ fn compile(builder: &CudaBuilder) -> Result<PathBuf, CudaBuilderError> {
     let _timing = timing::phase("prepare_and_build_kernels", "");
     let backend = {
         let _timing = timing::phase("resolve_backend", "");
-        backend::resolve(&builder.codegen_backend).map_err(CudaBuilderError::Backend)?
+        builder.backend_path()?
     };
     let mut rustflags = flags::rustflags(builder, &backend)?;
     let timing_dir = env::var_os("NVVM_TIMING_DIR").map(PathBuf::from);
@@ -148,7 +148,7 @@ mod tests {
 
     #[test]
     fn cargo_configuration_preserves_argument_boundaries() {
-        let builder = CudaBuilder::new("kernel directory", "backend")
+        let builder = CudaBuilder::with_backend("kernel directory", "backend")
             .release(false)
             .optix(true)
             .build_args(&["--features", "feature-a,feature-b"]);

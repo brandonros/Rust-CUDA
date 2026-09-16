@@ -13,7 +13,6 @@ on:
 env:
   RUST_LOG: info
   RUST_BACKTRACE: 1
-  RUST_CUDA_CODEGEN_BACKEND: ${{ github.workspace }}/target/cuda-builder-codegen/debug/rustc_codegen_nvvm.dll
 
 jobs:
   build:
@@ -106,8 +105,8 @@ jobs:
       - name: Build all bindings
         run: cargo build --all-features -p cust_raw
 
-      - name: Build backend
-        run: cargo build -p rustc_codegen_nvvm --target-dir target/cuda-builder-codegen
+      - name: Check Cargo backend identity
+        run: python tests/cargo-backend/run.py
 
       # Exclude crates that require cuDNN, not available on Windows CI: cudnn, cudnn-sys.
       - name: Build workspace

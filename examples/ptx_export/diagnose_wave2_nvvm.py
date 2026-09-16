@@ -21,7 +21,7 @@ def main():
     parser.add_argument('--out', type=Path, required=True)
     parser.add_argument('--worker', action='store_true')
     args = parser.parse_args()
-    candidates = list(Path('target/cuda-builder-codegen').rglob('libintrinsics_modern.bc'))
+    candidates = list((Path(os.environ.get('CARGO_TARGET_DIR', 'target')) / 'debug/build').rglob('libintrinsics_modern.bc'))
     unique = {hashlib.sha256(p.read_bytes()).hexdigest():p for p in candidates}
     if len(unique) != 1: raise RuntimeError('expected one distinct modern LLVM intrinsic library')
     libraries = [Path(os.environ['CUDA_HOME'])/'nvvm/libdevice/libdevice.10.bc',next(iter(unique.values()))]

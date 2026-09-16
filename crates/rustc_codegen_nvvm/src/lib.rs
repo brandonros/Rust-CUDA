@@ -81,6 +81,11 @@ use tracing::debug;
 use std::ffi::CString;
 use std::path::PathBuf;
 
+/// Address anchor used by cuda_builder's compile-time Cargo integration.
+/// A data address avoids function-pointer stubs that can live in the caller.
+#[doc(hidden)]
+pub static BACKEND_LIBRARY_MARKER: u8 = 0;
+
 // codegen dylib entrypoint
 #[unsafe(no_mangle)]
 pub fn __rustc_codegen_backend() -> Box<dyn CodegenBackend> {

@@ -22,26 +22,37 @@ CUDA.
 
 ## Building kernels
 
-`CudaBuilder` requires an already-built backend dylib:
+Cargo builds the backend as a pinned dependency, using the same Rust toolchain
+as the builder. The normal API needs only the kernel crate:
 
 ```rust,ignore
-CudaBuilder::new("kernels", "/path/to/librustc_codegen_nvvm.so").build()?;
+CudaBuilder::new("kernels").build()?;
 ```
 
-Build the backend separately with the same Rust toolchain and LLVM flavor as
-the kernel build. The examples and samples read `RUST_CUDA_CODEGEN_BACKEND` and
-pass its value to the constructor; the library has no environment-variable
-fallback or automatic backend build. For LLVM 21 on Linux, from this checkout:
+Enable `cuda_builder/llvm21` to forward the modern LLVM feature to the backend
+and select matching options. For example, from this checkout on Linux:
 
 ```sh
-nix develop .#v21 --command cargo build -p rustc_codegen_nvvm --features llvm21 --target-dir target/cuda-builder-codegen
-export RUST_CUDA_CODEGEN_BACKEND="$PWD/target/cuda-builder-codegen/debug/librustc_codegen_nvvm.so"
 nix develop .#v21 --command cargo build -p vecadd --features llvm21
 ```
 
-Use a backend built without `--features llvm21` for legacy LLVM 7 consumers.
-Windows uses `rustc_codegen_nvvm.dll`; macOS uses `librustc_codegen_nvvm.dylib`.
-The former `cuda_builder/rustc_codegen_nvvm` feature has been removed.
+The default `rustc_codegen_nvvm` feature enables the Cargo integration. A small
+internal proc macro records the path of its linked backend dependency, so user
+build scripts do not link rustc's private libraries. No directory scanning,
+filename guessing, or nested backend builds are involved. `backend_path()`
+reports the selected compiler for provenance.
+
+For an externally built compiler, disable default features on `cuda_builder`
+and supply the path explicitly:
+
+```rust,ignore
+CudaBuilder::with_backend("kernels", "/path/to/librustc_codegen_nvvm.so").build()?;
+```
+
+Use the same Rust toolchain and LLVM flavor as the external backend. With
+`default-features = false`, `llvm21` selects modern options without building a
+backend. Cargo-managed paths refer to build artifacts; after moving/removing a
+target directory, rebuild the builder and its backend dependency.
 
 ## Compiler phase timings
 
