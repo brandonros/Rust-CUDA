@@ -55,16 +55,12 @@ rustc --edition=2024 -O --crate-type lib --emit=llvm-ir examples/ptx_export/kern
 
 ## PTX generation and inspection
 
-On the supported Linux CUDA/NVVM environment for this checkout:
-
-```sh
-nix develop .#v19 --command cargo run -p ptx_export --features llvm19 -- artifacts/ptx
-```
-
-This worktree uses the portable PTX branch's LLVM 19 producer. The existing exporter includes `final-module.ll` and LLVM IR emission.
+On the supported Linux CUDA/NVVM environment for this checkout, follow the
+[backend build and export commands](README.md#export-ptx-without-a-gpu-host-application).
+The exporter includes `final-module.ll` and LLVM IR emission.
 Record the source revision, rustc version, CUDA/NVVM version and target for every
 comparison. The default/LLVM 7 path can also export with its matching `.#v7`
-flake shell and without `--features llvm19`. Keep outputs in
+flake shell and without the modern backend feature. Keep outputs in
 separate directories. Do not assume identical targets between dialects.
 
 Find `rust_guarded_select` and its reachable helper functions in the PTX. Check
@@ -197,7 +193,7 @@ for i in (0..limit.min(64) as usize).filter(|x| x % 2 == 1) {
 ```
 
 The exact emitted helper is checked in at
-[evidence/llvm19-filtered-helper.ptx](evidence/llvm19-filtered-helper.ptx).
+[evidence/llvm-filtered-helper.ptx](evidence/llvm-filtered-helper.ptx).
 Its relevant original instructions are:
 
 ```ptx
@@ -287,13 +283,13 @@ This fixes a concrete IR validity issue; it is not a performance claim.
 
 ### Experimental compiler integration
 
-`CudaBuilder::llvm19_cleanup(Llvm19Cleanup::Scalar)` opts into modern-PM
+`CudaBuilder::llvm_cleanup(LlvmCleanup::Scalar)` opts into modern-PM
 SROA, instruction combining, CFG simplification and aggressive DCE at the
-merged-module handoff. `Llvm19Cleanup::Inline` additionally runs the modern
+merged-module handoff. `LlvmCleanup::Inline` additionally runs the modern
 inliner between GlobalDCE stages, then correlated-value propagation and
 a second scalar cleanup. The default is `None`; LLVM 7 requests
-are rejected. The low-level flags are `--llvm19-cleanup=scalar` and
-`--llvm19-cleanup=inline`. No target-independent CPU default pipeline is enabled.
+are rejected. The low-level flags are `--llvm-cleanup=scalar` and
+`--llvm-cleanup=inline`. No target-independent CPU default pipeline is enabled.
 The wrapper registers modern analyses/proxies and verifies LLVM IR before and
 after the pass pipeline. NVVM verification/compilation still follow normally.
 

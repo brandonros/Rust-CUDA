@@ -84,9 +84,9 @@ def main():
     root = args.artifacts.resolve()
     out = root / 'cleanup-experiment'; out.mkdir(exist_ok=True)
     # Require unique content when build caches contain multiple backend hashes.
-    candidates = list(Path('target/cuda-builder-codegen').rglob('libintrinsics_v21.bc'))
+    candidates = list(Path('target/cuda-builder-codegen').rglob('libintrinsics_modern.bc'))
     unique = {hashlib.sha256(p.read_bytes()).hexdigest(): p for p in candidates}
-    if len(unique) != 1: raise RuntimeError(f'expected one distinct LLVM 21 intrinsic library, got {len(unique)}')
+    if len(unique) != 1: raise RuntimeError(f'expected one distinct modern LLVM intrinsic library, got {len(unique)}')
     intrinsics = next(iter(unique.values())).resolve()
     libdevice = Path(os.environ['CUDA_HOME']) / 'nvvm/libdevice/libdevice.10.bc'
     libraries = [libdevice, intrinsics]

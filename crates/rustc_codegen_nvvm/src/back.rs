@@ -333,7 +333,7 @@ pub fn compile_codegen_unit(tcx: TyCtxt<'_>, cgu_name: Symbol) -> (ModuleCodegen
         // finalized. Scalar cleanup preserves cross-module linkage; no DCE or
         // inlining is performed here. Merged-module cleanup remains independent.
         let args = crate::context::CodegenArgs::from_session(tcx.sess);
-        if args.llvm19_module_cleanup {
+        if args.llvm_module_cleanup {
             let llmod = unsafe { &*llvm_module.llmod };
             let dump = |stage: &str| {
                 if let Some(final_path) = &args.final_module_path {
@@ -364,7 +364,7 @@ pub fn compile_codegen_unit(tcx: TyCtxt<'_>, cgu_name: Symbol) -> (ModuleCodegen
                 llvm::LLVMRustRunNvvmCleanup(llmod, llvm::NvvmCleanup::Scalar)
                     .into_result()
                     .unwrap_or_else(|_| {
-                        llvm_err(tcx.sess.dcx(), "LLVM 19 per-module cleanup failed").raise();
+                        llvm_err(tcx.sess.dcx(), "LLVM per-module cleanup failed").raise();
                     });
             }
             dump("after");

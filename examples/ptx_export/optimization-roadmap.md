@@ -1,4 +1,4 @@
-# LLVM 19 optimization investigation
+# LLVM optimization investigation
 
 Wave 1 completed: the full [validation matrix](https://github.com/brandonros/Rust-CUDA/actions/runs/34789945556) passes.
 
@@ -38,8 +38,8 @@ as improvements, retaining meaningful regression checks, and integrating only
 changes justified by the evidence. NVIDIA runtime benchmarking remains distinct
 from offline compilation and Apple-GPU consumer checks.
 
-The per-module experiment uses `CudaBuilder::llvm19_module_cleanup(true)`
-(`--llvm19-module-cleanup`) after each codegen unit's definitions, used globals
+The per-module experiment uses `CudaBuilder::llvm_module_cleanup(true)`
+(`--llvm-module-cleanup`) after each codegen unit's definitions, used globals
 and debug information are finalized, before serialization and the legacy
 optimization hook. It uses scalar cleanup only, preserving cross-module linkage.
 It is independent of merged cleanup and disabled by default. Exporter modes
@@ -101,7 +101,7 @@ including per-symbol instruction histograms, resource reports and hashes.
 GlobalDCE alone reduces LLVM definitions from 3,883 to 151 and printed IR from
 15,716,570 to 1,341,603 bytes, with byte-identical PTX and SASS. This reinforces
 the compiler-cost result from the smaller suite. An independent opt-in builder
-mode `Llvm19Cleanup::GlobalDce` now has integrated replay and oracle checks in CI.
+mode `LlvmCleanup::GlobalDce` now has integrated replay and oracle checks in CI.
 
 The memory pipelines reduce registers from 216 to 178 and PTX from 1,481,081
 to 1,301,076 bytes. All include inlining and scalar cleanup, so these gains

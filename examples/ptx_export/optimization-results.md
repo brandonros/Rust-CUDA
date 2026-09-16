@@ -1,4 +1,4 @@
-# LLVM 19 optimization results
+# LLVM optimization results
 
 The five-area investigation found two useful opt-in additions: standalone
 GlobalDCE reduces the IR handed to NVVM, and inlining plus scalar cleanup
@@ -21,10 +21,10 @@ are byte-identical to the PTX used for the linked Apple GPU checks.
 | Area | Result | Implementation decision |
 | --- | --- | --- |
 | CFG cleanup ordering | Tested reordered/omitted SimplifyCFG stages. None beats the small filtered helper's 28 baseline non-NOP instructions. Correlated propagation removes two selects but grows that helper to 49 instructions. | Keep correlated cleanup experimental; no more CFG passes added. |
-| Independent GlobalDCE | Small module: 3,299 → 93 definitions. Solana: 3,883 → 151. PTX and SASS remain byte-identical to their respective baselines. | Add verified `Llvm19Cleanup::GlobalDce`, independent of scalar cleanup/inlining. |
+| Independent GlobalDCE | Small module: 3,299 → 93 definitions. Solana: 3,883 → 151. PTX and SASS remain byte-identical to their respective baselines. | Add verified `LlvmCleanup::GlobalDce`, independent of scalar cleanup/inlining. |
 | Computation/memory cleanup | EarlyCSE and GVN add no improvement beyond inlining on SHA-256 or Solana. Store cleanup does not reduce registers or load/store sites and adds two Solana instructions. | Retain the experiments; do not add these passes to the integrated pipelines. |
-| Inlining/size policy | Inlining plus scalar cleanup improves Solana metrics. Thresholds 0/50/450 do not improve the small helper's count. Size profiles produce mixed results and increase SHA-256 stack usage. | Add `Llvm19Cleanup::InlineScalar`; retain explicit size experiments. No universal threshold/preset change. |
-| Per-module cleanup | Both modes verify and match independent replay across 22 codegen units, including dependencies. No SHA-256 instruction improvement; the filtered/stepped entry grows. | Add verified `.llvm19_module_cleanup(true)` for further workload experiments, disabled by default. |
+| Inlining/size policy | Inlining plus scalar cleanup improves Solana metrics. Thresholds 0/50/450 do not improve the small helper's count. Size profiles produce mixed results and increase SHA-256 stack usage. | Add `LlvmCleanup::InlineScalar`; retain explicit size experiments. No universal threshold/preset change. |
+| Per-module cleanup | Both modes verify and match independent replay across 22 codegen units, including dependencies. No SHA-256 instruction improvement; the filtered/stepped entry grows. | Add verified `.llvm_module_cleanup(true)` for further workload experiments, disabled by default. |
 
 ## Larger workload
 
@@ -104,13 +104,13 @@ host/backend dependency cache is retained.
 
 ```rust
 // Reduce unused IR before NVVM; no scalar rewriting or inlining.
-builder.llvm19_cleanup(Llvm19Cleanup::GlobalDce)
+builder.llvm_cleanup(LlvmCleanup::GlobalDce)
 
 // The simpler inlining pipeline favored by the Solana measurements.
-builder.llvm19_cleanup(Llvm19Cleanup::InlineScalar)
+builder.llvm_cleanup(LlvmCleanup::InlineScalar)
 ```
 
-Both require the LLVM 19 feature and remain opt-in. The exporter accepts `dce`
+Both require the modern LLVM backend and remain opt-in. The exporter accepts `dce`
 and `inline-scalar` after its output directory. When changing backend source,
 explicitly rebuild it as the workflow does; a cached backend library alone is
 not proof that the current source is being used. See the [exporter guide](README.md).

@@ -3,6 +3,9 @@
 The examples in here showcase both the GPU side and the CPU side of writing a tool which uses the
 GPU.
 
+Build the compiler backend first and set `RUST_CUDA_CODEGEN_BACKEND` to its
+dylib path. See the [build instructions](../README.md#building-kernels).
+
 ## Available Examples
 
 ### [vecadd](vecadd)

@@ -4,6 +4,9 @@ use std::path;
 use cuda_builder::CudaBuilder;
 
 fn main() {
+    println!("cargo::rerun-if-env-changed=RUST_CUDA_CODEGEN_BACKEND");
+    let backend = env::var_os("RUST_CUDA_CODEGEN_BACKEND")
+        .expect("Set RUST_CUDA_CODEGEN_BACKEND to the already-built rustc_codegen_nvvm dylib");
     // On Windows, nanorand's entropy uses SystemFunction036 (RtlGenRandom) from advapi32.
     // Explicitly link it so the MSVC linker resolves the symbol (avoids LNK2019 when
     // mixing CRTs or with certain link orders).
@@ -21,7 +24,7 @@ fn main() {
     let dump_final_module = env::var_os("RUST_CUDA_DUMP_FINAL_MODULE").is_some();
     let emit_llvm_ir = env::var_os("RUST_CUDA_EMIT_LLVM_IR").is_some();
 
-    let mut builder = CudaBuilder::new(manifest_dir.join("kernels"));
+    let mut builder = CudaBuilder::new(manifest_dir.join("kernels"), &backend);
     builder = builder.copy_to(out_path.join("kernels.ptx"));
 
     if dump_final_module {

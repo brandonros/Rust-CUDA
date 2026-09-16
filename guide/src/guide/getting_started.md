@@ -64,11 +64,22 @@ The file structure looks like this:
 ### `rust-toolchain.toml`
 
 `rustc_codegen_nvvm` currently requires a specific version of Rust nightly because it uses rustc
-internals that are subject to change. You must copy the appropriate revision of
-[`rust-toolchain.toml` from the rust-cuda repository][repo] so that your own project uses the
-correct nightly version.
+internals that are subject to change. Copy `rust-toolchain.toml` from the same Rust-CUDA checkout used to build your
+backend so that your own project uses the matching nightly version.
 
-[repo]: https://github.com/Rust-GPU/rust-cuda/blob/7fa76f3d717038a92c90bf4a482b0b8dd3259344/rust-toolchain.toml
+### Build the backend separately
+
+The builder requires an explicit backend path. From your Rust-CUDA checkout,
+build the legacy LLVM 7 backend used by this example (Linux):
+
+```sh
+cargo build -p rustc_codegen_nvvm --target-dir target/cuda-builder-codegen
+export RUST_CUDA_CODEGEN_BACKEND="$PWD/target/cuda-builder-codegen/debug/librustc_codegen_nvvm.so"
+```
+
+On Windows, the filename is `rustc_codegen_nvvm.dll`. Build the backend again
+after editing its sources. The dependency examples below use the same checkout;
+replace `/path/to/rust-cuda` with its absolute path.
 
 ### `Cargo.toml` and `kernels/Cargo.toml`
 
@@ -80,11 +91,11 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-cust = { git = "https://github.com/rust-gpu/rust-cuda", rev = "7fa76f3d717038a92c90bf4a482b0b8dd3259344" }
+cust = { path = "/path/to/rust-cuda/crates/cust" }
 kernels = { path = "kernels" }
 
 [build-dependencies]
-cuda_builder = { git = "https://github.com/rust-gpu/rust-cuda", rev = "7fa76f3d717038a92c90bf4a482b0b8dd3259344", features = ["rustc_codegen_nvvm"] }
+cuda_builder = { path = "/path/to/rust-cuda/crates/cuda_builder" }
 ```
 
 `kernels/Cargo.toml` looks like this:
@@ -95,7 +106,7 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-cuda_std = { git = "https://github.com/rust-gpu/rust-cuda", rev = "7fa76f3d717038a92c90bf4a482b0b8dd3259344" }
+cuda_std = { path = "/path/to/rust-cuda/crates/cuda_std" }
 
 [lib]
 # - cdylib: because the nvptx targets do not support binary crate types.
@@ -180,8 +191,12 @@ fn main() {
     let out_dir = path::PathBuf::from(env::var("OUT_DIR").unwrap());
     let manifest_dir = path::PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
 
+    println!("cargo::rerun-if-env-changed=RUST_CUDA_CODEGEN_BACKEND");
+    let backend = env::var_os("RUST_CUDA_CODEGEN_BACKEND")
+        .expect("Set RUST_CUDA_CODEGEN_BACKEND to the already-built backend dylib");
+
     // Compile the `kernels` crate to `$OUT_DIR/kernels.ptx`.
-    CudaBuilder::new(manifest_dir.join("kernels"))
+    CudaBuilder::new(manifest_dir.join("kernels"), backend)
         .copy_to(out_dir.join("kernels.ptx"))
         .build()
         .unwrap();

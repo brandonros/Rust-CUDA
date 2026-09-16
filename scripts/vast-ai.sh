@@ -23,7 +23,9 @@ VAST_SSH_OPTS=(-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o Lo
 # in the container's glibc + the CUDA driver's libcuda.so.1.
 echo ">> Building on $BUILD_HOST"
 ssh "$BUILD_HOST" "cd '$BUILD_DIR' \
-  && nix develop .#v21 --command cargo build -p vecadd \
+  && nix develop .#v21 --command cargo build -p rustc_codegen_nvvm --features llvm21 --target-dir target/cuda-builder-codegen \
+  && RUST_CUDA_CODEGEN_BACKEND='$BUILD_DIR/target/cuda-builder-codegen/debug/librustc_codegen_nvvm.so' \
+     nix develop .#v21 --command cargo build -p vecadd --features llvm21 \
   && nix shell nixpkgs#patchelf --command patchelf \
        --set-interpreter /lib64/ld-linux-x86-64.so.2 \
        --remove-rpath '$BUILD_BIN'"

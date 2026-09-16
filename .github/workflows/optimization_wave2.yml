@@ -18,6 +18,9 @@ on:
 permissions:
   contents: read
 
+env:
+  RUST_CUDA_CODEGEN_BACKEND: ${{ github.workspace }}/target/cuda-builder-codegen/debug/librustc_codegen_nvvm.so
+
 jobs:
   compare:
     name: Compare ${{ matrix.workload }}

@@ -5,9 +5,8 @@ edition = "2024"
 
 [features]
 default = []
-# Build the kernels crate with the LLVM 21 backend. Forwards to `cuda_builder`,
-# which propagates the feature to `nvvm` (default arch -> Compute100 / Blackwell)
-# and to its nested `cargo build -p rustc_codegen_nvvm`.
+# Select LLVM 21 kernel options (default arch -> Compute100 / Blackwell).
+# RUST_CUDA_CODEGEN_BACKEND must point to a separately built LLVM 21 backend.
 llvm21 = ["cuda_builder/llvm21"]
 
 [dependencies]

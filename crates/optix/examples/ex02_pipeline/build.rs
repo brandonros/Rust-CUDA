@@ -4,6 +4,9 @@ use std::iter;
 use cuda_builder::CudaBuilder;
 
 fn main() {
+    println!("cargo::rerun-if-env-changed=RUST_CUDA_CODEGEN_BACKEND");
+    let backend = env::var_os("RUST_CUDA_CODEGEN_BACKEND")
+        .expect("Set RUST_CUDA_CODEGEN_BACKEND to the already-built rustc_codegen_nvvm dylib");
     println!("cargo::rerun-if-changed=build.rs");
 
     let manifest_dir = env::var("CARGO_MANIFEST_DIR").unwrap();
@@ -20,7 +23,7 @@ fn main() {
 
     let ptx_path = std::path::PathBuf::from(std::env::var("OUT_DIR").unwrap()).join("kernels.ptx");
 
-    CudaBuilder::new("kernels")
+    CudaBuilder::new("kernels", &backend)
         .copy_to(ptx_path)
         .arch(cuda_builder::NvvmArch::Compute75)
         .optix(true)

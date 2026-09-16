@@ -811,7 +811,6 @@ name = "cuda_builder"
 version = "0.3.0"
 dependencies = [
  "nvvm",
- "rustc_codegen_nvvm",
  "serde",
  "serde_json",
 ]

@@ -1,4 +1,4 @@
-; LLVM 19 / modern NVVM dialect: the operation is encoded in the intrinsic
+; Modern NVVM dialect: the operation is encoded in the intrinsic
 ; name, not an extra mode operand. Preserve the Rust-facing packed i64 ABI.
 define i64 @__nvvm_warp_shuffle(i32 %mask, i32 %mode, i32 %value, i32 %offset, i32 %clamp) convergent #1 {
 start:

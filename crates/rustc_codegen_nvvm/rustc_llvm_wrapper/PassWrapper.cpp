@@ -234,7 +234,7 @@ extern "C" LLVMRustResult LLVMRustRunNvvmCleanup(LLVMModuleRef M, LLVMRustNvvmCl
   }
   return LLVMRustResult::Success;
 #else
-  LLVMRustSetLastError("NVVM cleanup requires LLVM 19");
+  LLVMRustSetLastError("NVVM cleanup requires the modern LLVM backend");
   return LLVMRustResult::Failure;
 #endif
 }

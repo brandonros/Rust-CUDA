@@ -5,8 +5,14 @@ application or launching an NVIDIA GPU. Compilation still requires the normal
 Rust-CUDA Linux toolchain, CUDA toolkit, and NVVM libraries.
 
 ```sh
+nix develop .#v21 --command cargo build -p rustc_codegen_nvvm --features llvm21 --target-dir target/cuda-builder-codegen
+export RUST_CUDA_CODEGEN_BACKEND="$PWD/target/cuda-builder-codegen/debug/librustc_codegen_nvvm.so"
 nix develop .#v21 --command cargo run -p ptx_export --features llvm21 -- artifacts/ptx
 ```
+
+The exporter requires `RUST_CUDA_CODEGEN_BACKEND` and passes that exact path to
+`CudaBuilder`. Build the backend again after editing its sources. For LLVM 7,
+build it without `--features llvm21` and point the variable at that build instead.
 
 The exporter uses `CudaBuilder`'s feature-dependent target default: `compute_100`
 with `llvm21`, or `compute_75` without it. This keeps the target compatible with
@@ -34,9 +40,9 @@ The guarded-select experiment has a separate [test guide](guarded-select.md).
 This branch builds on `experiment/cuda13.3-llvm21` and uses the `llvm21` feature
 and `v21` shell. The linked experiment reports and checked-in result files record
 **historical LLVM 19 measurements**, not LLVM 21 validation. Re-run the workflows
-to establish results for this stack. The experimental `Llvm19Cleanup` and
-`llvm19_*` builder/option names are retained for caller compatibility; on this
-branch they require and control the LLVM 21 backend.
+to establish results for this stack. The experimental `LlvmCleanup` and
+`llvm_*` builder/option names are version-independent and control the modern
+LLVM backend.
 
 ## Experimental modern LLVM cleanup
 
@@ -47,8 +53,8 @@ directory. For example:
 nix develop .#v21 --command cargo run -p ptx_export --features llvm21 -- artifacts/ptx-inline inline
 ```
 
-The builder API is `CudaBuilder::llvm19_cleanup(...)`, with
-`Llvm19Cleanup::{GlobalDce, Scalar, InlineScalar, Inline}`. These use bounded pass pipelines with verification at
+The builder API is `CudaBuilder::llvm_cleanup(...)`, with
+`LlvmCleanup::{GlobalDce, Scalar, InlineScalar, Inline}`. These use bounded pass pipelines with verification at
 the merged-module handoff. GlobalDce removes unreachable internal definitions
 without scalar cleanup or inlining. InlineScalar combines target-aware inlining
 and scalar cleanup; Inline additionally runs branch-correlated cleanup. These modes are experimental and disabled by default.
@@ -62,7 +68,7 @@ correctness limits](guarded-select.md#validated-integration) before using either
 mode for a workload.
 
 Merged-module GlobalDCE is enabled by default on the modern backend. Use
-`CudaBuilder::llvm19_global_dce(false)` or exporter mode `none` to disable it.
+`CudaBuilder::llvm_global_dce(false)` or exporter mode `none` to disable it.
 The other transformations remain opt-in. The [wave-2 report](optimization-wave2.md)
 records retention checks, all four mining comparisons and the reasons not to
 promote inlining as a general default.

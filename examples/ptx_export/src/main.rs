@@ -1,4 +1,4 @@
-use cuda_builder::{CudaBuilder, Llvm19Cleanup};
+use cuda_builder::{CudaBuilder, LlvmCleanup};
 use std::{env, fs, path::PathBuf};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -13,7 +13,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .nth(3)
         .map(PathBuf::from)
         .unwrap_or_else(|| PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("kernels"));
-    let mut builder = CudaBuilder::new(kernels);
+    let backend = env::var_os("RUST_CUDA_CODEGEN_BACKEND")
+        .ok_or("Set RUST_CUDA_CODEGEN_BACKEND to the already-built rustc_codegen_nvvm dylib")?;
+    let mut builder = CudaBuilder::new(kernels, backend);
     if let Some(features) = env::args().nth(4) {
         builder = builder.build_args(&["--no-default-features", "--features", &features]);
     }
@@ -21,31 +23,31 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Historical wave-1 experiments explicitly isolate their selected pipeline.
     // The default mode exercises the production default without overrides.
     if cfg!(feature = "llvm21") && mode != "default" {
-        builder = builder.llvm19_global_dce(false);
+        builder = builder.llvm_global_dce(false);
     }
     match mode.as_str() {
         "default" => {}
         "none" => {}
         "size-s" => {
             builder = builder
-                .llvm19_cleanup(Llvm19Cleanup::Inline)
+                .llvm_cleanup(LlvmCleanup::Inline)
                 .build_args(&["--config", "profile.release.opt-level=\"s\""])
         }
         "size-z" => {
             builder = builder
-                .llvm19_cleanup(Llvm19Cleanup::Inline)
+                .llvm_cleanup(LlvmCleanup::Inline)
                 .build_args(&["--config", "profile.release.opt-level=\"z\""])
         }
-        "module-scalar" => builder = builder.llvm19_module_cleanup(true),
+        "module-scalar" => builder = builder.llvm_module_cleanup(true),
         "module-inline" => {
             builder = builder
-                .llvm19_module_cleanup(true)
-                .llvm19_cleanup(Llvm19Cleanup::Inline)
+                .llvm_module_cleanup(true)
+                .llvm_cleanup(LlvmCleanup::Inline)
         }
-        "inline-scalar" => builder = builder.llvm19_cleanup(Llvm19Cleanup::InlineScalar),
-        "dce" => builder = builder.llvm19_cleanup(Llvm19Cleanup::GlobalDce),
-        "scalar" => builder = builder.llvm19_cleanup(Llvm19Cleanup::Scalar),
-        "inline" => builder = builder.llvm19_cleanup(Llvm19Cleanup::Inline),
+        "inline-scalar" => builder = builder.llvm_cleanup(LlvmCleanup::InlineScalar),
+        "dce" => builder = builder.llvm_cleanup(LlvmCleanup::GlobalDce),
+        "scalar" => builder = builder.llvm_cleanup(LlvmCleanup::Scalar),
+        "inline" => builder = builder.llvm_cleanup(LlvmCleanup::Inline),
         _ => {
             return Err(
                 "cleanup mode must be default, none, dce, scalar, inline, inline-scalar, module-scalar, module-inline, size-s, or size-z".into(),

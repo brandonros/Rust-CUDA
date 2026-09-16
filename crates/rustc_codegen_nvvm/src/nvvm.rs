@@ -129,9 +129,9 @@ pub fn codegen_bitcode_modules(
         // Keep the default pass at the verified handoff, after debug/IR metadata
         // is finalized, exactly where the opt-in implementation was validated.
         let run_default_dce = cfg!(feature = "llvm21")
-            && !args.disable_llvm19_global_dce
-            && matches!(args.llvm19_cleanup, None | Some(NvvmCleanup::Scalar));
-        if run_default_dce || args.llvm19_cleanup.is_some() {
+            && !args.disable_llvm_global_dce
+            && matches!(args.llvm_cleanup, None | Some(NvvmCleanup::Scalar));
+        if run_default_dce || args.llvm_cleanup.is_some() {
             if let Some(path) = &args.final_module_path {
                 let _timing = crate::timing::phase("write_pre_cleanup_ir", "");
                 let before = path.with_extension("before-cleanup.ll");
@@ -148,12 +148,12 @@ pub fn codegen_bitcode_modules(
             let modes = run_default_dce
                 .then_some(NvvmCleanup::GlobalDce)
                 .into_iter()
-                .chain(args.llvm19_cleanup);
+                .chain(args.llvm_cleanup);
             for mode in modes {
                 let _timing = crate::timing::phase("llvm_cleanup", "");
                 if LLVMRustRunNvvmCleanup(module, mode).into_result().is_err() {
                     sess.dcx().fatal(format!(
-                        "LLVM 19 cleanup failed: {}",
+                        "LLVM cleanup failed: {}",
                         crate::llvm::last_error().unwrap_or_else(|| "unknown LLVM error".into())
                     ));
                 }

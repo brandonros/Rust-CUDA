@@ -21,6 +21,9 @@ on:
 permissions:
   contents: read
 
+env:
+  RUST_CUDA_CODEGEN_BACKEND: ${{ github.workspace }}/target/cuda-builder-codegen/debug/librustc_codegen_nvvm.so
+
 jobs:
   export:
     runs-on: ubuntu-24.04
@@ -47,8 +50,7 @@ jobs:
         run: python3 -m unittest discover -s examples/ptx_export -p 'test_*.py'
       - name: Rebuild the checked-out backend and regenerate device evidence
         run: |
-          # cuda_builder searches for an existing backend before trying Cargo.
-          # A restored .so alone therefore does not establish source freshness.
+          # Build the exact backend passed to the exporter via the required path.
           nix develop .#v21 --command cargo build -p rustc_codegen_nvvm --features llvm21 --target-dir target/cuda-builder-codegen
           # Device Cargo fingerprints do not track changes to the backend .so;
           # cached builds also omit the IR side outputs required by this job.

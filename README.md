@@ -20,6 +20,29 @@
 Please see [The Rust CUDA Guide](https://rust-gpu.github.io/rust-cuda/) for documentation on Rust
 CUDA.
 
+## Building kernels
+
+`CudaBuilder` requires an already-built backend dylib:
+
+```rust,ignore
+CudaBuilder::new("kernels", "/path/to/librustc_codegen_nvvm.so").build()?;
+```
+
+Build the backend separately with the same Rust toolchain and LLVM flavor as
+the kernel build. The examples and samples read `RUST_CUDA_CODEGEN_BACKEND` and
+pass its value to the constructor; the library has no environment-variable
+fallback or automatic backend build. For LLVM 21 on Linux, from this checkout:
+
+```sh
+nix develop .#v21 --command cargo build -p rustc_codegen_nvvm --features llvm21 --target-dir target/cuda-builder-codegen
+export RUST_CUDA_CODEGEN_BACKEND="$PWD/target/cuda-builder-codegen/debug/librustc_codegen_nvvm.so"
+nix develop .#v21 --command cargo build -p vecadd --features llvm21
+```
+
+Use a backend built without `--features llvm21` for legacy LLVM 7 consumers.
+Windows uses `rustc_codegen_nvvm.dll`; macOS uses `librustc_codegen_nvvm.dylib`.
+The former `cuda_builder/rustc_codegen_nvvm` feature has been removed.
+
 ## Compiler phase timings
 
 From the consuming project's directory, capture the complete command:
@@ -42,7 +65,7 @@ milliseconds, thread ID, and codegen-unit name where available. No phase logs ar
 created when unset. The logger is shared by `cuda_builder` and the backend through
 the `nvvm` crate.
 
-The phases cover backend lookup/fallback builds, sysroot lookup, nested Cargo,
+The phases cover backend path validation, sysroot lookup, nested Cargo,
 artifact parsing/copying, backend initialization, codegen units, LLVM optimization, module merging,
 internalization, cleanup/DCE, IR output, bitcode serialization, libnvvm verification,
 and PTX compilation. Watch the files with `tail -f`: an unmatched `begin` identifies

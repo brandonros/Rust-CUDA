@@ -1,4 +1,4 @@
-# LLVM 19 optimization: broader validation
+# LLVM optimization: broader validation
 
 Status: all seven workloads pass in [the final matrix](https://github.com/brandonros/Rust-CUDA/actions/runs/34794484421),
 including the 119-entry self-test/probe module. Native NVIDIA measurements
@@ -6,7 +6,7 @@ remain unavailable. This report separates offline, host and Apple-GPU evidence.
 
 GlobalDCE is now enabled by default at the merged LLVM 19 handoff. Scalar,
 inlining, per-module and loop transformations remain opt-in. LLVM 7 retains
-its existing pipeline. `CudaBuilder::llvm19_global_dce(false)` explicitly
+its existing pipeline. `CudaBuilder::llvm_global_dce(false)` explicitly
 disables the new default; explicit cleanup modes may themselves include DCE.
 The exporter now defaults to `default`; use `none` for the unpruned control.
 

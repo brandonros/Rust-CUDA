@@ -257,12 +257,16 @@ fn configure_libintrinsics(llvm_config: &Path, flavor: &LlvmFlavor) {
 
     build_helper::rerun_if_changed(Path::new("libintrinsics.ll"));
 
-    let shuffle_version = if flavor.major >= 19 { 19 } else { 7 };
-    let shuffle = format!("libintrinsics_shuffle_v{shuffle_version}.ll");
+    let dialect = if flavor.major >= 19 {
+        "modern"
+    } else {
+        "legacy"
+    };
+    let shuffle = format!("libintrinsics_shuffle_{dialect}.ll");
     build_helper::rerun_if_changed(Path::new(&shuffle));
     let out_dir = PathBuf::from(env::var("OUT_DIR").expect("OUT_DIR was not set"));
-    let input = out_dir.join(format!("libintrinsics_v{}.ll", flavor.major));
-    let output = out_dir.join(format!("libintrinsics_v{}.bc", flavor.major));
+    let input = out_dir.join(format!("libintrinsics_{dialect}.ll"));
+    let output = out_dir.join(format!("libintrinsics_{dialect}.bc"));
     // Modern NVVM encodes the shuffle operation in the intrinsic name. Keep
     // the legacy wrapper separate so LLVM 7 retains its original interface.
     let common = std::fs::read_to_string(manifest_dir.join("libintrinsics.ll"))
